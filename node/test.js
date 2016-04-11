@@ -18,8 +18,7 @@ function parseConfig(json) {
 function parseFile(fileObject) {
 	for (var i = 0; i < fileObject["css"].length; i++) {
 		var cssFile = fileObject["css"][i];
-		html = fs.readFileSync(fileObject["inputFile"], "utf-8");
-		fileObject["html"] = html;
+		fileObject["html"] = fs.readFileSync(fileObject["inputFile"], "utf-8");
 		fileObject["runs"] = 0;
 		readCss(cssFile, fileObject);
 	}
@@ -48,6 +47,7 @@ function createAST(cssData, cssFile, fileObject) {
 }
 
 function getCssSelectors(cssAst) {
+	//noinspection JSUnresolvedFunction
 	var selectorMap = new Map();
 	for (var i = 0; i < cssAst.stylesheet.rules.length; i++) {
 		var rule = cssAst["stylesheet"]["rules"][i];
@@ -60,7 +60,7 @@ function getCssSelectors(cssAst) {
 
 function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 
-	var htmlFile = fileObject["inputFile"];
+	var tmpFile = fileObject["outputFile"] + "-tmp.html";
 	var viewportW = fileObject["viewport"][0];
 	var viewportH = fileObject["viewport"][1];
 	var selectors = [];
@@ -71,36 +71,56 @@ function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 		currentKey = mapIterator.next()
 	}
 
-	console.log("Calling PhantomJS with " + selectors.length + " selectors");
-
-	var childArgs = [
-		path.join(__dirname, 'phantomjs-script.js'),
-		htmlFile,
-		selectors.join("||"),
-		viewportW,
-		viewportH
-	];
-
-	childProcess.execFile(binPath, childArgs, function (err, stdout, stderr) {
-		if (!err) {
-			try {
-				var json = JSON.parse(stdout.replace(/(\r\n|\n|\r)/gm, ""));
-				if (json["success"]) {
-					console.log("PhantomJS reported that " + json["hits"].length + " selectors hit");
-					sliceCss(json["hits"], selectorMap, fileObject, cssFile, cssAst);
-				}
-				else {
-					console.log("A controlled exception occurred: " + json["errorMessage"]);
-				}
+	jsdom.env({
+		html: html,
+		done: function (error, window) {
+			if (error) {
+				console.log("A jsdom error occurred: " + error);
 			}
-			catch (ex) {
-				console.dir("Unexpected output from PhantomJS: " + stdout + " " + stderr + " " + ex);
+			else {
+				var scripts = window.document.getElementsByTagName("script");
+				for (var i = 0; i < scripts.length; i++) {
+					scripts[i].parentNode.removeChild(scripts[i]);
+				}
+				fs.writeFileSync(tmpFile, window.document.documentElement.outerHTML, {flag: 'w'},
+					function () {
+						console.log("Error writing file '" + fileObject["outputFile"] + "'.tmp: ");
+					});
+
+				console.log("Calling PhantomJS with " + selectors.length + " selectors");
+				var childArgs = [
+					path.join(__dirname, 'phantomjs-script.js'),
+					tmpFile,
+					selectors.join("||"),
+					viewportW,
+					viewportH
+				];
+
+				childProcess.execFile(binPath, childArgs, function (err, stdout, stderr) {
+					if (!err) {
+						try {
+							var json = JSON.parse(stdout.replace(/(\r\n|\n|\r)/gm, ""));
+							if (json["success"]) {
+								console.log("PhantomJS reported that " + json["hits"].length + " selectors hit");
+								sliceCss(json["hits"], selectorMap, fileObject, cssFile, cssAst);
+							}
+							else {
+								console.log("A controlled exception occurred: " + json["errorMessage"]);
+							}
+						}
+						catch (ex) {
+							console.dir("Unexpected output from PhantomJS: " + stdout + " " + stderr + " " + ex);
+						}
+					}
+					else {
+						console.log("A PhantomJS error occurred: " + stderr);
+					}
+				});
 			}
-		}
-		else {
-			console.log("A PhantomJS error occurred: " + stderr);
 		}
 	});
+
+
 }
 
 function sliceCss(selectorHits, selectorMap, fileObject, cssFile, cssAst) {
@@ -123,7 +143,7 @@ function sliceCss(selectorHits, selectorMap, fileObject, cssFile, cssAst) {
 	injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst);
 }
 
-function injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst) {
+function injectInlineCss(minifiedCriticalCss, fileObject, cssFile) {
 
 	jsdom.env({
 		html: fileObject["html"],
@@ -143,23 +163,15 @@ function injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst) {
 				}
 				head.appendChild(style);
 
-				if(fileObject["debug"]){
+				if (fileObject["debug"]) {
 					var body = window.document.body || window.document.getElementsByTagName('body')[0];
-					var debugDiv = window.document.createElement('div');
-					debugDiv.style.border = "3px solid red";
-					debugDiv.style.width = fileObject["viewport"][0] + "px";
-					debugDiv.style.height = fileObject["viewport"][1] + "px";
-					debugDiv.style.position = "absolute";
-					debugDiv.style.top = "0";
-					debugDiv.style.left = "0";
-					debugDiv.style.zIndex = "2147483647";
-					body.appendChild(debugDiv);
+					body.innerHTML = "<div style='border: 3px solid red; width: " + fileObject["viewport"][0] + "px; height:" + fileObject["viewport"][1] + "; position:absolute; top:0; left:0;, z-index: 2147483647'></div>" + body.innerHTML;
 				}
 
 				console.log("fixing " + cssFile);
 				var cssLinkPath = path.posix.relative(fileObject["inputFile"], cssFile).substring(3);
 				var linkElement = window.document.querySelectorAll('link[href="' + cssLinkPath + '"]')[0];
-				if(linkElement!==undefined) {
+				if (linkElement !== undefined) {
 					head.removeChild(linkElement);
 				}
 
@@ -167,7 +179,7 @@ function injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst) {
 
 
 				fileObject["runs"]--;
-				if(fileObject["runs"]==0) {
+				if (fileObject["runs"] == 0) {
 					fs.writeFileSync(fileObject["outputFile"], fileObject["html"], {flag: 'w'},
 						function () {
 							console.log("Error writing file '" + fileObject["outputFile"] + "': ");

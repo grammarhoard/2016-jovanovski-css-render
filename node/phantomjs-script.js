@@ -5,6 +5,17 @@ var selectors = system.args[2].split("||");
 var viewportWidth = system.args[3];
 var viewportHeight = system.args[4];
 
+page.onConsoleMessage = function(msg) {
+	console.log('console: ' + msg);
+};
+
+page.onResourceRequested = function(requestData, request) {
+	if (requestData.url.endsWith(".js")) {
+		console.log('Disabling JavaScript files. Aborting: ' + requestData['url']);
+		request.abort();
+	}
+};
+
 page.open(url, function () {
 	var hitElements = {success: "true"};
 	if (page.injectJs("jquery.min.js")) {
