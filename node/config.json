@@ -1,0 +1,14 @@
+{
+  "groups":[
+    {
+      "inputFile" : "tests/test1/pre.html",
+      "outputFile": "tests/test1/index.html",
+      "css" : [
+        "tests/test1/css/main.css",
+        "tests/test1/css/reset.css"
+      ],
+      "viewport" : [300, 500],
+      "debug": true
+    }
+  ]
+}
