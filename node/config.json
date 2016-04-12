@@ -1,13 +1,35 @@
 {
   "groups":[
     {
+      "inputFile" : "tests/test1/pre.html",
+      "outputFile": "tests/test1/index.html",
+      "css" : [
+        "tests/test1/css/main.css",
+        "tests/test1/css/reset.css"
+      ],
+      "viewport" : [375, 667],
+      "debug": true,
+      "enabled": false
+    },
+    {
       "inputFile" : "tests/test2/pre.html",
       "outputFile": "tests/test2/index.html",
       "css" : [
         "tests/test2/css/main.css"
       ],
-      "viewport" : [300, 500],
-      "debug": true
+      "viewport" : [1024, 768],
+      "debug": true,
+      "enabled": false
+    },
+    {
+      "inputFile" : "tests/test3/pre.html",
+      "outputFile": "tests/test3/index.html",
+      "css" : [
+        "tests/test3/css/main.css"
+      ],
+      "viewport" : [375, 667],
+      "debug": true,
+      "enabled": true
     }
   ]
 }

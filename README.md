@@ -1,2 +1,2 @@
-# criticalcss
-A critical path CSS master thesis
+# CSS Focusr
+A critical path CSS extraction and injection tool

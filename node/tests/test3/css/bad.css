@@ -1,0 +1,150 @@
+@charset "UTF-8";
+.button, .search-form input {
+	-moz-appearance: none;
+	-webkit-appearance: none
+}
+
+.button, .txt-caps, h5 {
+	text-transform: uppercase
+}
+
+.formField-withButton > *, .u-float-left {
+	float: left
+}
+
+.footer, .u-spinner {
+	will-change: transform
+}
+
+.ad-unit, .cover-story, .deals-header, .formField, .gallery .thumbs, .u-clear, .u-text-trunc {
+	overflow: hidden
+}
+
+.page-tabs-tab, .pageTeam-member-meta li, .post-body .ica-wrapper .button, .txt-nowrap, .u-text-noWrap {
+	white-space: nowrap
+}
+
+.distraction-title, .post-body a strong, a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font: inherit;
+	font-size: 100%;
+	vertical-align: baseline
+}
+
+.button, .post-body a strong img, a img {
+	border: none
+}
+
+*, .homepageEditor, ::after, ::before {
+	-webkit-font-smoothing: antialiased
+}
+
+.button, .icon--inline, caption, td, th {
+	vertical-align: middle
+}
+
+html {
+	line-height: 1
+}
+
+ol, ul {
+	list-style: none
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0
+}
+
+caption, td, th {
+	text-align: left;
+	font-weight: 400
+}
+
+.announcement, .button, .is-404 .page, .u-text-center {
+	text-align: center
+}
+
+blockquote, q {
+	quotes: none
+}
+
+blockquote:after, blockquote:before, q:after, q:before {
+	content: "";
+	content: none
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+	display: block
+}
+
+@font-face {
+	font-family: Avalon;
+	font-style: normal;
+	font-weight: 700;
+	src: url(http://cdn0.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/avalon-bold.eot);
+	src: url(http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/avalon-bold.eot?#iefix) format("embedded-opentype"), url(http://cdn2.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/avalon-bold.woff) format("woff"), url(http://cdn3.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/avalon-bold.ttf) format("truetype")
+}
+
+@font-face {
+	font-family: Shentox;
+	font-style: normal;
+	font-weight: 500;
+	src: url(http://cdn0.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/shentox-medium.eot);
+	src: url(http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/shentox-medium.eot?#iefix) format("embedded-opentype"), url(http://cdn2.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/shentox-medium.woff2) format("woff2"), url(http://cdn3.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/shentox-medium.woff) format("woff"), url(http://cdn0.tnwcdn.com/wp-content/themes/cyberdelia/assets/fonts/shentox-medium.ttf) format("truetype")
+}
+
+body::after {
+	content: 'xs';
+	display: none
+}
+
+@media screen and (min-width: 480px) {
+	body::after {
+		content: 's'
+	}
+}
+
+@media screen and (min-width: 768px) {
+	body::after {
+		content: 'm'
+	}
+}
+
+@media screen and (min-width: 1024px) {
+	body::after {
+		content: 'l'
+	}
+}
+
+@media screen and (min-width: 1280px) {
+	body::after {
+		content: 'xl'
+	}
+}
+
+.ad-unit {
+	position: relative;
+	display: none;
+	height: 0;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%
+}
+
+.ad-unit div, body.with-ads .ad-unit {
+	display: block
+}
+
+.ad-unit div {
+	position: relative;
+	height: 0;
+	margin: 0 auto;
+	background-color: #EEE
+}
+
+.ad-unit.ad-unit-w-120, .ad-unit.ad-unit-w-120 div {
+	max-width: 120px
+}

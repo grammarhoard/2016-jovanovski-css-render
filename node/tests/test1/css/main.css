@@ -83,3 +83,9 @@ html, body{
 	background-color: skyblue;
 	height: 25px;
 }
+
+@media (min-width: 480px) {
+	.div1 {
+		background-color: lightgreen;
+	}
+}

@@ -1,0 +1,1179 @@
+
+<!DOCTYPE html>
+<!--
+ _________   _______       ___     ___    ___      _____      _                  _      _ _
+|         | |        \    |   |   |   |  |   |    / ____|    | |                | |    | (_)
+ --     --  |    _    \   |   |   '   |  '   '   | |    _   _| |__   ___ _ __ __| | ___| |_  __ _
+   |   |    |   |  \   \  |   '_ /    '_/   /    | |   | | | | '_ \ / _ \ '__/ _` |/ _ \ | |/ _` |
+   |   |    |   |   |   | |         /      /     | |___| |_| | |_) |  __/ | | (_| |  __/ | | (_| |
+   '___'    '___'   '___' '_______ / '____/       \_____\__, |_.__/ \___|_|  \__,_|\___|_|_|\__,_|
+                                                         __/ |
+                                                        |___/
+Design by:
+----------
+
+	ALEXANDER GRIFFIOEN
+	alexander🐺thenextweb.com
+	@oscaralexander
+	Amsterdam, NL
+
+Implementation by:
+------------------
+
+    LAURA GONZÁLEZ          |   PABLO ROMÁN             |   JAVIER NEGRE
+    laura🐧thenextweb.com   |   pablo🐵thenextweb.com   |   javi🐻thenextweb.com
+    @lawwrr                 |   @pabloroman             |   @javi_negre
+    Oviedo, ES              |   Amsterdam, NL           |   Amsterdam, NL
+
+    GORDAN KONDEV           |   JULIO FOULQUIÉ          |   EDZO BLAAUW
+    gordan🦁thenextweb.com  |   julio🐼thenextweb.com   |   edzo🐣thenextweb.com
+    Amsterdam, NL           |   @julioelpoeta           |   Amsterdam, NL
+                            |   Montevideo, UY          |
+
+🍺 Aren't you thirsty? Why don't you cyberdelia.knock() on the door? 🍻
+
+-->
+<html lang="en-us" prefix="og:http://ogp.me/ns# fb:http://ogp.me/ns/fb#" itemscope itemtype='http://schema.org/'>
+<head>
+
+	<meta charset="UTF-8">
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	<meta content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width" name="viewport">
+	<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+	<title>Facebook Messenger and Dropbox are now best friends</title>
+
+	<link rel="shortcut icon" href="/favicon.png">
+	<link rel="alternate" type="application/rss+xml" title="The Next Web RSS Feed" href="http://feeds2.feedburner.com/thenextweb">
+
+	<link rel="stylesheet" href="css/main.css" type="text/css"/>
+	<!--  WP_HEAD   -->
+
+	<!-- This site is optimized with the Yoast SEO Premium plugin v3.1.3 - https://yoast.com/wordpress/plugins/seo/ -->
+	<meta name="description" content="Facebook Messenger now accepts Dropbox files to be shared directly in-app without having to copy and paste a thing."/>
+	<link rel="original-source" href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/" />
+	<meta name="robots" content="noodp"/>
+	<link rel="canonical" href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/" />
+	<link rel="publisher" href="https://plus.google.com/+thenextweb"/>
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Facebook Messenger and Dropbox are now best friends" />
+	<meta property="og:description" content="Facebook Messenger now accepts Dropbox files to be shared directly in-app without having to copy and paste a thing." />
+	<meta property="og:url" content="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/" />
+	<meta property="og:site_name" content="The Next Web" />
+	<meta property="article:publisher" content="https://www.facebook.com/thenextweb" />
+	<meta property="article:author" content="https://www.facebook.com/nate.swanner.5" />
+	<meta property="article:published_time" content="2016-04-11T22:15:31+02:00" />
+	<meta property="og:image" content="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW.jpg" />
+	<meta property="og:image:width" content="1592" />
+	<meta property="og:image:height" content="796" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:description" content="Facebook Messenger now accepts Dropbox files to be shared directly in-app without having to copy and paste a thing." />
+	<meta name="twitter:title" content="Facebook Messenger and Dropbox are now best friends" />
+	<meta name="twitter:site" content="@thenextweb" />
+	<meta name="twitter:image" content="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW.jpg" />
+	<meta name="twitter:creator" content="@NateSwanner" />
+	<meta property="DC.date.issued" content="2016-04-11T22:15:31+02:00" />
+	<!-- / Yoast SEO Premium plugin. -->
+
+	<link rel="alternate" type="application/rss+xml" title="The Next Web &raquo; Dropbox files can now be shared directly in Facebook Messenger chats Comments Feed" href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/feed/" />
+	<style type="text/css">
+		img.wp-smiley,
+		img.emoji {
+			display: inline !important;
+			border: none !important;
+			box-shadow: none !important;
+			height: 1em !important;
+			width: 1em !important;
+			margin: 0 .07em !important;
+			vertical-align: -0.1em !important;
+			background: none !important;
+			padding: 0 !important;
+		}
+	</style>
+	<link rel='https://api.w.org/' href='http://thenextweb.com/wp-json/' />
+	<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://thenextweb.com/xmlrpc.php?rsd" />
+	<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://thenextweb.com/wp-includes/wlwmanifest.xml" />
+	<link rel='shortlink' href='http://thenextweb.com/?p=969523' />
+	<link rel="alternate" type="application/json+oembed" href="http://thenextweb.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F" />
+	<link rel="alternate" type="text/xml+oembed" href="http://thenextweb.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F&#038;format=xml" />
+	<script type="application/ld+json">{"@context":"http:\/\/schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http:\/\/thenextweb.com\/","name":"Home"}},{"@type":"ListItem","position":2,"item":{"@id":"http:\/\/thenextweb.com\/Facebook","name":"Facebook"}}]}</script><meta http-equiv="Content-type" content="text/html; charset=utf-8" /><link rel='canonical' href='http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/' />
+
+	<link rel="amphtml" href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/?amp=1" />
+	<!--  WP_HEAD   -->
+
+	<meta property="twitter:account_id" content="10876852"><meta property="fb:app_id" content="378011798897423">
+	<link href="https://plus.google.com/115081025762845243709/" rel="publisher"><meta property="fb:pages" content="106976563522" /><meta property="bt:body" content="Facebook Messenger now accepts Dropbox files for sharing directly in-app, without having to copy and paste a thing.
+
+Instead of finding a link -- then sharing it -- Messenger now supports direct sharing of Dropbox stuff. You can add a video, picture or text document, so long as you have both Messenger and Dropbox on your phone.
+
+In a conversation, just tap the ‘More’ button to see the new Dropbox interaction. Once selected, a menu of your Dropbox files will be available for sharing.
+
+Facebook says the feature is rolling out incrementally, so if you’re not seeing it just yet - sit tight."><meta name="author" content="Nate Swanner"><meta property="article:modified" content="2016-04-11"><meta property="article:published" content="2016-04-11"><meta name="twitter:image:src" content="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW.jpg"><script type='text/javascript'>
+	var googletag = googletag || {};
+	googletag.cmd = googletag.cmd || [];
+	(function() {
+		var gads = document.createElement('script');
+		gads.async = true;
+		gads.type = 'text/javascript';
+		var useSSL = 'https:' == document.location.protocol;
+		gads.src = (useSSL ? 'https:' : 'http:') +
+				'//www.googletagservices.com/tag/js/gpt.js';
+		var node = document.getElementsByTagName('script')[0];
+		node.parentNode.insertBefore(gads, node);
+	})();
+</script>
+
+	<!-- DataLayer -->
+
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		dataLayer.push({
+			'version': '4 / 4.4.2',
+			'location': [{
+				'region': 'region',
+				'country': 0,
+				'city': 0,
+			}],
+			'page': [{
+				'hostname': 0,
+				'parameters': 0,
+				'category': 0,
+				'template': 0,
+				'ads': [{
+					'siteskin': 0,
+					'sponsored': 0,
+				}],
+			}],
+			'user': [{
+				'shares': [{
+					'fb': 0,
+					'tw': 0,
+					'li': 0,
+					'go': 0,
+					're': 0
+				}]
+			}]
+		});
+	</script>
+	<script>dataLayer.push({"page":{"id":969523,"url":"http:\/\/thenextweb.com\/facebook\/2016\/04\/11\/facebook-messenger-dropbox\/","words":104,"time":"10:15 pm","column":0,"fyi":0,"author":"Nate Swanner","date":"2016-04-11","date_published":"2016-04-11 22-15","date_published_week":"2016-15","type":"Article","tags":null,"categories":"Facebook","sections":[],"companies":[],"profiles":[],"events":[],"shares":{"fb":"23","tw":"154","li":"18","go":"2","re":"1"},"ads":{"roadblocked":0,"sponsor":"","sponsored":0}}})</script><!-- Google Tag Manager -->
+	<script>
+		(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+		})(window,document,'script','dataLayer','GTM-MHDDSC');
+	</script>
+	<!-- End Google Tag Manager -->
+
+	<!-- Google Tag Manager -->
+	<noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-MHDDSC" style="display: none; visibility: hidden;" width="0"></iframe></noscript>
+	<!-- End Google Tag Manager -->
+
+	<!-- Parse.ly -->
+	<script>
+
+		var tuid;
+		var name = "tnw_parsely_tuid" + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0; i<ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1);
+			if (c.indexOf(name) == 0) tuid = c.substring(name.length,c.length);
+		}
+		if(!tuid) {
+			var vars = [], hash;
+			var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+			for(var i = 0; i < hashes.length; i++) { hash = hashes[i].split('='); vars.push(hash[0]); vars[hash[0]] = hash[1]; }
+			tuid = vars['tuid'];
+		}
+		if(tuid) {
+			tuid = encodeURIComponent(tuid);
+			PARSELY = {
+				autotrack: false,
+				onload: function() {
+					PARSELY.beacon.trackPageView({
+						url: location.href,
+						referrer: document.referrer,
+						data: { 'user_id': tuid }
+					});
+				}
+			};
+			var d, expires;
+			d = new Date(); d.setTime(d.getTime() + (3600*24*360*10)); expires = "expires="+d.toUTCString();
+			document.cookie = "tnw_parsely_tuid" + "=" + tuid + "; " + expires;
+		}
+	</script>
+
+	<div id="parsely-root" style="display: none">
+		<a id="parsely-cfg" data-parsely-site="thenextweb.com" href="http://parsely.com" rel="nofollow">.</a>
+	</div>
+
+	<script>
+		window.___gcfg = {lang: 'en-US'};
+		(function(w, d, s) {
+			function go() {
+				var js, fjs = d.getElementsByTagName(s)[0];
+				var load = function(url, id) {
+					if (d.getElementById(id)) {return;}
+					js = d.createElement(s); js.src = url; js.id = id;
+					fjs.parentNode.insertBefore(js, fjs);
+				};
+				load('http://static.parsely.com/p.js', 'js-parsely');
+			}
+			if (w.addEventListener) { w.addEventListener("load", go, false); }
+			else if (w.attachEvent) { w.attachEvent("onload",go); }
+		}(window, document, 'script'));
+	</script>
+
+	<meta name="twitter:label1" value="Author"><meta name="twitter:data1" value="Nate Swanner">
+	<!-- Article Schema -->
+	<script type="application/ld+json">{"@context":"http:\/\/schema.org","@type":"NewsArticle","articleSection":"Facebook","creator":"Nate Swanner","editor":"Nate Swanner","dateCreated":"2016-04-11T22:15:31","datePublished":"2016-04-11","dateModified":"2016-04-11","headline":"Dropbox files can now be shared directly in Facebook Messenger chats","name":"Dropbox files can now be shared directly in Facebook Messenger chats","alternativeHeadline":"Dropbox files can now be shared directly in Facebook Messenger chats","keywords":[],"url":"http:\/\/thenextweb.com\/facebook\/2016\/04\/11\/facebook-messenger-dropbox\/","thumbnailUrl":"http:\/\/cdn1.tnwcdn.com\/wp-content\/blogs.dir\/1\/files\/2016\/04\/FacebookMessengerDropboxTNW.jpg","wordCount":182,"description":"Facebook Messenger now accepts Dropbox files for sharing\u00a0directly in-app, without having to copy and paste a thing.\r\n\r\nInstead of finding a link -- then sharing it -- Messenger now ...","articleBody":"Facebook Messenger now accepts Dropbox files for sharing\u00a0directly in-app, without having to copy and paste a thing.\r\n\r\nInstead of finding a link -- then sharing it -- Messenger now supports direct sharing of Dropbox stuff. You can add a video, picture or text document, so long as you have both Messenger and Dropbox on your phone.\r\n\r\nIn a conversation, just tap the \u2018More\u2019 button to see the new Dropbox interaction. Once selected, a menu of your Dropbox files will be available for sharing.\r\n\r\nFacebook says the feature is rolling out incrementally, so if you\u2019re not seeing it just yet - sit tight.","copyrightYear":"2016","publisher":{"@type":"Organization","name":"The Next Web","logo":{"@type":"ImageObject","url":"http:\/\/cdn1.tnwcdn.com\/wp-content\/themes\/cyberdelia\/assets\/img\/tnw-logo-small.png","width":134,"height":60}},"provider":"The Next Web","sourceOrganization":"The Next Web","copyrightHolder":"The Next Web","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/thenextweb.com\/facebook\/2016\/04\/11\/facebook-messenger-dropbox\/"},"author":{"@type":"Person","name":"Nate Swanner"},"image":{"@type":"ImageObject","url":"http:\/\/cdn1.tnwcdn.com\/wp-content\/blogs.dir\/1\/files\/2016\/04\/FacebookMessengerDropboxTNW.jpg","width":1592,"height":796},"interactionStatistic":[{"@type":"InteractionCounter","interactionService":{"@type":"Website","name":"Twitter","url":"http:\/\/www.twitter.com"},"interactionType":"http:\/\/schema.org\/ShareAction","userInteractionCount":"154"},{"@type":"InteractionCounter","interactionType":"http:\/\/schema.org\/CommentAction","userInteractionCount":"0"}]}</script>
+	<!-- Organization Schema -->
+	<script type="application/ld+json">{"@context":"http:\/\/schema.org","@type":"Organization","name":"The Next Web","logo":"http:\/\/cdn3.tnwcdn.com\/plus\/img\/tnw-brandmark.svg","url":"http:\/\/thenextweb.com","sameAs":["http:\/\/www.facebook.com\/thenextweb","https:\/\/www.twitter.com\/thenextweb","https:\/\/plus.google.com\/+TheNextWeb\/","https:\/\/instagram.com\/thenextweb","https:\/\/www.youtube.com\/user\/thenextweb","https:\/\/www.pinterest.com\/thenextweb\/","https:\/\/www.linkedin.com\/company\/the-next-web","https:\/\/vine.co\/thenextweb","https:\/\/thenextweb.tumblr.com","https:\/\/soundcloud.com\/thenextweb","https:\/\/vimeo.com\/thenextweb","https:\/\/vk.com\/thenextweb","https:\/\/www.slideshare.net\/thenextweb","https:\/\/flipboard.com\/@thenextweb","https:\/\/storify.com\/thenextweb","https:\/\/www.stumbleupon.com\/channel\/thenextweb","https:\/\/www.flickr.com\/photos\/thenextweb\/","https:\/\/foursquare.com\/thenextweb"]}</script>
+	<script>
+		/* Modernizr 2.8.3 (Custom Build) | MIT & BSD
+		 * Build: http://modernizr.com/download/#-touch-cssclasses-teststyles-prefixes
+		 */
+		;window.Modernizr=function(a,b,c){function w(a){j.cssText=a}function x(a,b){return w(m.join(a+";")+(b||""))}function y(a,b){return typeof a===b}function z(a,b){return!!~(""+a).indexOf(b)}function A(a,b,d){for(var e in a){var f=b[a[e]];if(f!==c)return d===!1?a[e]:y(f,"function")?f.bind(d||b):f}return!1}var d="2.8.3",e={},f=!0,g=b.documentElement,h="modernizr",i=b.createElement(h),j=i.style,k,l={}.toString,m=" -webkit- -moz- -o- -ms- ".split(" "),n={},o={},p={},q=[],r=q.slice,s,t=function(a,c,d,e){var f,i,j,k,l=b.createElement("div"),m=b.body,n=m||b.createElement("body");if(parseInt(d,10))while(d--)j=b.createElement("div"),j.id=e?e[d]:h+(d+1),l.appendChild(j);return f=["&#173;",'<style id="s',h,'">',a,"</style>"].join(""),l.id=h,(m?l:n).innerHTML+=f,n.appendChild(l),m||(n.style.background="",n.style.overflow="hidden",k=g.style.overflow,g.style.overflow="hidden",g.appendChild(n)),i=c(l,a),m?l.parentNode.removeChild(l):(n.parentNode.removeChild(n),g.style.overflow=k),!!i},u={}.hasOwnProperty,v;!y(u,"undefined")&&!y(u.call,"undefined")?v=function(a,b){return u.call(a,b)}:v=function(a,b){return b in a&&y(a.constructor.prototype[b],"undefined")},Function.prototype.bind||(Function.prototype.bind=function(b){var c=this;if(typeof c!="function")throw new TypeError;var d=r.call(arguments,1),e=function(){if(this instanceof e){var a=function(){};a.prototype=c.prototype;var f=new a,g=c.apply(f,d.concat(r.call(arguments)));return Object(g)===g?g:f}return c.apply(b,d.concat(r.call(arguments)))};return e}),n.touch=function(){var c;return"ontouchstart"in a||a.DocumentTouch&&b instanceof DocumentTouch?c=!0:t(["@media (",m.join("touch-enabled),("),h,")","{#modernizr{top:9px;position:absolute}}"].join(""),function(a){c=a.offsetTop===9}),c};for(var B in n)v(n,B)&&(s=B.toLowerCase(),e[s]=n[B](),q.push((e[s]?"":"no-")+s));return e.addTest=function(a,b){if(typeof a=="object")for(var d in a)v(a,d)&&e.addTest(d,a[d]);else{a=a.toLowerCase();if(e[a]!==c)return e;b=typeof b=="function"?b():b,typeof f!="undefined"&&f&&(g.className+=" "+(b?"":"no-")+a),e[a]=b}return e},w(""),i=k=null,e._version=d,e._prefixes=m,e.testStyles=t,g.className=g.className.replace(/(^|\s)no-js(\s|$)/,"$1$2")+(f?" js "+q.join(" "):""),e}(this,this.document);
+	</script>    </head>
+
+<body class="is-article with-ads">
+<section class="tnw-canvas" id="canvas">
+	<script id="tmplCanvas" type="x-tmpl-tnw">
+        <div class="tnw-canvas-bg tnw-canvas-video-bg" id="canvas-bg"></div>
+        <a class="tnw-canvas-cta" href="#" id="canvas-cta" target="_blank"></a>
+        <div class="tnw-canvas-info" id="canvas-info">
+            <div class="wrapper">
+                <div class="tnw-canvas-info-more">
+                    <i class="tnw-canvas-info-icon">i</i>
+                    <div class="tnw-canvas-info-menu">
+                        <ul>
+                            <li class="tnw-canvas-info-menu-share">
+                                Share
+                                <div class="tnw-canvas-info-menu-shareIcons">
+                                    <a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Canvas','eventAction':'','eventLabel':'Facebook','eventNonInteraction':1} );" href="#" class="popitup" data-url="" data-url-base="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fthenextweb.com%2Fvoice%2F2015%2F05%2F07%2Fwhats-the-deal-with-tnws-new-canvas-ads%2F?canvas=" data-network="Facebook" data-width="850" data-height="500">
+                                        <i class="icon icon--facebook icon--facebook--light"></i>
+                                    </a>
+                                    <a href="#" class="popitup" data-url="" data-url-base="https://twitter.com/intent/tweet?text=Came+to+%40thenextweb++for+the+articles%2C+but+you+should+check+out+this+Canvas+Ad%3A+http%3A%2F%2Fthenextweb.com%2Fvoice%2F2015%2F05%2F07%2Fwhats-the-deal-with-tnws-new-canvas-ads%2F?canvas=" data-network="Twitter" data-width="685" data-height="500"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Canvas','eventAction':'','eventLabel':'Twitter','eventNonInteraction':1} );">
+                                        <i class="icon icon--facebook icon--twitter--light"></i>
+                                    </a>
+                                    <!-- a href="#" target="_blank">
+                                        <i class="icon icon--facebook icon--pinterest--light"></i>
+                                    </a -->
+                                </div>
+                            </li>
+                            <li class="tnw-canvas-info-menu-link"><a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Canvas','eventAction':'','eventLabel':'Download','eventNonInteraction':1} );" class="tnw-canvas-download-link" href="#" download="true" data-href-base="http://canvas.thenextweb.com/api/canvasDownload/">
+                                Download wallpaper
+                            </a></li>
+                            <li class="tnw-canvas-info-menu-link"><a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Canvas','eventAction':'','eventLabel':'About canvas ads','eventNonInteraction':1} );" href="http://thenextweb.com/voice/2015/05/07/whats-the-deal-with-tnws-new-canvas-ads/" target="_blank">
+                                About canvas ads
+                            </a></li>
+                            <li class="tnw-canvas-info-menu-link"><a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Canvas','eventAction':'','eventLabel':'Advertise','eventNonInteraction':1} );" href="http://thenextweb.com/advertise/" target="_blank">
+                                Advertise on TNW
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="tnw-canvas-info-artist">
+                    Canvas art by <a href="#" target="_blank"></a>
+                </p>
+            </div>
+        </div>
+    </script>
+	<script id="tmplCanvasVideo" type="x-tmpl-tnw">
+        <video id="canvas-video" class="tnw-canvas-media tnw-canvas-video" muted loop>
+        </video>
+    </script>
+</section>
+
+<nav class="nav">
+	<div class="nav-logo">
+		<a href="/" title="The Next Web"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'News','eventNonInteraction':1} );">
+			<img alt="The Next Web" src="http://thenextweb.com/wp-content/themes/cyberdelia/assets/img/tnw.svg">
+		</a>
+		<ul class="nav-logo-popout">
+			<li><a class="is-active" href="/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'News','eventNonInteraction':1} );">News</a></li>
+			<li><a href="/conference" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Conference','eventNonInteraction':1} );">Conference</a></li>
+			<li><a href="https://index.co/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Index','eventNonInteraction':1} );">Index</a></li>
+			<li><a href="https://deals.thenextweb.com/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Deals','eventNonInteraction':1} );">Deals</a></li>
+		</ul>
+	</div>
+	<ul class="nav-tnw" role="navigation">
+		<li><a class="is-active" href="/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'News','eventNonInteraction':1} );">News</a></li>
+		<li><a href="/conference/europe" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Conference','eventNonInteraction':1} );">Conference</a></li>
+		<li><a href="https://index.co/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Index','eventNonInteraction':1} );">Index</a></li>
+		<li><a href="http://deals.thenextweb.com/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Deals','eventNonInteraction':1} );">Deals</a></li>
+		<li class="nav-tnw-right"><a href="/contact"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Contact','eventNonInteraction':1} );">Contact</a></li>
+		<li class="nav-tnw-right"><a href="https://thenextweb.homerun.hr/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Jobs','eventNonInteraction':1} );">Jobs</a></li>
+		<li class="nav-tnw-right"><a href="https://tnwads.typeform.com/to/NdJwzX"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'Advertise','eventNonInteraction':1} );">Advertise</a></li>
+		<li class="nav-tnw-right"><a href="/team"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'News','eventNonInteraction':1} );">Team</a></li>
+		<li class="nav-tnw-right"><a href="/about"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Navigation','eventLabel':'News','eventNonInteraction':1} );">About</a></li>
+	</ul>
+	<div class="u-clear" role="navigation">
+		<ul class="nav-sections">
+			<li class="nav-sections-section"><a href="/section/apps"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Apps','eventNonInteraction':1} );">Apps</a></li>
+			<li class="nav-sections-section"><a href="/section/gear"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Gear','eventNonInteraction':1} );">Gear</a></li>
+			<li class="nav-sections-section"><a href="/section/tech"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Tech','eventNonInteraction':1} );">Tech</a></li>
+			<li class="nav-sections-section"><a href="/section/creative"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Creative','eventNonInteraction':1} );">Creative</a></li>
+			<li class="nav-sections-section"><a href="/section/money"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Money','eventNonInteraction':1} );">Money</a></li>
+			<li class="nav-sections-section"><a href="/section/insights"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Insights','eventNonInteraction':1} );">Insights</a></li>
+			<li class="nav-sections-section"><a href="/section/launch"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Launch','eventNonInteraction':1} );">Launch</a></li>
+			<li class="nav-sections-section"><a href="/section/world"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'World','eventNonInteraction':1} );">World</a></li>
+			<li class="nav-sections-section"><a href="/section/distract"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Distract','eventNonInteraction':1} );">Distract</a></li>
+			<li class="nav-sections-section"><a href="/offers"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Offers','eventNonInteraction':1} );">Offers</a></li>
+			<li class="nav-sections-more">
+				<a href="#"><i class="icon icon--more--dark"></i></a>
+				<ul>
+					<li><a href="/creative"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Creative','eventNonInteraction':1} );">Creative</a></li>
+					<li><a href="/money"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'Money','eventNonInteraction':1} );">Money</a></li>
+					<li><a href="/world"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Channels','eventLabel':'World','eventNonInteraction':1} );">World</a></li>
+				</ul>
+			</li>
+		</ul>
+		<ul class="nav-icons">
+			<li><a id="search--open" href="#"><i class="icon icon--search--dark"></i></a>
+				<!--
+				<li><a href="#"><i class="icon icon--user--dark"></i></a>
+				-->
+			<li>
+				<a class="nav-mob-toggle" id="nav-mob-toggle" href="#">
+					<span></span>
+					<span></span>
+					<span></span>
+				</a>
+			</li>
+		</ul>
+		<ul class="nav-follow">
+			<li><a   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Facebook','eventNonInteraction':1} );" href="https://www.facebook.com/thenextweb" title="Follow us on Facebook" target="_blank"><i class="icon icon--facebook--dark"></i></a>
+			<li><a   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Twitter','eventNonInteraction':1} );" href="https://www.twitter.com/thenextweb" title="Follow us on Twitter" target="_blank"><i class="icon icon--twitter--dark"></i></a>
+			<li class="nav-follow-extra">
+				<ul class="nav-follow">
+					<li><a href="https://plus.google.com/+TheNextWeb" title="Follow us on Google+" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Google+','eventNonInteraction':1} );"><i class="icon icon--google--dark"></i></a>
+					<li><a href="https://www.linkedin.com/company/the-next-web" title="Follow us on LinkedIn" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'LinkedIn','eventNonInteraction':1} );"><i class="icon icon--linkedin--dark"></i></a>
+					<li><a href="https://www.youtube.com/user/thenextweb" title="Watch our videos on YouTube" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'YouTube','eventNonInteraction':1} );"><i class="icon icon--youtube--dark"></i></a>
+					<li><a href="https://instagram.com/thenextweb" title="Follow us on Instagram" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Instagram','eventNonInteraction':1} );"><i class="icon icon--instagram--dark"></i></a>
+					<li><a href="http://pinterest.com/thenextweb/" title="Follow us on Pinterest" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Pinterest','eventNonInteraction':1} );"><i class="icon icon--pinterest--dark"></i></a>
+						<!--<li><a href="http://thenextweb.com/notifications" title="Receive push alerts" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Push alerts','eventNonInteraction':1} );"><i class="icon icon--push--dark"></i></a>-->
+					<li><a href="http://feeds2.feedburner.com/thenextweb" title="Read our RSS feed" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'RSS','eventNonInteraction':1} );"><i class="icon icon--rss--dark"></i></a>
+				</ul>
+			</li>
+			<li><a data-modal="modalStayTuned" href="#"><i class="icon icon--mail--dark"></i></a>
+			<li class="nav-follow-more nav-follow-toggle"><a href="#"><i class="icon icon--more--dark"></i></a>
+			<li class="nav-follow-less nav-follow-toggle"><a href="#"><i class="icon icon--close"></i></a>
+		</ul>
+	</div>
+	<div class="nav-mob">
+		<div class="nav-mob-content">
+			<ul class="nav-mob-follow">
+				<li><a data-modal="modalStayTuned" href="#"><i class="icon icon--mail--light"></i></a>
+				<li><a href="https://www.facebook.com/thenextweb" title="Follow us on Facebook" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Facebook','eventNonInteraction':1} );"><i class="icon icon--facebook--light"></i></a>
+				<li><a href="https://www.twitter.com/thenextweb" title="Follow us on Twitter" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Twitter','eventNonInteraction':1} );"><i class="icon icon--twitter--light"></i></a>
+				<li><a href="https://plus.google.com/+TheNextWeb" title="Follow us on Google+" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Google+','eventNonInteraction':1} );"><i class="icon icon--google--light"></i></a>
+				<li><a href="https://www.linkedin.com/company/the-next-web" title="Follow us on LinkedIn" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'LinkedIn','eventNonInteraction':1} );"><i class="icon icon--linkedin--light"></i></a>
+				<li><a href="https://www.youtube.com/user/thenextweb" title="Watch our videos on YouTube" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'YouTube','eventNonInteraction':1} );"><i class="icon icon--youtube--light"></i></a>
+				<li><a href="http://pinterest.com/thenextweb/" title="Follow us on Pinterest" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Pinterest','eventNonInteraction':1} );"><i class="icon icon--pinterest--light"></i></a>
+				<li><a href="https://instagram.com/thenextweb" title="Follow us on Instagram" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Instagram','eventNonInteraction':1} );"><i class="icon icon--instagram--light"></i></a>
+					<!--<li><a href="http://thenextweb.com/notifications" title="Receive push alerts" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'Push alerts','eventNonInteraction':1} );"><i class="icon icon--push--light"></i></a>-->
+				<li><a href="http://feeds2.feedburner.com/thenextweb" title="Read our RSS feed" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Social','eventLabel':'RSS','eventNonInteraction':1} );"><i class="icon icon--rss--light"></i></a>
+			</ul>
+			<div class="u-row">
+				<div class="u-col-xs-6">
+					<h5>Sections</h5>
+					<ul class="nav-mob-menu">
+						<li><a href="/section/apps"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'apps','eventNonInteraction':1} );">Apps</a></li>
+						<li><a href="/section/gear"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'gear','eventNonInteraction':1} );">Gear</a></li>
+						<li><a href="/section/tech"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'tech','eventNonInteraction':1} );">Tech</a></li>
+						<li><a href="/section/creative"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'creative','eventNonInteraction':1} );">Creative</a></li>
+						<li><a href="/section/money"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'money','eventNonInteraction':1} );">Money</a></li>
+						<li><a href="/section/insights"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'insights','eventNonInteraction':1} );">Insights</a></li>
+						<li><a href="/section/launch"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'launch','eventNonInteraction':1} );">Launch</a></li>
+						<li><a href="/section/world"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'world','eventNonInteraction':1} );">World</a></li>
+						<li><a href="/section/distract"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Sections','eventLabel':'distract','eventNonInteraction':1} );">Distract</a></li>
+					</ul>
+				</div>
+				<div class="u-col-xs-6">
+					<h5>About TNW</h5>
+					<ul class="nav-mob-menu">
+						<li><a href="/about"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'About','eventNonInteraction':1} );">About</a></li>
+						<li><a href="/team"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Team','eventNonInteraction':1} );">Team</a></li>
+						<li><a href="https://tnwads.typeform.com/to/NdJwzX"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Advertise','eventNonInteraction':1} );">Advertise</a></li>
+						<li><a href="/jobs"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Jobs','eventNonInteraction':1} );">Jobs</a></li>
+						<li><a href="/about#contact"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Contact','eventNonInteraction':1} );">Contact</a></li>
+					</ul>
+					<h5>TNW Sites</h5>
+					<ul class="nav-mob-menu">
+						<li><a href="/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'News','eventNonInteraction':1} );">News</a></li>
+						<li><a href="/conference/europe" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Conference','eventNonInteraction':1} );">Conference</a></li>
+						<li><a href="https://index.co/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Index','eventNonInteraction':1} );">Index</a></li>
+						<li><a href="http://deals.thenextweb.com/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Deals','eventNonInteraction':1} );">Deals</a></li>
+						<li><a href="http://cc.thenextweb.com/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Top','eventAction':'Naviation','eventLabel':'Cyberspace Culture','eventNonInteraction':1} );">Cyberspace Culture</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+<main class="main">
+	<div class="sheet" id="sheet">
+		<div class="wrapper">
+			<div class="split">
+				<div class="content">
+					<article class="post">
+						<div id="ad-unit-top" class="ad-unit ad-unit-top">
+							<div id="div-gpt-ad-1368717423425-2"></div>
+						</div>
+
+						<header class="post-header">
+							<h1 class="u-m-0_25">Dropbox files can now be shared directly in Facebook Messenger chats</h1>
+							<div class="post-byline u-m-1_5">
+								<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Author - Nate Swanner','eventLabel':'Profile','eventNonInteraction':1} );" class="lazy post-authorPhoto"  data-src="http://2.gravatar.com/avatar/ebda638dbf51c40f61db1478bbb9727b?s=64&d=mm&r=g" data-src-hd="http://2.gravatar.com/avatar/ebda638dbf51c40f61db1478bbb9727b?s=128&d=mm&r=g"           href="http://thenextweb.com/author/nateswanner/" title="Nate Swanner"></a>
+
+								<p>
+									by <a class="post-authorName" href="http://thenextweb.com/author/nateswanner/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Author - Nate Swanner','eventLabel':'Profile','eventNonInteraction':1} );">Nate Swanner</a>
+									&mdash; <time datetime="2016-04-11T22:15:31+02:00" class="timeago"></time>
+									in <a class="post-section" href="http://thenextweb.com/facebook/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Category','eventLabel':'Facebook','eventNonInteraction':1} );">Facebook</a>
+								</p>
+							</div>
+						</header>
+						<div class="post-imageBleed">
+							<div class="post-featuredImage u-m-1_5">
+								<div><img alt="Dropbox files can now be shared directly in Facebook Messenger chats" class="lazy"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-796x398.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-220x110.jpg 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-440x220.jpg 440w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-520x260.jpg 520w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-796x398.jpg 796w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW.jpg 1592w" sizes="(max-width: 796px) 100vw, 796px"></div>
+							</div>
+						</div>
+						<ul class="post-actions post-actions--top u-m-1_5">
+							<li><a class="post-actions-comment" href="#comments" title="Comments"><i class="icon icon--comments--light"></i>
+								<span class="fb-comments-count"></span>
+							</a></li>
+							<li class="post-actions-shares">
+								<div class="post-actions-shares-count">208</div>
+								<div class="post-actions-shares-label">shares</div>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--facebook popitup"
+								   data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-network="Facebook"
+								   data-url="http://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Ftnw.to%2Fi4zkS&p[title]=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats&p[images][0]=http%3A%2F%2Fcdn1.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2016%2F04%2FFacebookMessengerDropboxTNW.jpg&p[summary]=Facebook+Messenger+now+accepts+Dropbox+files+for+sharing%C2%A0directly+in-app%2C+without+having+to+copy+and+paste+a+thing.%0D%0A%0D%0AInstead+of+finding+a+link+--+then+sharing+it+--+Messenger+now+...&u=http%3A%2F%2Ftnw.to%2Fi4zkS&t=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-width="850"
+								   data-height="500"
+								   href="#"
+
+								   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Facebook','eventNonInteraction':1} );"                >
+									<i class="icon icon--facebook--light"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--twitter popitup"
+								   data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-network="Twitter"
+								   data-url="https://twitter.com/intent/tweet?url=http%3A%2F%2Ftnw.to%2Fw1x4&via=thenextweb&related=thenextweb&text=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-width="685"
+								   data-height="500"
+								   href="#"
+
+								   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Twitter','eventNonInteraction':1} );"                >
+									<i class="icon icon--twitter--light"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--linkedin popitup"
+								   data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-network="LinkedIn"
+								   data-url="http://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-width="510"
+								   data-height="500"
+								   href="#"
+
+								   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'LinkedIn','eventNonInteraction':1} );"                >
+									<i class="icon icon--linkedin--light"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--reddit popitup"
+								   data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-network="Reddit"
+								   data-url="http://www.reddit.com/submit?url=http%3A%2F%2Ftnw.to%2Fg4zsD"
+								   data-width="510"
+								   data-height="500"
+								   href="#"
+
+								   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Reddit','eventNonInteraction':1} );"                >
+									<i class="icon icon--reddit--light"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--whatsapp"
+								   href="whatsapp://send?text=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats - http%3A%2F%2Ftnw.to%2Fg4zsD"
+								   target="_blank">
+									<i class="icon icon--whatsapp--light"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Email','eventNonInteraction':1} );"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--slack popitup"
+								   data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F"
+								   data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats"
+								   data-network="Slack"
+								   data-url="http://slackbutton.herokuapp.com/post/new/?url=http%3A%2F%2Ftnw.to%2Fh50J4"
+								   data-width="600"
+								   data-height="500"
+								   href="#"
+
+								   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Slack','eventNonInteraction':1} );"                >
+									<i class="icon icon--slack--light"></i>
+								</a>
+							</li>
+
+
+							<li>
+								<a class="post-actions-share post-actions-share--mail"
+								   href="mailto:?subject=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats&body=http%3A%2F%2Ftnw.to%2Fh50J4"
+								   target="_blank">
+									<i class="icon icon--mail--light"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Email','eventNonInteraction':1} );"></i>
+								</a>
+							</li>
+
+
+							<li class="post-actions-shortUrl">
+								<i class="icon icon--share"></i>
+								<input class="shortUrl" name="short_url_top" type="text" value="http://tnw.to/x1rr"   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Copy Paste Link','eventNonInteraction':1} );">
+							</li>
+						</ul>    <div id="ad-unit-announcement" class="ad-unit ad-unit-announcement">
+						<div id="div-gpt-ad-13687323425-2"></div>
+					</div>
+						<div class="post-body u-m-3">
+							<p>Facebook Messenger now accepts Dropbox<a href='https://index.co/company/Dropbox' data-index='' target='_blank' class='idc-hasIcon'></a> files for sharing directly in-app, without having to copy and paste a thing.</p>
+							<p>Instead of finding a link — then sharing it — Messenger now supports direct sharing of Dropbox stuff. You can add a video, picture or text document, so long as you have both Messenger and Dropbox on your phone.</p>
+							<div class="ica-wrapper">
+								<div class="ica-text">
+									<h4>So. Much. Tech.</h4>
+									<p>Some of the biggest names in tech are coming to TNW Conference in Amsterdam this May.</p>
+								</div>
+								<div class="ica-button"><a class="button" href="/conference/europe/?utm_source=thenextweb.com&amp;utm_campaign=article-block&amp;utm_medium=referral" target="_blank">Learn more</a></div>
+							</div>
+							<p>In a conversation, just tap the ‘More’ button to see the new Dropbox interaction. Once selected, a menu of your Dropbox files will be available for sharing.</p>
+							<p>Facebook says the feature is rolling out incrementally, so if you’re not seeing it just yet – sit tight.</p>    <p>
+							<a class="post-sourceLink" href="https://www.facebook.com/messenger/photos/a.882538591865822.1073741828.602814669838217/932871670165847/?type=3&theater" target="_blank">
+								<span class="title">MessengerFacebook messe</span>
+								<span class="source">on Facebook</span>
+							</a>
+						</p>
+
+
+							<p>
+								<b>Read next:</b>
+								<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Next post','eventNonInteraction':1} );" href="http://thenextweb.com/apps/2016/04/11/can-now-control-android-phone-just-voice/">
+									Google Voice Access lets you tap and scroll through apps, fingers deemed unnecessary    </a>
+							</p>
+
+						</div>
+
+						<ul class="post-share u-row">
+							<li class="u-col-xs-6">
+								<a class="button button--facebook u-w-xs-100 popitup"  data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F" data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats" data-network="Facebook" data-url="http://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Ftnw.to%2Fi4zkS&p[title]=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats&p[images][0]=http%3A%2F%2Fcdn1.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2016%2F04%2FFacebookMessengerDropboxTNW.jpg&p[summary]=Facebook+Messenger+now+accepts+Dropbox+files+for+sharing%C2%A0directly+in-app%2C+without+having+to+copy+and+paste+a+thing.%0D%0A%0D%0AInstead+of+finding+a+link+--+then+sharing+it+--+Messenger+now+...&u=http%3A%2F%2Ftnw.to%2Fi4zkS&t=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats" data-width="850" data-height="500" href="#"   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Facebook','eventNonInteraction':1} );">
+									<i class="icon icon--inline icon--facebook--light"></i> Share<span class="u-showFrom-m"> on Facebook</span>
+								</a>
+							</li>
+							<li class="u-col-xs-6">
+								<a class="button button--twitter u-w-xs-100 popitup"  data-permalink="http%3A%2F%2Fthenextweb.com%2Ffacebook%2F2016%2F04%2F11%2Ffacebook-messenger-dropbox%2F" data-title="Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats" data-network="Facebook" data-url="https://twitter.com/intent/tweet?url=http%3A%2F%2Ftnw.to%2Fw1x4&via=thenextweb&related=thenextweb&text=Dropbox+files+can+now+be+shared+directly+in+Facebook+Messenger+chats" data-width="685" data-height="500" href="#"   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Share','eventLabel':'Twitter','eventNonInteraction':1} );">
+									<i class="icon icon--inline icon--twitter--light"></i> Share<span class="u-showFrom-m"> on Twitter</span>
+								</a>
+							</li>
+						</ul>
+						<footer class="post-author u-m-3">
+							<a class="lazy post-author-photo"  data-src="http://2.gravatar.com/avatar/ebda638dbf51c40f61db1478bbb9727b?s=64&d=mm&r=g" data-src-hd="http://2.gravatar.com/avatar/ebda638dbf51c40f61db1478bbb9727b?s=128&d=mm&r=g"       href="http://thenextweb.com/author/nateswanner/" title="Nate Swanner"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Author - Nate Swanner','eventLabel':'Avatar','eventNonInteraction':1} );"></a>
+
+							<div class="u-hideFrom-m">
+								<p class="post-author-bio">
+									<b><a href="http://thenextweb.com/author/nateswanner/">Nate Swanner</a></b>
+									is a reporter from Portland, OR, US.
+									Happy to hear your thoughts
+									on <a href="mailto:nate@thenextweb.com" target="_blank">nate@thenextweb.com</a> or
+									<a href="http://twitter.com/NateSwanner" target="_blank">@NateSwanner</a> on Twitter.
+								</p>
+							</div>
+							<div class="u-showFrom-m">
+								<p class="post-author-bio u-m-1_5">
+									TNW's West Coast writer in the PNW (Portland, Oregon). Nate loves amplifying developers, and codes in Swift when he's not writing. If you need to get in touch, Twitter or email are your best bets.        </p>
+								<ul class="post-author-trivia">
+									<li>
+										<h5>Contact</h5>
+										<a class="post-author-contact" href="mailto:nate@thenextweb.com" target="_blank" data-tooltip="Nate Swanner"><i class="icon icon--inline icon--mail--dark"   onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Author - Nate Swanner','eventLabel':'E-mail','eventNonInteraction':1} );"></i> Mail</a>
+										<a class="post-author-contact js-socialPreload" href="https://twitter.com/intent/tweet/?text=Interesting+post+by+%40NateSwanner+%E2%80%9CDropbox+files+can+now+be+shared+directly+in+Facebook+...%E2%80%9D+http%3A%2F%2Ftnw.to%2Fx1rr&via=thenextweb" data-social-preload-type="twitterIntent" data-tooltip="Tweet: Interesting+post+by+%40NateSwanner+%E2%80%9CDropbox+files+can+now+be+shared+directly+in+Facebook+...%E2%80%9D+http%3A%2F%2Ftnw.to%2Fx1rr"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Author - Nate Swanner','eventLabel':'Twitter','eventNonInteraction':1} );"><i class="icon icon--inline icon--twitter--dark"></i> Tweet</a>
+									</li>
+									<li>
+										<h5>Location</h5>
+										Portland, OR, US                </li>
+									<li>
+										<h5>Posts</h5>
+										1128                </li>
+									<li>
+										<h5>Posts / mo.</h5>
+										102.73                </li>
+									<li class="post-author-trivia-all">
+										<h5>&nbsp;</h5>
+										<a href="http://thenextweb.com/author/nateswanner/">All posts by Nate &gt;</a>
+									</li>
+								</ul>
+							</div>
+						</footer>
+					</article>
+					<section class="sheet-section" id="distraction">
+						<p class="distraction-title">Shh. Here's some distraction</p>
+						<ul class="u-row">
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/bald-bull-easter-egg-220x134.gif" data-srcset="" sizes="" href="http://thenextweb.com/shareables/2016/04/11/punch-out-has-an-easter-egg-that-went-undiscovered-for-29-years/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/shareables/2016/04/11/punch-out-has-an-easter-egg-that-went-undiscovered-for-29-years/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">NES classic 'Punch-Out' has an Easter egg that went undiscovered for 29 years</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/bryanclark/">Bryan Clark</a></li>
+										<li><time datetime="2016-04-11T20:39:02+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Bitbonkers-220x110.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Bitbonkers-220x110.jpg 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Bitbonkers-440x220.jpg 440w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Bitbonkers-520x260.jpg 520w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Bitbonkers-1100x550.jpg 1100w" sizes="(max-width: 220px) 100vw, 220px" href="http://thenextweb.com/shareables/2016/04/11/see-money-change-hands-real-time-beautiful-bitcoin-transaction-visualizer/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/shareables/2016/04/11/see-money-change-hands-real-time-beautiful-bitcoin-transaction-visualizer/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">See Bitcoin change hands in real-time with this beautiful transaction visualizer</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/abhimanyughoshal/">Abhimanyu Ghoshal</a></li>
+										<li><time datetime="2016-04-11T11:04:45+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/spacex-elon-musk-220x92.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/spacex-elon-musk-220x92.jpg 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/spacex-elon-musk.jpg 800w" sizes="(max-width: 220px) 100vw, 220px" href="http://thenextweb.com/insider/2016/04/08/spacex-just-landed-reusable-rocket-drone-ship/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/insider/2016/04/08/spacex-just-landed-reusable-rocket-drone-ship/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">SpaceX finally lands its rocket on a drone ship after delivering bouncy castle for ISS</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/napierlopez/">Napier Lopez</a></li>
+										<li><time datetime="2016-04-08T23:52:12+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots-220x110.png" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots-220x110.png 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots-440x220.png 440w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots-520x260.png 520w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots-1100x550.png 1100w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/walkingrobots.png 1592w" sizes="(max-width: 220px) 100vw, 220px" href="http://thenextweb.com/shareables/2016/04/08/lumbering-two-legged-droid-latest-creation-alphabets-robotics-projects/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/shareables/2016/04/08/lumbering-two-legged-droid-latest-creation-alphabets-robotics-projects/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">This lumbering, two-legged droid is the latest creation from Alphabet's robotics projects</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/benwoods/">Ben Woods</a></li>
+										<li><time datetime="2016-04-08T19:07:25+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser-220x109.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser-220x109.jpg 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser-440x218.jpg 440w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser-520x257.jpg 520w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser-1100x544.jpg 1100w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Drone-Guesser.jpg 1592w" sizes="(max-width: 220px) 100vw, 220px" href="http://thenextweb.com/shareables/2016/04/08/waste-hours-drone-video-footage-guessing-game/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/shareables/2016/04/08/waste-hours-drone-video-footage-guessing-game/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">Waste hours with this drone video footage guessing game</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/martin/">Martin Bryant</a></li>
+										<li><time datetime="2016-04-08T19:00:53+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-4">
+								<div class="story story--smallMobile">
+									<a  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );" class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/humandominoes-220x129.gif" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/humandominoes-220x129.gif 220w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/humandominoes-440x258.gif 440w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/humandominoes-520x305.gif 520w" sizes="(max-width: 220px) 100vw, 220px" href="http://thenextweb.com/shareables/2016/04/08/dont-you-people-have-jobs/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/shareables/2016/04/08/dont-you-people-have-jobs/"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Related Posts','eventLabel':'Post','eventNonInteraction':1} );">Watch 1,200 people fall on each other just to break a world record</a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/nattgarun/">Natt Garun</a></li>
+										<li><time datetime="2016-04-08T17:52:45+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</section>
+					<div id="ad-unit-bottom" class="ad-unit ad-unit-bottom">
+						<div id="div-gpt-ad-1368717423425-0"></div>
+					</div>
+					<section class="post-comments-section sheet-section">
+						<h2>Comments</h2>
+						<a class="comments-btn button u-w-xs-100 u-w-m-50" href="#" id="comments-btn"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Post','eventLabel':'Show Comments','eventNonInteraction':1} );"><span class="fb-comments-count"></span></a>
+						<div id="comments">
+							<script id="tmplComments" type="x-tmpl-tnw">
+                                <div class="fb-comments" data-href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/" data-numposts="4" data-width="100%"></div>
+                            </script>
+						</div>
+					</section>
+				</div>
+				<aside class="sidebar">
+					<section class="recommended u-m-2" id="most-popular">
+						<h2 class="u-m-1">Recommended</h2>
+						<ul class="u-row">
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Recommended','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/shutterstock_363900668-150x150.jpg" data-srcset="" sizes=""                href="http://thenextweb.com/the-power-of-personal/2016/04/11/6-best-personal-websites/"></a>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/the-power-of-personal/2016/04/11/6-best-personal-websites/">
+											6 ways to make your personal website more effective                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/amberturner/">Amber Leigh Turner</a></li>
+										<li><time datetime="2016-04-11T14:58:56+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</section>
+					<section class="recommended u-m-2" id="most-popular">
+						<h2 class="u-m-1">Most popular</h2>
+						<ul class="u-row">
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Most Popular','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/03/Screen-Shot-2015-08-17-at-1.32.04-PM-520x245-150x150.png" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/03/Screen-Shot-2015-08-17-at-1.32.04-PM-520x245-150x150.png 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/03/Screen-Shot-2015-08-17-at-1.32.04-PM-520x245-60x60.png 60w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/insider/2016/04/10/slack-secretly-releases-mobile-calling-to-non-beta-users/"></a>
+									<span class="story-rank">1</span>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/insider/2016/04/10/slack-secretly-releases-mobile-calling-to-non-beta-users/">
+											Slack beta update brings mobile calling to iOS and Android users                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/bryanclark/">Bryan Clark</a></li>
+										<li><time datetime="2016-04-10T19:01:13+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Most Popular','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/09/Priv_confirmed-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/09/Priv_confirmed-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/09/Priv_confirmed-60x60.jpg 60w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/09/Priv_confirmed-580x580.jpg 580w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/mobile/2016/04/11/blackberry-now-wants-make-affordable-android-phones-will-anyone-care/"></a>
+									<span class="story-rank">2</span>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/mobile/2016/04/11/blackberry-now-wants-make-affordable-android-phones-will-anyone-care/">
+											BlackBerry now wants to make affordable Android phones, but will anyone care?                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/abhimanyughoshal/">Abhimanyu Ghoshal</a></li>
+										<li><time datetime="2016-04-11T08:07:20+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<div id="ad-unit-right" class="ad-unit ad-unit-right">
+								<div id="div-gpt-ad-1368717423425-1"></div>
+							</div>
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Most Popular','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Hitachi-EMIEW3-150x150.jpg" data-srcset="" sizes=""                href="http://thenextweb.com/gadgets/2016/04/11/hitachis-new-customer-service-robot-can-tell-need-help-shopping-stores/"></a>
+									<span class="story-rank">3</span>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/gadgets/2016/04/11/hitachis-new-customer-service-robot-can-tell-need-help-shopping-stores/">
+											Hitachi's new customer service robot can tell when you need help shopping in stores                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/abhimanyughoshal/">Abhimanyu Ghoshal</a></li>
+										<li><time datetime="2016-04-11T09:26:06+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Most Popular','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/gv1-1-150x150.jpg" data-srcset="" sizes=""                href="http://thenextweb.com/insider/2016/04/11/gary-vee-content-king-context-god/"></a>
+									<span class="story-rank">4</span>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/insider/2016/04/11/gary-vee-content-king-context-god/">
+											Content is king, but context is god                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/garyvee/">Gary Vaynerchuk</a></li>
+										<li><time datetime="2016-04-11T10:35:55+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+							<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+								<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Most Popular','eventLabel':'Post','eventNonInteraction':1} );">
+									<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Periscope-sketching-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Periscope-sketching-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Periscope-sketching-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/apps/2016/04/11/periscope-tests-letting-doodle-top-live-streams/"></a>
+									<span class="story-rank">5</span>
+									<h4 class="story-title">
+										<a href="http://thenextweb.com/apps/2016/04/11/periscope-tests-letting-doodle-top-live-streams/">
+											Periscope tests letting you draw on top of your live video streams                </a>
+									</h4>
+									<ul class="story-byline">
+										<li><a href="http://thenextweb.com/author/martin/">Martin Bryant</a></li>
+										<li><time datetime="2016-04-11T14:02:15+02:00" class="timeago"></time></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</section>
+					<div id="ad-unit-sharethrough-sidebar" class="ad-unit ad-unit-sharethrough-sidebar hide">
+						<div id="div-gpt-ad-13687837252244825-0"></div>
+					</div>
+					<section class="newsletter u-m-2">
+						<header class="newsletter-header u-m-1">
+							<h2>Never miss out</h2>
+							<p class="u-fontSize-s">Stay tuned with the weekly recap by our Editor-at-Large <a href="/author/martin">Martin Bryant</a>.</p>
+						</header>
+						<form action="http://thenextweb.com/wp-content/themes/cyberdelia/ajax/form/newsletter.php" class="u-m-0_5" data-xhr data-xhr-success="newsletterSuccess" data-xhr-fail="newsletterFail" method="post" onsubmit="dataLayer.push( {'event':'email','eventCategory':'Email','eventAction':'Sign up','eventLabel':'Sidebar','eventNonInteraction':1} );">
+							<div class="newsletter-success">
+								<b>T</b><b>h</b><b>a</b><b>n</b><b>k</b><b>&nbsp;</b><b>y</b><b>o</b><b>u</b><b>!</b>
+							</div>
+							<div class="formField">
+								<div class="formField-withButton">
+									<div class="formField-withIcon u-float-left u-w-xs-75">
+										<input class="formInput formInput--text" name="email" placeholder="Email" type="email" required="">
+										<i class="icon icon--mail"></i>
+									</div>
+									<button class="button u-float-left u-w-xs-25" type="submit">Do it</button>
+								</div>
+							</div>
+						</form>
+						<p class="u-color-light u-fontSize-s">
+							Join over 130,000 subscribers!
+						</p>
+					</section>                    <section class="recommended u-m-1_5" id="latest-stories">
+					<h2 class="u-m-1">Latest</h2>
+					<ul class="u-row">
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/06/17182400279_0b0da5cdbc_o_USB-C-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/06/17182400279_0b0da5cdbc_o_USB-C-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/06/17182400279_0b0da5cdbc_o_USB-C-60x60.jpg 60w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2015/06/17182400279_0b0da5cdbc_o_USB-C-580x580.jpg 580w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/dd/2016/04/11/webusb-api/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/dd/2016/04/11/webusb-api/">
+										Two Googlers created an API to connect USB devices directly to the Web                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/nateswanner/">Nate Swanner</a></li>
+									<li><time datetime="2016-04-11T23:03:23+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/05/Google-Now-Voice-control-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/05/Google-Now-Voice-control-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/05/Google-Now-Voice-control-60x60.jpg 60w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/apps/2016/04/11/can-now-control-android-phone-just-voice/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/apps/2016/04/11/can-now-control-android-phone-just-voice/">
+										Google Voice Access lets you tap and scroll through apps, fingers deemed unnecessary                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/napierlopez/">Napier Lopez</a></li>
+									<li><time datetime="2016-04-11T22:49:59+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/FacebookMessengerDropboxTNW-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/">
+										Dropbox files can now be shared directly in Facebook Messenger chats                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/nateswanner/">Nate Swanner</a></li>
+									<li><time datetime="2016-04-11T22:15:31+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Impossible-Project-Camera-i-1-Polaroid-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Impossible-Project-Camera-i-1-Polaroid-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Impossible-Project-Camera-i-1-Polaroid-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/gadgets/2016/04/11/camera-lets-shoot-real-polaroid-film-iphone-app/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/gadgets/2016/04/11/camera-lets-shoot-real-polaroid-film-iphone-app/">
+										This camera lets you shoot real Polaroid film through an iPhone app                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/napierlopez/">Napier Lopez</a></li>
+									<li><time datetime="2016-04-11T22:07:29+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Blog_IPay_2-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Blog_IPay_2-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Blog_IPay_2-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/insider/2016/04/11/ticketmaster-selling-directly-facebook-another-way-fail-snagging-beyonce-tickets/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/insider/2016/04/11/ticketmaster-selling-directly-facebook-another-way-fail-snagging-beyonce-tickets/">
+										Ticketmaster selling directly on Facebook is another way to fail at snagging Beyoncé tickets                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/nattgarun/">Natt Garun</a></li>
+									<li><time datetime="2016-04-11T21:58:47+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/7873754560_60ec4ea0f6_o-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/7873754560_60ec4ea0f6_o-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/7873754560_60ec4ea0f6_o-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/insider/2016/04/11/notorious-b-i-g-may-go-on-tour-again-20-years-after-his-death/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/insider/2016/04/11/notorious-b-i-g-may-go-on-tour-again-20-years-after-his-death/">
+										Notorious B.I.G. may go on tour again -- 20 years after his death                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/bryanclark/">Bryan Clark</a></li>
+									<li><time datetime="2016-04-11T21:28:36+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Screen-Shot-2016-04-11-at-12.08.11-PM-150x150.png" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Screen-Shot-2016-04-11-at-12.08.11-PM-150x150.png 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Screen-Shot-2016-04-11-at-12.08.11-PM-192x192.png 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/insider/2016/04/11/tesla-mario-kart-easter-egg/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/insider/2016/04/11/tesla-mario-kart-easter-egg/">
+										Tesla has a Mario Kart easter egg, and you need a cheat code to find it                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/nateswanner/">Nate Swanner</a></li>
+									<li><time datetime="2016-04-11T21:22:25+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/bald-bull-easter-egg-150x150.gif" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/bald-bull-easter-egg-150x150.gif 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/bald-bull-easter-egg-192x192.gif 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/shareables/2016/04/11/punch-out-has-an-easter-egg-that-went-undiscovered-for-29-years/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/shareables/2016/04/11/punch-out-has-an-easter-egg-that-went-undiscovered-for-29-years/">
+										NES classic 'Punch-Out' has an Easter egg that went undiscovered for 29 years                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/bryanclark/">Bryan Clark</a></li>
+									<li><time datetime="2016-04-11T20:39:02+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Lytro-Cinema-Black-And-White-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Lytro-Cinema-Black-And-White-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/Lytro-Cinema-Black-And-White-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/gadgets/2016/04/11/lytro/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/gadgets/2016/04/11/lytro/">
+										Lytro Cinema aims right at Arri and Hollywood by killing the green screen                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/napierlopez/">Napier Lopez</a></li>
+									<li><time datetime="2016-04-11T20:31:15+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+						<li class="u-col-xs-12 u-col-m-6 u-col-l-12">
+							<div class="story story--small"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Article','eventAction':'Latest News','eventLabel':'Post','eventNonInteraction':1} );">
+								<a class="lazy story-image"  data-src="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/New-Balance-Zante-Generate-Running-Outside-2-150x150.jpg" data-srcset="http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/New-Balance-Zante-Generate-Running-Outside-2-150x150.jpg 150w, http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2016/04/New-Balance-Zante-Generate-Running-Outside-2-192x192.jpg 192w" sizes="(max-width: 150px) 100vw, 150px"                href="http://thenextweb.com/insider/2016/04/11/new-balance-intel-3d-sneakers/"></a>
+								<h4 class="story-title">
+									<a href="http://thenextweb.com/insider/2016/04/11/new-balance-intel-3d-sneakers/">
+										New Balance's 3D-printed sneakers will run you $400                </a>
+								</h4>
+								<ul class="story-byline">
+									<li><a href="http://thenextweb.com/author/nattgarun/">Natt Garun</a></li>
+									<li><time datetime="2016-04-11T20:23:25+02:00" class="timeago"></time></li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</section>
+					<div id="ad-unit-sharethrough-sidebar-direct" class="ad-unit ad-unit-sharethrough-sidebar-direct hide">
+						<div id="div-gpt-ad-136823425554825-0"></div>
+					</div>
+				</aside>
+			</div>
+		</div>
+	</div>
+</main>
+<footer class="footer">
+	<div class="footer-quote">
+		<div class="wrapper">
+			<h5><span class="footer-quote-author">Gary Vaynerchuck</span></h5>
+			<p class="footer-quote-quote">You can market your ass off, but if your product sucks, you're dead.</p>
+			<a class="footer-quote-share popitup" data-network="Twitter" data-url="" data-url-base="https://twitter.com/intent/tweet?text=" data-width="685" data-height="500" href="#"><i class="icon icon--inline icon--twitter--dark"></i> Share</a>
+		</div>
+	</div>
+	<div class="footer-links">
+		<div class="wrapper">
+			<ul class="footer-links-social">
+				<li><a href="https://www.facebook.com/thenextweb" target="_blank"><i class="icon icon--facebook--light"></i></a>
+				<li><a href="https://www.twitter.com/thenextweb" target="_blank"><i class="icon icon--twitter--light"></i></a>
+				<li><a href="https://www.youtube.com/user/thenextweb" target="_blank"><i class="icon icon--youtube--light"></i></a>
+				<li><a href="https://www.instagram.com/thenextweb" target="_blank"><i class="icon icon--instagram--light"></i></a>
+				<li><a href="https://www.pinterest.com/thenextweb" target="_blank"><i class="icon icon--pinterest--light"></i></a>
+				<li><a href="http://thenextweb.com/feed/" target="_blank"><i class="icon icon--rss--light"></i></a>
+				<li><a data-modal="modalStayTuned" href="#"><i class="icon icon--mail--light"></i></a>
+			</ul>
+			<ul class="footer-links-menu">
+				<li><a href="/conference/europe"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'Conference','eventNonInteraction':1} );">Conference</a></li>
+				<li><a href="/about"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'About','eventNonInteraction':1} );">About</a></li>
+				<li class="u-showFrom-m"><a href="/team"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'Team','eventNonInteraction':1} );">Team</a></li>
+				<li><a href="https://tnwads.typeform.com/to/NdJwzX" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'Advertise','eventNonInteraction':1} );">Advertise</a></li>
+				<li><a href="https://thenextweb.homerun.hr/" target="_blank"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'Jobs','eventNonInteraction':1} );">Jobs</a></li>
+				<li><a href="/about#contact"  onclick="dataLayer.push( {'event':'onClick','eventCategory':'Footer','eventAction':'Contact','eventNonInteraction':1} );">Contact</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="footer-legal">
+		<div class="wrapper">
+                        <span>
+                            <a href="/"><img alt="The Next Web" class="footer-legal-logoTNW" src="http://cdn0.tnwcdn.com/wp-content/themes/cyberdelia/assets/img/tnw.svg"></a>
+							&copy; 2001&ndash;2016 The Next Web, Inc.
+                        </span>
+			<span>Made with <b>&hearts;</b> in Amsterdam.</span>
+                        <span>
+                            Powered by
+                            <a href="http://www.maxcdn.com/" target="_blank"><img alt="MaxCDN" class="footer-legal-logoMaxCDN" src="http://cdn0.tnwcdn.com/wp-content/themes/cyberdelia/assets/img/maxcdn.svg"></a>
+                        </span>
+		</div>
+	</div>
+	</div>
+</footer>
+<div class="js-modal modal modalStayTuned" id="modalStayTuned">
+	<div class="modal-window modal-window--noFooter">
+		<header class="modal-header">
+			<h3>Stay tuned</h3>
+			<a href="#close" title="Esc"><i class="ss-pika ss-delete" onclick="dataLayer.push( {'event':'email','eventCategory':'Email','eventAction':'Close','eventLabel':'Modal','eventNonInteraction':1} )"></i></a>
+		</header>
+		<div class="modal-body">
+			<h2 class="modalStayTuned-title u-m-0_5 u-text-center">
+				Treat yourself
+			</h2>
+			<p class="lead u-m-1_5 u-text-center">
+				Sit back and let the hottest tech news come to you by the magic of electronic mail.
+			</p>
+			<form action="http://thenextweb.com/wp-content/themes/cyberdelia/ajax/form/newsletter.php" class="u-m-1" method="post" data-xhr data-xhr-fail="newsletterFail" data-xhr-success="newsletterSuccess" onsubmit="dataLayer.push( {'event':'email','eventCategory':'Email','eventAction':'Sign up','eventLabel':'Modal','eventNonInteraction':1} );">
+				<div class="modalStayTuned-success">
+					<b>T</b><b>h</b><b>a</b><b>n</b><b>k</b><b>&nbsp;</b><b>y</b><b>o</b><b>u</b><b>!</b>
+				</div>
+				<div class="formField">
+					<div class="formField-withButton">
+						<div class="formField-withIcon u-float-left u-w-xs-75">
+							<input class="formInput formInput--text" name="email" placeholder="Email" type="email" required="">
+							<input class="" name="source" hidden id="source" style="display: none" value="thenextweb.com/facebook/2016/04/11/facebook-messenger-dropbox/">
+							<i class="icon icon--mail"></i>
+						</div>
+						<button class="button u-float-left u-w-xs-25" type="submit">Sign up</button>
+					</div>
+				</div>
+			</form>
+			<p class="u-color-light u-fontSize-xs u-m-1 u-text-center">
+				Prefer to get the news as it happens? Follow us on social media.
+			</p>
+			<ul class="modalStayTuned-channels u-row">
+				<li class="u-col-xs-6 u-m-0">
+					<div class="modalStayTuned-channels-channel modalStayTuned-channels-channel--twitter">
+						<div class="modalStayTuned-channels-icon"><a href="https://www.twitter.com/thenextweb" target="_blank"><img alt="Twitter" src="http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/img/icon-twitter.svg"></a></div>
+						<p class="modalStayTuned-channels-followers">
+							<b>1.65M</b> followers
+						</p>
+						<a class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" href="https://twitter.com/thenextweb"></a>
+					</div>
+				</li>
+				<li class="u-col-xs-6 u-m-0">
+					<div class="modalStayTuned-channels-channel modalStayTuned-channels-channel--facebook">
+						<div class="modalStayTuned-channels-icon"><a href="https://www.facebook.com/thenextweb" target="_blank"><img alt="Facebook" src="http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/img/icon-facebook.svg"></a></div>
+						<p class="modalStayTuned-channels-followers">
+							<b>763K</b> likes
+						</p>
+						<div class="fb-like" data-href="https://www.facebook.com/thenextweb" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="search" id="search">
+	<header class="search-header">
+		<a id="search--close" href="#"><i class="icon icon--close"></i></a>
+	</header>
+	<form action="/" class="search-form" method="get">
+		<input autocomplete="off" id="search-input" name="s" value="" placeholder="Search" type="text" onfocus="this.value = this.value;">
+	</form>
+	<div class="search-results" id="searchResults"></div>
+</div>
+
+<script type="text/javascript">
+	var adBlocker = true;
+	var APP_ENV = {"theme":"cyberdelia","template":"article","paths":{"site":"http:\/\/thenextweb.com\/","base":"http:\/\/thenextweb.com\/wp-content\/themes\/cyberdelia\/","assets":"http:\/\/cdn1.tnwcdn.com\/wp-content\/themes\/cyberdelia\/assets\/"},"pageIdx":1,"currentPost":969523,"postRack":[{"id":969523,"permalink":"http:\/\/thenextweb.com\/facebook\/2016\/04\/11\/facebook-messenger-dropbox\/","title":"Dropbox files can now be shared directly in Facebook Messenger chats","socialTitle":"Dropbox files can now be shared directly in Facebook Messenger chats","datetime":"2016-04-11T22:15:31+02:00","author":"Nate Swanner","category":"","categoryId":"","section":"apps","sectionId":35259}],"layout":{"hasCanvas":false,"hasBanners":true,"siteskin":null},"category":"facebook","categoryId":36,"section":"apps","sectionId":35259,"ads":{"disabled":false,"paid":false,"default":{"top_lb":"TNW_topleaderboard_728x90","med_rt":"TNW_mediumrectangle_300x250","bot_lb":"TNW_bottomleaderboard_728x90","mob_top_lb":"TNW_Smartphone_Mobile_Adunit","mob_bot":"TNW_Mobile_Rectangle","onexone":""},"project":null,"sharethrough":"d3a5e594","roadblocked":null}}</script>
+
+<script>
+	var APP_LOCALE = {
+		country: "NL",
+		region: "EU",
+		city: ""
+	};
+</script>
+
+<script src="http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/js/vendor.min.js?v=1460379146" type="text/javascript"></script>  <script src="http://cdn1.tnwcdn.com/wp-content/themes/cyberdelia/assets/js/app.min.js?v=1460400595" type="text/javascript"></script>    <script type="text/javascript">
+	var QUOTES = [{"text":"Never half-ass two things. Whole ass one thing.","author":"@RonUSwanson"},
+		{"text":"If you\'ll laugh about something one day, you may as well start now.","author":"@paulg"},
+		{"text":"Activate your fans, don\'t just collect them like baseball cards.","author":"@jaybaer"},
+		{"text":"You have to give away information snacks to sell knowledge meals.","author":"@jaybaer"},
+		{"text":"Make your marketing so useful people would pay for it.","author":"@jaybaer"},
+		{"text":"The goal of social media is to turn customers into a volunteer marketing army.","author":"@jaybaer"},
+		{"text":"Everyone says social media is a unicorn, but maybe it\'s just a horse?","author":"@jaybaer"},
+		{"text":"Social media doesn\'t create negativity, it uncovers it.","author":"@jaybaer"},
+		{"text":"Passion is the gasoline of social media.","author":"@jaybaer"},
+		{"text":"You must fight social media fire with social media water.","author":"@jaybaer"},
+		{"text":"When you\'ve got 5 minutes to fill, Twitter is a great way to fill 35 minutes","author":"@mattcutts"},
+		{"text":"The objective is not to make your links appear natural. The objective is that your links are natural.","author":"@mattcutts"},
+		{"text":"SEO is like a resume. You polish it so you have your best foot forward.","author":"@mattcutts"},
+		{"text":"You are only as strong as your weakest link.","author":"@mattcutts"},
+		{"text":"A creative idea plus a fresh network is the best way to go from zero to millions.","author":"@peretti"},
+		{"text":"On Twitter, you get 140 chars to be worth paying attention to, no matter who you are.","author":"@graemem"},
+		{"text":"Social Media is about sociology and psychology more than technology.","author":"@briansolis"},
+		{"text":"In the digital space, attention is a currency. We earn it. We spend it.","author":"@briansolis"},
+		{"text":"Community is about doing something together that makes belonging matter.","author":"@briansolis"},
+		{"text":"Our head of social media is the customer.","author":"@McDonalds"},
+		{"text":"Social networks aren\'t about Web sites. They\'re about experiences.","author":"@DrizlyDilo"},
+		{"text":"Social media are tools. Realtime is a mindset.","author":"@dmscott"},
+		{"text":"If you do not have great content it does not matter at all how you deliver it.","author":"@unmarketing"},
+		{"text":"Twitter is not a technology but a conversation. It\'s happening with or without you.","author":"@charleneli"},
+		{"text":"Things that help others is what gets the most shares.","author":"@chrisbrogan"},
+		{"text":"The old paradigm was pay to play. Now you\'ve got to be willing to play to play.","author":"@bogusky"},
+		{"text":"Chase the vision, not the money; the money will end up following you.","author":"@tonyhsieh"},
+		{"text":"Don\'t worry about failure; you only have to be right once.","author":"@drewhouston"},
+		{"text":"Ideas are easy. Implementation is hard.","author":"@GuyKawasaki"},
+		{"text":"Any time is a good time to start a company.","author":"@RonConway"},
+		{"text":"You can start a company at any time, but there\'s only one right time to start YOUR company.","author":"@Boris"},
+		{"text":"The way to get started is to quit talking and start doing.","author":"Walt Disney"},
+		{"text":"Projections are just bullshit. They\'re just guesses.","author":"@jasonfried"},
+		{"text":"Don\'t be cocky. Don\'t be flashy. There\'s always someone better than you.","author":"@tonyhsieh"},
+		{"text":"Always deliver more than expected.","author":"Larry Page"},
+		{"text":"Your most unhappy customers are your greatest source of learning.","author":"@BillGates"},
+		{"text":"Always treat your employees exactly as you want them to treat your best customers.\'","author":"@StephenRCovey"},
+		{"text":"In between goals is a thing called life, that has to be lived and enjoyed.","author":"Sid Caesar"},
+		{"text":"Wonder what your customer really wants? Ask. Don\'t tell.","author":"@LisaStone"},
+		{"text":"Waiting for perfect is never as smart as making progress.","author":"@ThisIsSethsBlog"},
+		{"text":"Content Marketing is all the Marketing that\'s left.","author":"@ThisIsSethsBlog"},
+		{"text":"If great content is the hero, then banners are the villain.","author":"@BrennerMichael"},
+		{"text":"Banners have 99 problems and a click ain\'t one.","author":"@ssorokin"},
+		{"text":"Marketing is too important to be left to the marketing department.","author":"David Packard"},
+		{"text":"The buyer journey is nothing more than a series of questions that must be answered.","author":"@brennermichael"},
+		{"text":"What helps people, helps business.","author":"Leo Burnett"},{"text":"Content is king.","author":"@BillGates"},
+		{"text":"Behind every piece of bad content is an executive who asked for it.","author":"@brennermichael"},
+		{"text":"Market like the year you are in.","author":"@garyvee"},
+		{"text":"Content Marketing is a commitment, not a campaign.","author":"@jonbuscall"},
+		{"text":"Either write something worth reading or do something worth writing about.","author":"Benjamin Franklin"},
+		{"text":"Google is the new corporate homepage.","author":"@jowyang"},
+		{"text":"Traditional marketing talks at people. Content marketing talks with them.","author":"@dougkessler"},
+		{"text":"The aim of marketing is to get and keep a customer.","author":"Peter Drucker"},
+		{"text":"Your brand is not what you sell.","author":"John Iwata, IBM"},
+		{"text":"Content is the reason search began in the first place.","author":"@leeodden"},
+		{"text":"When creating content, be the best answer on the internet.","author":"@crestodina"},
+		{"text":"Content is king, but distribution is queen. And she wears the pants.","author":"@peretti"},
+		{"text":"The best marketing doesn\'t feel like marketing.","author":"@tomfishburne"},
+		{"text":"Brands need to take the phrase \'acting like a publisher\' literally.","author":"@DMATESCHlTZ"},
+		{"text":"Connect with your audience through stories people love.","author":"@shafqatislam"}];
+</script>		<script type="text/javascript">
+	window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/72x72\/","ext":".png","source":{"concatemoji":"http:\/\/thenextweb.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.4.2"}};
+	!function(a,b,c){function d(a){var c,d=b.createElement("canvas"),e=d.getContext&&d.getContext("2d"),f=String.fromCharCode;return e&&e.fillText?(e.textBaseline="top",e.font="600 32px Arial","flag"===a?(e.fillText(f(55356,56806,55356,56826),0,0),d.toDataURL().length>3e3):"diversity"===a?(e.fillText(f(55356,57221),0,0),c=e.getImageData(16,16,1,1).data.toString(),e.fillText(f(55356,57221,55356,57343),0,0),c!==e.getImageData(16,16,1,1).data.toString()):("simple"===a?e.fillText(f(55357,56835),0,0):e.fillText(f(55356,57135),0,0),0!==e.getImageData(16,16,1,1).data[0])):!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g;c.supports={simple:d("simple"),flag:d("flag"),unicode8:d("unicode8"),diversity:d("diversity")},c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.simple&&c.supports.flag&&c.supports.unicode8&&c.supports.diversity||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+</script>
+<script type='text/javascript' src='http://thenextweb.com/wp-content/plugins/index-wordpress-plugin/assets/index.js?ver=4.4.2'></script>
+<script type='text/javascript' src='http://thenextweb.com/wp-includes/js/wp-embed.min.js?ver=4.4.2'></script>
+</body>
+</html>
