@@ -50,7 +50,6 @@ page.open(url, function () {
 		hitElements["success"] = false;
 		hitElements["errorMessage"] = "PhantomJS: Local jQuery failed to load";
 	}
-
 	fs.write(system.args[2], JSON.stringify(hitElements), 'w');
 	console.log(hitElements["success"]);
 	phantom.exit();
