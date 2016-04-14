@@ -1,17 +1,17 @@
 var fs = require('fs'),
-mkdirp = require('mkdirp'),
-getDirName = require('path').dirname,
-css = require('css'),
-path = require('path'),
-CleanCSS = require('clean-css'),
-jsdom = require("jsdom"),
-request = require('request'),
-MediaQuery = require('css-mediaquery'),
-childProcess = require('child_process'),
-phantomjs = require('phantomjs-prebuilt'),
-open = require("open"),
-binPath = phantomjs.path,
-global = {};
+	mkdirp = require('mkdirp'),
+	getDirName = require('path').dirname,
+	css = require('css'),
+	path = require('path'),
+	CleanCSS = require('clean-css'),
+	jsdom = require("jsdom"),
+	request = require('request'),
+	MediaQuery = require('css-mediaquery'),
+	childProcess = require('child_process'),
+	phantomjs = require('phantomjs-prebuilt'),
+	open = require("open"),
+	binPath = phantomjs.path,
+	global = {};
 
 function parseConfig(json) {
 	console.log("------------------");
@@ -108,12 +108,12 @@ function getCssSelectors(cssAst, groupObject) {
 	var selectorMap = new Map();
 	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
 		var rule = cssAst["stylesheet"]["rules"][i];
-		addRuleDeclarations(rule, selectorMap, groupObject);
+		addRuleDeclarations(rule, selectorMap, groupObject["viewport"][0], groupObject["viewport"][1], true);
 	}
 	return selectorMap;
 }
 
-function addRuleDeclarations(rule, selectorMap, groupObject) {
+function addRuleDeclarations(rule, selectorMap, width, height, matchViewport) {
 	if (rule["type"] === "rule") {
 		var selector = rule["selectors"].join(', ');
 		if (selectorMap.has(selector)) {
@@ -123,17 +123,15 @@ function addRuleDeclarations(rule, selectorMap, groupObject) {
 			selectorMap.set(selector, rule["declarations"]);
 		}
 	}
-	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], groupObject)) {
+	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], width, height) === matchViewport) {
 		for (var j = 0; j < rule["rules"].length; j++) {
-			addRuleDeclarations(rule["rules"][j], selectorMap, groupObject);
+			addRuleDeclarations(rule["rules"][j], selectorMap, width, height, matchViewport);
 		}
 	}
 }
 
 //TODO: this screen thing is not good
-function mediaQueryMatchesViewport(mediaQuery, groupObject) {
-	var width = groupObject["viewport"][0];
-	var height = groupObject["viewport"][1];
+function mediaQueryMatchesViewport(mediaQuery, width, height) {
 	return MediaQuery.match("screen and " + mediaQuery, {
 		width: width + 'px',
 		height: height + 'px',
@@ -220,10 +218,15 @@ function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
 
 function sliceCss(selectorHits, selectorMap, groupObject, cssFile, cssAst, tmpCssFile) {
 	var criticalCss = "";
-	for (var i = 0; i < selectorHits.length; i++) {
-		if (selectorMap.has(selectorHits[i])) {
-			criticalCss += selectorHits[i] + "{";
-			var declarations = selectorMap.get(selectorHits[i]);
+	var nonCriticalCss = "";
+
+	var mapIterator = selectorMap.keys();
+	var currentKey = mapIterator.next();
+	while (!currentKey["done"]) {
+		var selector = currentKey["value"];
+		var declarations = selectorMap.get(selector);
+		if (selectorHits.indexOf(selector) != -1) {
+			criticalCss += selector + "{";
 			for (var j = 0; j < declarations.length; j++) {
 				if (declarations[j]["type"] === "declaration") {
 					criticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
@@ -231,14 +234,61 @@ function sliceCss(selectorHits, selectorMap, groupObject, cssFile, cssAst, tmpCs
 			}
 			criticalCss += "}";
 		}
+		else {
+			nonCriticalCss += selector + "{";
+			for (var j = 0; j < declarations.length; j++) {
+				if (declarations[j]["type"] === "declaration") {
+					nonCriticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
+				}
+			}
+			nonCriticalCss += "}";
+		}
+		currentKey = mapIterator.next()
 	}
 
+	selectorMap = new Map();
+	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
+		var rule = cssAst["stylesheet"]["rules"][i];
+		if (rule["type"] === "media") {
+			addRuleDeclarations(rule, selectorMap, groupObject["viewport"][0], groupObject["viewport"][1], false);
+		}
+	}
+
+	mapIterator = selectorMap.keys();
+	currentKey = mapIterator.next();
+	while (!currentKey["done"]) {
+		selector = currentKey["value"];
+		declarations = selectorMap.get(selector);
+		nonCriticalCss += selector + "{";
+		for (var j = 0; j < declarations.length; j++) {
+			if (declarations[j]["type"] === "declaration") {
+				nonCriticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
+			}
+		}
+		nonCriticalCss += "}";
+		currentKey = mapIterator.next()
+	}
+
+	//for (var i = 0; i < selectorHits.length; i++) {
+	//	if (selectorMap.has(selectorHits[i])) {
+	//		criticalCss += selectorHits[i] + "{";
+	//		var declarations = selectorMap.get(selectorHits[i]);
+	//		for (var j = 0; j < declarations.length; j++) {
+	//			if (declarations[j]["type"] === "declaration") {
+	//				criticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
+	//			}
+	//		}
+	//		criticalCss += "}";
+	//	}
+	//}
+
 	var minifiedCriticalCss = new CleanCSS().minify(criticalCss).styles;
-	injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpCssFile);
+	var minifiedNonCriticalCss = new CleanCSS().minify(nonCriticalCss).styles;
+	injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, cssAst, tmpCssFile);
 }
 
 //ASYNC
-function injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpCssFile) {
+function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, cssAst, tmpCssFile) {
 	jsdom.env({
 		html: groupObject["html"],
 		done: function (error, window) {
@@ -249,15 +299,15 @@ function injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpC
 
 				// Insert minified critical css in <style> tag
 				var head = window.document.head || window.document.getElementsByTagName('head')[0];
-				var style = window.document.createElement('style');
-				style.type = 'text/css';
-				if (style.styleSheet) {
-					style.styleSheet.cssText = minifiedCriticalCss;
+				var body = window.document.body || window.document.getElementsByTagName('body')[0];
+				var criticalStyleTag = window.document.createElement('style');
+				criticalStyleTag.type = 'text/css';
+				if (criticalStyleTag.styleSheet) {
+					criticalStyleTag.styleSheet.cssText = minifiedCriticalCss;
 				} else {
-					style.appendChild(window.document.createTextNode(minifiedCriticalCss));
+					criticalStyleTag.appendChild(window.document.createTextNode(minifiedCriticalCss));
 				}
-				head.appendChild(style);
-
+				head.appendChild(criticalStyleTag);
 
 
 				// Try and find <link> tag with CSS to remove it
@@ -265,6 +315,15 @@ function injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpC
 				if (linkElement !== undefined) {
 					head.removeChild(linkElement);
 				}
+
+				var nonCriticalStyleTag = window.document.createElement('style');
+				nonCriticalStyleTag.type = 'text/css';
+				if (nonCriticalStyleTag.styleSheet) {
+					nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
+				} else {
+					nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
+				}
+				body.appendChild(nonCriticalStyleTag);
 
 				// Save HTML for possible next CSS file run
 				groupObject["html"] = window.document.documentElement.outerHTML;
@@ -278,7 +337,6 @@ function injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpC
 
 					// Insert debug viewport box
 					if (global["debug"]) {
-						var body = window.document.body || window.document.getElementsByTagName('body')[0];
 						body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
 						groupObject["html"] = window.document.documentElement.outerHTML;
 					}

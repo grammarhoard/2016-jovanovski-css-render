@@ -1,10 +1,9 @@
-var page = require('webpage').create();
-var system = require('system');
-var fs = require('fs');
-
-var url = system.args[1];
-var viewportWidth = system.args[3];
-var viewportHeight = system.args[4];
+var page = require('webpage').create(),
+	system = require('system'),
+	fs = require('fs'),
+	htmlUrl = system.args[1],
+	viewportWidth = system.args[3],
+	viewportHeight = system.args[4];
 
 page.onConsoleMessage = function (msg) {
 	console.log('console: ' + msg);
@@ -15,7 +14,7 @@ page.viewportSize = {
 	height: viewportHeight
 };
 
-page.open(url, function () {
+page.open(htmlUrl, function () {
 	var hitElements = {success: "true"};
 	if (page.injectJs("lib/jquery.min.js")) {
 		var tmpCssFile = fs.open(system.args[2], 'r');
@@ -35,25 +34,25 @@ page.open(url, function () {
 			for (var i = 0; i < selectors.length; i++) {
 				var originalSelector = selectors[i];
 				var selector = selectors[i];
-				if(selector.indexOf("@") === 0){
+				if (selector.indexOf("@") === 0) {
 					continue;
 				}
-				if(selector.indexOf(":") != -1){
+				if (selector.indexOf(":") != -1) {
 					var splitSelectors = selector.split(",");
 					var pseudoCleanSelectors = "";
-					for(var j=0;j<splitSelectors.length;j++){
+					for (var j = 0; j < splitSelectors.length; j++) {
 						var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
-						if(removedPseudoFromSelector.length>0 && removedPseudoFromSelector!==" "){
+						if (removedPseudoFromSelector.length > 0 && removedPseudoFromSelector !== " ") {
 							pseudoCleanSelectors += removedPseudoFromSelector + ",";
 						}
 					}
 
-					selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length-1);
+					selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length - 1);
 				}
 				try {
 					var elements = $(selector);
 				}
-				catch(e){
+				catch (e) {
 					//console.log("OPA: " + originalSelector + " \n" + selector);
 					continue;
 				}
