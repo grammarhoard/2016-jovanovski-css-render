@@ -18,61 +18,110 @@ page.open(htmlUrl, function () {
 	var hitElements = {success: "true"};
 	if (page.injectJs("lib/jquery.min.js")) {
 		var tmpCssFile = fs.open(system.args[2], 'r');
-		var selectors = tmpCssFile.read().split("||");
+		var cssAst = JSON.parse(tmpCssFile.read());
 		tmpCssFile.close();
-		hitElements["hits"] = page.evaluate(function (selectors, viewportWidth, viewportHeight) {
-			function arrayHasElement(element, array) {
-				for (var i = 0; i < array.length; i++) {
-					if (array[i] === element) {
-						return true;
+		hitElements["hits"] = page.evaluate(function (cssAst, viewportWidth, viewportHeight) {
+			for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
+				var rule = cssAst["stylesheet"]["rules"][i];
+				if (rule["critical"]) {
+					if (rule["type"] === "rule") {
+						var ruleHit = false;
+						for (var j = 0; j < rule["selectors"].length; j++) {
+							var selector = rule["selectors"][j];
+							// Nasty fix for @-ms-viewport
+							if (selector.indexOf("@") === 0) {
+								continue;
+							}
+
+							// Clean off pseudo stuff
+							if (selector.indexOf(":") != -1) {
+								selector = selector.substring(0, selector.indexOf(":"));
+								//var splitSelectors = selector.split(",");
+								//var pseudoCleanSelectors = "";
+								//for (var j = 0; j < splitSelectors.length; j++) {
+								//	var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
+								//	if (removedPseudoFromSelector.length > 0 && removedPseudoFromSelector !== " ") {
+								//		pseudoCleanSelectors += removedPseudoFromSelector + ",";
+								//	}
+								//}
+								//
+								//selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length - 1);
+							}
+
+							var elements;
+							try {
+								elements = $(selector);
+							}
+							catch (e) {
+								console.log("OPA: " + originalSelector + " \n" + selector);
+								continue;
+							}
+							var hit = false;
+							for (var k = 0; k < elements.length; k++) {
+								var element = elements[k];
+								if (element !== undefined && element.getBoundingClientRect() !== undefined && element.getBoundingClientRect().top < viewportHeight && element.getBoundingClientRect().left < viewportWidth) {
+									hit = true;
+									break;
+								}
+							}
+							if (hit) {
+								ruleHit = true;
+								break;
+							}
+						}
+						rule["critical"] = ruleHit;
+					}
+					else if (rule["type"] === "media") {
+						//TODO NO!
+						rule["critical"] = true;
 					}
 				}
-				return false;
 			}
 
-			var results = [];
-			for (var i = 0; i < selectors.length; i++) {
-				var originalSelector = selectors[i];
-				var selector = selectors[i];
-				if (selector.indexOf("@") === 0) {
-					continue;
-				}
-				if (selector.indexOf(":") != -1) {
-					var splitSelectors = selector.split(",");
-					var pseudoCleanSelectors = "";
-					for (var j = 0; j < splitSelectors.length; j++) {
-						var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
-						if (removedPseudoFromSelector.length > 0 && removedPseudoFromSelector !== " ") {
-							pseudoCleanSelectors += removedPseudoFromSelector + ",";
-						}
-					}
+			//-----------
+			//for (var i = 0; i < selectors.length; i++) {
+			//	var originalSelector = selectors[i];
+			//	var selector = selectors[i];
+			//	if (selector.indexOf("@") === 0) {
+			//		continue;
+			//	}
+			//	if (selector.indexOf(":") != -1) {
+			//		var splitSelectors = selector.split(",");
+			//		var pseudoCleanSelectors = "";
+			//		for (var j = 0; j < splitSelectors.length; j++) {
+			//			var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
+			//			if (removedPseudoFromSelector.length > 0 && removedPseudoFromSelector !== " ") {
+			//				pseudoCleanSelectors += removedPseudoFromSelector + ",";
+			//			}
+			//		}
+			//
+			//		selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length - 1);
+			//	}
+			//	try {
+			//		var elements = $(selector);
+			//	}
+			//	catch (e) {
+			//		//console.log("OPA: " + originalSelector + " \n" + selector);
+			//		continue;
+			//	}
+			//	for (var j = 0; j < elements.length; j++) {
+			//		var element = elements[j];
+			//		if (element !== undefined && element.getBoundingClientRect() !== undefined && element.getBoundingClientRect().top < viewportHeight && element.getBoundingClientRect().left < viewportWidth) {
+			//			if (!arrayHasElement(selector, results)) {
+			//				results.push(originalSelector);
+			//			}
+			//		}
+			//	}
+			//}
 
-					selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length - 1);
-				}
-				try {
-					var elements = $(selector);
-				}
-				catch (e) {
-					//console.log("OPA: " + originalSelector + " \n" + selector);
-					continue;
-				}
-				for (var j = 0; j < elements.length; j++) {
-					var element = elements[j];
-					if (element !== undefined && element.getBoundingClientRect() !== undefined && element.getBoundingClientRect().top < viewportHeight && element.getBoundingClientRect().left < viewportWidth) {
-						if (!arrayHasElement(selector, results)) {
-							results.push(originalSelector);
-						}
-					}
-				}
-			}
-			return results;
-		}, selectors, viewportWidth, viewportHeight);
+			return cssAst;
+		}, cssAst, viewportWidth, viewportHeight);
 	}
 	else {
 		hitElements["success"] = false;
 		hitElements["errorMessage"] = "PhantomJS: Local jQuery failed to load";
 	}
-	fs.write(system.args[2], JSON.stringify(hitElements), 'w');
+	fs.write(system.args[2], JSON.stringify(hitElements["hits"]), 'w');
 	console.log(hitElements["success"]);
 	phantom.exit();
 });

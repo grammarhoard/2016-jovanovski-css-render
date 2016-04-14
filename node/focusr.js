@@ -98,41 +98,42 @@ function createAST(cssData, cssFile, groupObject) {
 	if (cssData !== undefined) {
 		groupObject["runs"]++;
 		var cssAst = css.parse(cssData);
-		var selectorMap = getCssSelectors(cssAst, groupObject);
-		checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst);
+		markNoncriticalMedia(cssAst, groupObject);
+		checkIfSelectorsHit(groupObject, cssFile, cssAst);
 	}
 }
 
-function getCssSelectors(cssAst, groupObject) {
+function markNoncriticalMedia(cssAst, groupObject) {
 	//noinspection JSUnresolvedFunction
-	var selectorMap = new Map();
 	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
 		var rule = cssAst["stylesheet"]["rules"][i];
-		addRuleDeclarations(rule, selectorMap, groupObject["viewport"][0], groupObject["viewport"][1], true);
+		if(matchesViewport(rule, groupObject["viewport"][0], groupObject["viewport"][1])){
+			cssAst["stylesheet"]["rules"][i]["critical"] = true;
+		}
+		else{
+			cssAst["stylesheet"]["rules"][i]["critical"] = false;
+		}
 	}
-	return selectorMap;
 }
 
-function addRuleDeclarations(rule, selectorMap, width, height, matchViewport) {
+function matchesViewport(rule, width, height) {
 	if (rule["type"] === "rule") {
-		var selector = rule["selectors"].join(', ');
-		if (selectorMap.has(selector)) {
-			selectorMap.set(selector, selectorMap.get(selector).concat(rule["declarations"]));
-		}
-		else {
-			selectorMap.set(selector, rule["declarations"]);
+		return true;
+	}
+	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], width, height)) {
+		for (var j = 0; j < rule["rules"].length; j++) {
+			if(matchesViewport(rule["rules"][j], width, height)){
+				return true;
+			}
 		}
 	}
-	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], width, height) === matchViewport) {
-		for (var j = 0; j < rule["rules"].length; j++) {
-			addRuleDeclarations(rule["rules"][j], selectorMap, width, height, matchViewport);
-		}
+	else{
+		return false;
 	}
 }
 
-//TODO: this screen thing is not good
 function mediaQueryMatchesViewport(mediaQuery, width, height) {
-	return MediaQuery.match("screen and " + mediaQuery, {
+	return MediaQuery.match(mediaQuery, {
 		width: width + 'px',
 		height: height + 'px',
 		type: 'screen'
@@ -140,19 +141,12 @@ function mediaQueryMatchesViewport(mediaQuery, width, height) {
 }
 
 //ASYNC
-function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
+function checkIfSelectorsHit(groupObject, cssFile, cssAst) {
 
 	var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
 	var viewportW = groupObject["viewport"][0];
 	var viewportH = groupObject["viewport"][1];
 	var html = groupObject["html"];
-	var selectors = [];
-	var mapIterator = selectorMap.keys();
-	var currentKey = mapIterator.next();
-	while (!currentKey["done"]) {
-		selectors.push(currentKey["value"]);
-		currentKey = mapIterator.next()
-	}
 
 	jsdom.env({
 		html: html,
@@ -174,10 +168,10 @@ function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
 
 
 				// Save CSS selectors to tmp file because they may be too big for console argument
-				writeFile(tmpCssFile, selectors.join("||"));
+				writeFile(tmpCssFile, JSON.stringify(cssAst));
 
 
-				console.log("[" + groupObject["groupID"] + "] Calling PhantomJS with " + selectors.length + " selectors from " + cssFile);
+				console.log("[" + groupObject["groupID"] + "] Calling PhantomJS for " + cssFile);
 
 				var childArgs = [
 					path.join(__dirname, 'phantomjs-script.js'),
@@ -193,9 +187,9 @@ function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
 						try {
 							var json = stdout.replace(/(\r\n|\n|\r)/gm, "");
 							if (json === "true") {
-								json = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
-								console.log("[" + groupObject["groupID"] + "] PhantomJS reported that " + json["hits"].length + " selectors hit in " + cssFile);
-								sliceCss(json["hits"], selectorMap, groupObject, cssFile, cssAst, tmpCssFile);
+								var processedAst = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
+								console.log("[" + groupObject["groupID"] + "] PhantomJS reported back for " + cssFile);
+								sliceCss(groupObject, cssFile, processedAst, tmpCssFile);
 							}
 							else {
 								console.log("[" + groupObject["groupID"] + "] A controlled exception occurred: " + json["errorMessage"] + " " + stdout);
@@ -216,79 +210,45 @@ function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
 
 }
 
-function sliceCss(selectorHits, selectorMap, groupObject, cssFile, cssAst, tmpCssFile) {
-	var criticalCss = "";
-	var nonCriticalCss = "";
+function sliceCss(groupObject, cssFile, processedAst, tmpCssFile) {
 
-	var mapIterator = selectorMap.keys();
-	var currentKey = mapIterator.next();
-	while (!currentKey["done"]) {
-		var selector = currentKey["value"];
-		var declarations = selectorMap.get(selector);
-		if (selectorHits.indexOf(selector) != -1) {
-			criticalCss += selector + "{";
-			for (var j = 0; j < declarations.length; j++) {
-				if (declarations[j]["type"] === "declaration") {
-					criticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
-				}
-			}
-			criticalCss += "}";
-		}
-		else {
-			nonCriticalCss += selector + "{";
-			for (var j = 0; j < declarations.length; j++) {
-				if (declarations[j]["type"] === "declaration") {
-					nonCriticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
-				}
-			}
-			nonCriticalCss += "}";
-		}
-		currentKey = mapIterator.next()
-	}
+	var criticalCssAst = JSON.parse(JSON.stringify(processedAst));
+	var nonCriticalCssAst = JSON.parse(JSON.stringify(processedAst));
 
-	selectorMap = new Map();
-	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
-		var rule = cssAst["stylesheet"]["rules"][i];
-		if (rule["type"] === "media") {
-			addRuleDeclarations(rule, selectorMap, groupObject["viewport"][0], groupObject["viewport"][1], false);
+	for (var i = 0; i < processedAst["stylesheet"]["rules"].length; i++) {
+		var rule = processedAst["stylesheet"]["rules"][i];
+		if(rule["critical"]){
+			nonCriticalCssAst["stylesheet"]["rules"][i] = undefined;
+		}
+		else{
+			criticalCssAst["stylesheet"]["rules"][i] = undefined;
 		}
 	}
 
-	mapIterator = selectorMap.keys();
-	currentKey = mapIterator.next();
-	while (!currentKey["done"]) {
-		selector = currentKey["value"];
-		declarations = selectorMap.get(selector);
-		nonCriticalCss += selector + "{";
-		for (var j = 0; j < declarations.length; j++) {
-			if (declarations[j]["type"] === "declaration") {
-				nonCriticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
-			}
-		}
-		nonCriticalCss += "}";
-		currentKey = mapIterator.next()
-	}
+	criticalCssAst["stylesheet"]["rules"] = balanceArray(criticalCssAst["stylesheet"]["rules"]);
+	nonCriticalCssAst["stylesheet"]["rules"] = balanceArray(nonCriticalCssAst["stylesheet"]["rules"]);
 
-	//for (var i = 0; i < selectorHits.length; i++) {
-	//	if (selectorMap.has(selectorHits[i])) {
-	//		criticalCss += selectorHits[i] + "{";
-	//		var declarations = selectorMap.get(selectorHits[i]);
-	//		for (var j = 0; j < declarations.length; j++) {
-	//			if (declarations[j]["type"] === "declaration") {
-	//				criticalCss += declarations[j]["property"] + ":" + declarations[j]["value"] + ";";
-	//			}
-	//		}
-	//		criticalCss += "}";
-	//	}
-	//}
+	var criticalCss = css.stringify(criticalCssAst);
+	var nonCriticalCss = css.stringify(nonCriticalCssAst);
+
 
 	var minifiedCriticalCss = new CleanCSS().minify(criticalCss).styles;
 	var minifiedNonCriticalCss = new CleanCSS().minify(nonCriticalCss).styles;
-	injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, cssAst, tmpCssFile);
+	injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, tmpCssFile);
+}
+
+function balanceArray(array){
+	var tmpArray = [];
+	for (var i = 0; i < array.length; i++) {
+		if(array[i] !== undefined){
+			tmpArray.push(array[i]);
+		}
+	}
+	return tmpArray;
 }
 
 //ASYNC
-function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, cssAst, tmpCssFile) {
+function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, tmpCssFile) {
 	jsdom.env({
 		html: groupObject["html"],
 		done: function (error, window) {
@@ -302,6 +262,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 				var body = window.document.body || window.document.getElementsByTagName('body')[0];
 				var criticalStyleTag = window.document.createElement('style');
 				criticalStyleTag.type = 'text/css';
+				criticalStyleTag.setAttribute("data-origin", cssFile);
 				if (criticalStyleTag.styleSheet) {
 					criticalStyleTag.styleSheet.cssText = minifiedCriticalCss;
 				} else {
@@ -318,6 +279,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 
 				var nonCriticalStyleTag = window.document.createElement('style');
 				nonCriticalStyleTag.type = 'text/css';
+				criticalStyleTag.setAttribute("data-origin", cssFile);
 				if (nonCriticalStyleTag.styleSheet) {
 					nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
 				} else {
