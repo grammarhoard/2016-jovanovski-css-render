@@ -2,10 +2,14 @@
   "private": true,
   "devDependencies": {
     "phantomjs-prebuilt": "^2.1.7",
-    "css" : "^2.2.1",
-    "css-mediaquery" : "^0.1.2",
+    "css": "^2.2.1",
+    "css-mediaquery": "^0.1.2",
     "clean-css": "^3.4.12",
     "jsdom": "^8.3.1",
-    "mkdirp": "^0.5.1"
+    "mkdirp": "^0.5.1",
+    "request": "^2.71.0"
+  },
+  "dependencies": {
+    "critical": "^0.7.2"
   }
 }

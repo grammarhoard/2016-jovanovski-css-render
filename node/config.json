@@ -1,33 +1,27 @@
 {
   "autoOpen": true,
   "debug": true,
+  "allowJs": true,
   "groups":[
     {
-      "enabled": true,
-      "inputFile" : "tests/test1/pre.html",
-      "outputFile": "tests/test1/index.html",
-      "css" : [
-        "tests/test1/css/main.css",
-        "tests/test1/css/reset.css"
-      ],
+      "enabled": false,
+      "baseDir": "tests/test1/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
       "viewport" : [375, 667]
     },
     {
-      "enabled": true,
-      "inputFile" : "tests/test2/pre.html",
-      "outputFile": "tests/test2/index.html",
-      "css" : [
-        "tests/test2/css/main.css"
-      ],
+      "enabled": false,
+      "baseDir": "tests/test2/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
       "viewport" : [1024, 768]
     },
     {
       "enabled": true,
-      "inputFile" : "tests/test3/pre.html",
-      "outputFile": "tests/test3/index.html",
-      "css" : [
-        "tests/test3/css/main.css"
-      ],
+      "baseDir": "tests/test3/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
       "viewport" : [1024, 768]
     }
   ]

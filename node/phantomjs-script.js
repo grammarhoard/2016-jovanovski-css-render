@@ -1,4 +1,6 @@
-var page = require('webpage').create(), system = require('system'), fs = require('fs');
+var page = require('webpage').create();
+var system = require('system');
+var fs = require('fs');
 
 var url = system.args[1];
 var viewportWidth = system.args[3];
@@ -16,11 +18,9 @@ page.viewportSize = {
 page.open(url, function () {
 	var hitElements = {success: "true"};
 	if (page.injectJs("jquery.min.js")) {
-
-
-		var cssFile = fs.open(system.args[2], 'r');
-		var selectors = cssFile.read().split("||");
-		cssFile.close();
+		var tmpCssFile = fs.open(system.args[2], 'r');
+		var selectors = tmpCssFile.read().split("||");
+		tmpCssFile.close();
 		hitElements["hits"] = page.evaluate(function (selectors, viewportWidth, viewportHeight) {
 			function arrayHasElement(element, array) {
 				for (var i = 0; i < array.length; i++) {
@@ -33,12 +33,35 @@ page.open(url, function () {
 
 			var results = [];
 			for (var i = 0; i < selectors.length; i++) {
-				var elements = $(selectors[i]);
+				var originalSelector = selectors[i];
+				var selector = selectors[i];
+				if(selector.indexOf("@") === 0){
+					continue;
+				}
+				if(selector.indexOf(":") != -1){
+					var splitSelectors = selector.split(",");
+					var pseudoCleanSelectors = "";
+					for(var j=0;j<splitSelectors.length;j++){
+						var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
+						if(removedPseudoFromSelector.length>0 && removedPseudoFromSelector!==" "){
+							pseudoCleanSelectors += removedPseudoFromSelector + ",";
+						}
+					}
+
+					selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length-1);
+				}
+				try {
+					var elements = $(selector);
+				}
+				catch(e){
+					continue;
+					//console.log("OPA: " + originalSelector + " \n" + selector);
+				}
 				for (var j = 0; j < elements.length; j++) {
 					var element = elements[j];
 					if (element !== undefined && element.getBoundingClientRect() !== undefined && element.getBoundingClientRect().top < viewportHeight && element.getBoundingClientRect().left < viewportWidth) {
-						if (!arrayHasElement(selectors[i], results)) {
-							results.push(selectors[i]);
+						if (!arrayHasElement(selector, results)) {
+							results.push(originalSelector);
 						}
 					}
 				}
