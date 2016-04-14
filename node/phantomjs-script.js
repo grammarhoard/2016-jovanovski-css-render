@@ -17,7 +17,7 @@ page.viewportSize = {
 
 page.open(url, function () {
 	var hitElements = {success: "true"};
-	if (page.injectJs("jquery.min.js")) {
+	if (page.injectJs("lib/jquery.min.js")) {
 		var tmpCssFile = fs.open(system.args[2], 'r');
 		var selectors = tmpCssFile.read().split("||");
 		tmpCssFile.close();
@@ -54,8 +54,8 @@ page.open(url, function () {
 					var elements = $(selector);
 				}
 				catch(e){
-					continue;
 					//console.log("OPA: " + originalSelector + " \n" + selector);
+					continue;
 				}
 				for (var j = 0; j < elements.length; j++) {
 					var element = elements[j];

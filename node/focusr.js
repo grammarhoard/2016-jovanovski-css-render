@@ -1,18 +1,17 @@
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var getDirName = require('path').dirname;
-var css = require('css');
-var path = require('path');
-var CleanCSS = require('clean-css');
-var jsdom = require("jsdom");
-var request = require('request');
-var MediaQuery = require('css-mediaquery');
-var childProcess = require('child_process');
-var phantomjs = require('phantomjs-prebuilt');
-var open = require("open");
-var binPath = phantomjs.path;
-var jquery = fs.readFileSync("jquery.min.js", "utf-8");
-var global = {};
+var fs = require('fs'),
+mkdirp = require('mkdirp'),
+getDirName = require('path').dirname,
+css = require('css'),
+path = require('path'),
+CleanCSS = require('clean-css'),
+jsdom = require("jsdom"),
+request = require('request'),
+MediaQuery = require('css-mediaquery'),
+childProcess = require('child_process'),
+phantomjs = require('phantomjs-prebuilt'),
+open = require("open"),
+binPath = phantomjs.path,
+global = {};
 
 function parseConfig(json) {
 	console.log("------------------");
@@ -22,76 +21,65 @@ function parseConfig(json) {
 	global = json;
 	global["runningGroups"] = 0;
 	for (var i = 0; i < json["groups"].length; i++) {
-		var fileObject = json["groups"][i];
-		if (fileObject["enabled"]) {
-			fileObject["groupID"] = id++;
+		var groupObject = json["groups"][i];
+		if (groupObject["enabled"]) {
+			groupObject["groupID"] = id++;
 			global["runningGroups"]++;
-			parseFile(fileObject);
+			parseGroup(groupObject);
 		}
 	}
 }
 
-function parseFile(fileObject) {
-	fileObject["html"] = fs.readFileSync(fileObject["baseDir"] + fileObject["inputFile"], "utf-8");
-	fileObject["runs"] = 0;
-	findCSSInHTML(fileObject);
-	//for (var i = 0; i < fileObject["css"].length; i++) {
-	//	var cssFile = fileObject["css"][i];
-	//	fileObject["html"] = fs.readFileSync(fileObject["inputFile"], "utf-8");
-	//	findCSSInHTML(fileObject["html"]);
-	//	fileObject["runs"] = 0;
-	//	//readCss(cssFile, fileObject);
-	//}
+function parseGroup(groupObject) {
+	groupObject["html"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+	groupObject["runs"] = 0;
+	findCSSInHTML(groupObject);
 }
 
-function findCSSInHTML(fileObject) {
+function findCSSInHTML(groupObject) {
 	jsdom.env({
-		html: fileObject["html"],
+		html: groupObject["html"],
 		done: function (error, window) {
 			if (error) {
-				console.log("[" + fileObject["groupID"] + "] A jsdom error occurred: " + error);
+				console.log("[" + groupObject["groupID"] + "] A jsdom error occurred: " + error);
 			}
 			else {
 				var stylesheets = window.document.querySelectorAll("link[rel='stylesheet']");
 				for (var i = 0; i < stylesheets.length; i++) {
 					var cssFile = stylesheets[i].getAttribute("href");
-					readCss(cssFile, fileObject);
+					readCss(cssFile, groupObject);
 				}
 			}
 		}
 	});
 }
 
-function readCss(cssFile, fileObject) {
+function readCss(cssFile, groupObject) {
 	var originalCssFile = cssFile;
-	// Remote file
 	if (isRemoteUrl(cssFile)) {
 		request(cssFile, function (error, response, cssData) {
 			if (!error && response.statusCode == 200) {
-				createAST(cssData.toString(), originalCssFile, fileObject);
+				createAST(cssData.toString(), originalCssFile, groupObject);
 			}
 			else {
-				console.log(fileObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
+				console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
 			}
 		});
 	}
-	// Local file
 	else {
-		// Relative to base dir
 		if (isBaseRelative(cssFile)) {
-			cssFile = fileObject["baseDir"] + cssFile.substring(1);
+			cssFile = groupObject["baseDir"] + cssFile.substring(1);
 		}
-		// Relative to HTML file
 		else {
-			cssFile = fileObject["baseDir"] + path.dirname(fileObject["inputFile"]).substring(1) + cssFile;
+			cssFile = groupObject["baseDir"] + path.dirname(groupObject["inputFile"]).substring(1) + cssFile;
 		}
 
 		fs.readFile(cssFile, 'utf8', function (error, cssData) {
 			if (!error) {
-				createAST(cssData, originalCssFile, fileObject);
+				createAST(cssData, originalCssFile, groupObject);
 			}
 			else {
-				console.log("[" + fileObject["groupID"] + "] " + cssFile + " file can not be opened");
+				console.log("[" + groupObject["groupID"] + "] Error fetching local file '" + cssFile + "'");
 			}
 		});
 	}
@@ -106,26 +94,26 @@ function isBaseRelative(url) {
 	return url.lastIndexOf("/", 0) === 0;
 }
 
-function createAST(cssData, cssFile, fileObject) {
+function createAST(cssData, cssFile, groupObject) {
 	if (cssData !== undefined) {
-		fileObject["runs"]++;
+		groupObject["runs"]++;
 		var cssAst = css.parse(cssData);
-		var selectorMap = getCssSelectors(cssAst, fileObject);
-		checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst);
+		var selectorMap = getCssSelectors(cssAst, groupObject);
+		checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst);
 	}
 }
 
-function getCssSelectors(cssAst, fileObject) {
+function getCssSelectors(cssAst, groupObject) {
 	//noinspection JSUnresolvedFunction
 	var selectorMap = new Map();
 	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
 		var rule = cssAst["stylesheet"]["rules"][i];
-		addRuleDeclarations(rule, selectorMap, fileObject);
+		addRuleDeclarations(rule, selectorMap, groupObject);
 	}
 	return selectorMap;
 }
 
-function addRuleDeclarations(rule, selectorMap, fileObject) {
+function addRuleDeclarations(rule, selectorMap, groupObject) {
 	if (rule["type"] === "rule") {
 		var selector = rule["selectors"].join(', ');
 		if (selectorMap.has(selector)) {
@@ -135,32 +123,31 @@ function addRuleDeclarations(rule, selectorMap, fileObject) {
 			selectorMap.set(selector, rule["declarations"]);
 		}
 	}
-	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], fileObject)) {
+	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], groupObject)) {
 		for (var j = 0; j < rule["rules"].length; j++) {
-			addRuleDeclarations(rule["rules"][j], selectorMap, fileObject);
+			addRuleDeclarations(rule["rules"][j], selectorMap, groupObject);
 		}
 	}
 }
 
 //TODO: this screen thing is not good
-function mediaQueryMatchesViewport(mediaQuery, fileObject) {
-	var width = fileObject["viewport"][0];
-	var height = fileObject["viewport"][1];
-	var hit = MediaQuery.match("screen and " + mediaQuery, {
+function mediaQueryMatchesViewport(mediaQuery, groupObject) {
+	var width = groupObject["viewport"][0];
+	var height = groupObject["viewport"][1];
+	return MediaQuery.match("screen and " + mediaQuery, {
 		width: width + 'px',
 		height: height + 'px',
 		type: 'screen'
 	});
-	return hit;
 }
 
 //ASYNC
-function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
+function checkIfSelectorsHit(selectorMap, groupObject, cssFile, cssAst) {
 
-	var tmpCssFile = fileObject["baseDir"] + fileObject["outputFile"] + Date.now() + ".txt";
-	var viewportW = fileObject["viewport"][0];
-	var viewportH = fileObject["viewport"][1];
-	var html = fileObject["html"];
+	var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
+	var viewportW = groupObject["viewport"][0];
+	var viewportH = groupObject["viewport"][1];
+	var html = groupObject["html"];
 	var selectors = [];
 	var mapIterator = selectorMap.keys();
 	var currentKey = mapIterator.next();
@@ -173,7 +160,7 @@ function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 		html: html,
 		done: function (error, window) {
 			if (error) {
-				console.log("[" + fileObject["groupID"] + "] A jsdom error occurred: " + error);
+				console.log("[" + groupObject["groupID"] + "] A jsdom error occurred: " + error);
 			}
 			else {
 				if (!global["allowJs"]) {
@@ -185,18 +172,18 @@ function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 				}
 
 				// Save script-stripped HTML to tmp file (since PhantomJS is annoyed by string HTML)
-				writeFile(fileObject["baseDir"] + fileObject["outputFile"], window.document.documentElement.outerHTML);
+				writeFile(groupObject["baseDir"] + groupObject["outputFile"], window.document.documentElement.outerHTML);
 
 
 				// Save CSS selectors to tmp file because they may be too big for console argument
 				writeFile(tmpCssFile, selectors.join("||"));
 
 
-				console.log("[" + fileObject["groupID"] + "] Calling PhantomJS with " + selectors.length + " selectors from " + cssFile);
+				console.log("[" + groupObject["groupID"] + "] Calling PhantomJS with " + selectors.length + " selectors from " + cssFile);
 
 				var childArgs = [
 					path.join(__dirname, 'phantomjs-script.js'),
-					fileObject["baseDir"] + fileObject["outputFile"],
+					groupObject["baseDir"] + groupObject["outputFile"],
 					tmpCssFile,
 					viewportW,
 					viewportH
@@ -209,19 +196,19 @@ function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 							var json = stdout.replace(/(\r\n|\n|\r)/gm, "");
 							if (json === "true") {
 								json = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
-								console.log("[" + fileObject["groupID"] + "] PhantomJS reported that " + json["hits"].length + " selectors hit in " + cssFile);
-								sliceCss(json["hits"], selectorMap, fileObject, cssFile, cssAst, tmpCssFile);
+								console.log("[" + groupObject["groupID"] + "] PhantomJS reported that " + json["hits"].length + " selectors hit in " + cssFile);
+								sliceCss(json["hits"], selectorMap, groupObject, cssFile, cssAst, tmpCssFile);
 							}
 							else {
-								console.log("[" + fileObject["groupID"] + "] A controlled exception occurred: " + json["errorMessage"] + " " + stdout);
+								console.log("[" + groupObject["groupID"] + "] A controlled exception occurred: " + json["errorMessage"] + " " + stdout);
 							}
 						}
 						catch (ex) {
-							console.dir("[" + fileObject["groupID"] + "] Unexpected output from PhantomJS: " + stdout + " " + stderr + " " + ex);
+							console.dir("[" + groupObject["groupID"] + "] Unexpected output from PhantomJS: " + stdout + " " + stderr + " " + ex);
 						}
 					}
 					else {
-						console.log("[" + fileObject["groupID"] + "] A PhantomJS error occurred: " + err + " " + stdout + " " + stderr);
+						console.log("[" + groupObject["groupID"] + "] A PhantomJS error occurred: " + err + " " + stdout + " " + stderr);
 					}
 				});
 			}
@@ -231,7 +218,7 @@ function checkIfSelectorsHit(selectorMap, fileObject, cssFile, cssAst) {
 
 }
 
-function sliceCss(selectorHits, selectorMap, fileObject, cssFile, cssAst, tmpCssFile) {
+function sliceCss(selectorHits, selectorMap, groupObject, cssFile, cssAst, tmpCssFile) {
 	var criticalCss = "";
 	for (var i = 0; i < selectorHits.length; i++) {
 		if (selectorMap.has(selectorHits[i])) {
@@ -247,13 +234,13 @@ function sliceCss(selectorHits, selectorMap, fileObject, cssFile, cssAst, tmpCss
 	}
 
 	var minifiedCriticalCss = new CleanCSS().minify(criticalCss).styles;
-	injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst, tmpCssFile);
+	injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpCssFile);
 }
 
 //ASYNC
-function injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst, tmpCssFile) {
+function injectInlineCss(minifiedCriticalCss, groupObject, cssFile, cssAst, tmpCssFile) {
 	jsdom.env({
-		html: fileObject["html"],
+		html: groupObject["html"],
 		done: function (error, window) {
 			if (error) {
 				console.log("A jsdom error occurred: " + error);
@@ -280,35 +267,35 @@ function injectInlineCss(minifiedCriticalCss, fileObject, cssFile, cssAst, tmpCs
 				}
 
 				// Save HTML for possible next CSS file run
-				fileObject["html"] = window.document.documentElement.outerHTML;
+				groupObject["html"] = window.document.documentElement.outerHTML;
 
 				// Delete tmp CSS file
 				fs.unlink(tmpCssFile);
 
-				fileObject["runs"]--;
+				groupObject["runs"]--;
 				// Check if no more css runs remaining
-				if (fileObject["runs"] == 0) {
+				if (groupObject["runs"] == 0) {
 
 					// Insert debug viewport box
 					if (global["debug"]) {
 						var body = window.document.body || window.document.getElementsByTagName('body')[0];
-						body.innerHTML = '<div style="border: 3px solid red; width: ' + fileObject["viewport"][0] + 'px; height:' + fileObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
-						fileObject["html"] = window.document.documentElement.outerHTML;
+						body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
+						groupObject["html"] = window.document.documentElement.outerHTML;
 					}
 
 					global["runningGroups"]--;
 
 					// Delete temp HTML file
-					fs.unlink(fileObject["baseDir"] + fileObject["outputFile"]);
+					fs.unlink(groupObject["baseDir"] + groupObject["outputFile"]);
 
 					// Save it
-					writeFile(fileObject["baseDir"] + fileObject["outputFile"], fileObject["html"]);
+					writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["html"]);
 
 
-					console.log("[" + fileObject["groupID"] + "] File '" + fileObject["baseDir"] + fileObject["outputFile"] + "' generated ");
+					console.log("[" + groupObject["groupID"] + "] File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated ");
 
 					if (global["autoOpen"]) {
-						open(fileObject["baseDir"] + fileObject["outputFile"]);
+						open(groupObject["baseDir"] + groupObject["outputFile"]);
 					}
 
 					// Check if no more groups running

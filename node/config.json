@@ -1,7 +1,7 @@
 {
   "autoOpen": true,
   "debug": true,
-  "allowJs": true,
+  "allowJs": false,
   "groups":[
     {
       "enabled": false,
