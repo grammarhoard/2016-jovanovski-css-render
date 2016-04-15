@@ -1,10 +1,10 @@
 {
-  "autoOpen": true,
+  "autoOpen": false,
   "debug": true,
   "allowJs": false,
   "groups":[
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test1/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -18,7 +18,7 @@
       "viewport" : [1024, 768]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",

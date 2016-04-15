@@ -59,7 +59,7 @@ function readCss(cssFile, groupObject) {
 	if (isRemoteUrl(cssFile)) {
 		request(cssFile, function (error, response, cssData) {
 			if (!error && response.statusCode == 200) {
-				createAST(cssData.toString(), originalCssFile, groupObject);
+				createAST(cssData.toString(), originalCssFile, groupObject, false);
 			}
 			else {
 				console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
@@ -76,7 +76,7 @@ function readCss(cssFile, groupObject) {
 
 		fs.readFile(cssFile, 'utf8', function (error, cssData) {
 			if (!error) {
-				createAST(cssData, originalCssFile, groupObject);
+				createAST(cssData, originalCssFile, groupObject, true, cssFile);
 			}
 			else {
 				console.log("[" + groupObject["groupID"] + "] Error fetching local file '" + cssFile + "'");
@@ -94,12 +94,45 @@ function isBaseRelative(url) {
 	return url.lastIndexOf("/", 0) === 0;
 }
 
-function createAST(cssData, cssFile, groupObject) {
-	if (cssData !== undefined) {
-		groupObject["runs"]++;
-		var cssAst = css.parse(cssData);
-		markNoncriticalMedia(cssAst, groupObject);
-		checkIfSelectorsHit(groupObject, cssFile, cssAst);
+function createAST(cssData, cssFile, groupObject, changeUrls, cssFileUrl) {
+	groupObject["runs"]++;
+	var cssAst = css.parse(cssData);
+	if(changeUrls){
+		changeRelativeUrlsInAst(cssAst["stylesheet"]["rules"], cssFileUrl, groupObject["baseDir"] + groupObject["outputFile"]);
+	}
+	markNoncriticalMedia(cssAst, groupObject);
+	checkIfSelectorsHit(groupObject, cssFile, cssAst);
+}
+
+function changeRelativeUrlsInAst(rules, cssFileUrl, outputFileUrl){
+	var outputDir = path.dirname(outputFileUrl);
+	var cssDir = path.dirname(cssFileUrl);
+	for (var i = 0; i < rules.length; i++) {
+		var rule = rules[i];
+		if(rule["rules"]!==undefined){
+			changeRelativeUrlsInAst(rule["rules"], cssFileUrl, outputFileUrl);
+		}
+		else{
+			for (var j = 0; j < rule["declarations"].length; j++) {
+				var declaration = rule["declarations"][j];
+				var patt = new RegExp("url\\(.*\\..*\\)");
+				var regexResult = patt.exec(declaration["value"]);
+				if(regexResult!==null){
+					var originalValue = regexResult.toString();
+					var prefix = "";
+					regexResult = regexResult.toString().substring(4, regexResult.toString().length-1);
+					if(regexResult.indexOf("'")===0 || regexResult.indexOf('"')===0){
+						prefix = regexResult.substring(0,1);
+						regexResult = regexResult.substring(1, regexResult.length-1);
+					}
+					if(!isRemoteUrl(regexResult)){
+						var newPath = "url(" + prefix + path.posix.relative(outputDir, cssDir + "/" + regexResult) + prefix + ")";
+						declaration["value"] = declaration["value"].replace(originalValue, newPath);
+					}
+
+				}
+			}
+		}
 	}
 }
 
