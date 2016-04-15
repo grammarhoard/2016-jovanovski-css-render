@@ -47,7 +47,9 @@ function findCSSInHTML(groupObject) {
 				var stylesheets = window.document.querySelectorAll("link[rel='stylesheet']");
 				for (var i = 0; i < stylesheets.length; i++) {
 					var cssFile = stylesheets[i].getAttribute("href");
-					readCss(cssFile, groupObject);
+					if(!isRemoteUrl(cssFile) || (global["processExternalCss"] && isRemoteUrl(cssFile))) {
+						readCss(cssFile, groupObject);
+					}
 				}
 			}
 		}
@@ -112,7 +114,7 @@ function changeRelativeUrlsInAst(rules, cssFileUrl, outputFileUrl){
 		if(rule["rules"]!==undefined){
 			changeRelativeUrlsInAst(rule["rules"], cssFileUrl, outputFileUrl);
 		}
-		else{
+		else if(rule["declarations"]!==undefined){
 			for (var j = 0; j < rule["declarations"].length; j++) {
 				var declaration = rule["declarations"][j];
 				var patt = new RegExp("url\\(.*\\..*\\)");
@@ -310,15 +312,22 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 					head.removeChild(linkElement);
 				}
 
-				var nonCriticalStyleTag = window.document.createElement('style');
-				nonCriticalStyleTag.type = 'text/css';
-				criticalStyleTag.setAttribute("data-origin", cssFile);
-				if (nonCriticalStyleTag.styleSheet) {
-					nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
-				} else {
-					nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
+				if(global["inlineNonCritical"]) {
+					var nonCriticalStyleTag = window.document.createElement('style');
+					nonCriticalStyleTag.type = 'text/css';
+					criticalStyleTag.setAttribute("data-origin", cssFile);
+					if (nonCriticalStyleTag.styleSheet) {
+						nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
+					} else {
+						nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
+					}
+					body.appendChild(nonCriticalStyleTag);
 				}
-				body.appendChild(nonCriticalStyleTag);
+				else{
+					body.appendChild(linkElement);
+				}
+
+
 
 				// Save HTML for possible next CSS file run
 				groupObject["html"] = window.document.documentElement.outerHTML;

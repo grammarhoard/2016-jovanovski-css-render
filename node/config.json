@@ -1,10 +1,12 @@
 {
   "autoOpen": false,
-  "debug": true,
+  "debug": false,
   "allowJs": false,
+  "processExternalCss" : true,
+  "inlineNonCritical": false,
   "groups":[
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test1/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -20,6 +22,13 @@
     {
       "enabled": false,
       "baseDir": "tests/test3/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
+      "viewport" : [1024, 768]
+    },
+    {
+      "enabled": true,
+      "baseDir": "tests/test4/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
       "viewport" : [1024, 768]
