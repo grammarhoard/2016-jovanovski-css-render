@@ -2,7 +2,9 @@
 A critical path CSS extraction and injection tool using Node.js
 
 ## Todo
+- [Feature] Allow loading of HTML file via URL (ex: for Wordpress)
 - [Research] Test whether `<link>` or `<style>` in body, `<script async>` or other variants are faster 
+    - Embedding in `<style>` is faster for time to first render, but we need to look at TCP/IP packet size vs. new requests
 - [BugFix] Deal with crap like `a[href^="javascript:"]:after`
 - [BugFix] Deal with crap like `@-ms-viewport`
 - [BugFix] Find out why `open` does not work on any other test case than case 1
