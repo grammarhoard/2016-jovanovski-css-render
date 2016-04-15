@@ -17,21 +17,21 @@
       "baseDir": "tests/test2/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
-      "viewport" : [1024, 768]
+      "viewport" : [1200, 900]
     },
     {
       "enabled": false,
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
-      "viewport" : [1024, 768]
+      "viewport" : [1200, 900]
     },
     {
       "enabled": true,
       "baseDir": "tests/test4/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
-      "viewport" : [1024, 768]
+      "viewport" : [1200, 900]
     }
   ]
 }

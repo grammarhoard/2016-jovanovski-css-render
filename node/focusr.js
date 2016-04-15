@@ -142,12 +142,7 @@ function markNoncriticalMedia(cssAst, groupObject) {
 	//noinspection JSUnresolvedFunction
 	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
 		var rule = cssAst["stylesheet"]["rules"][i];
-		if(matchesViewport(rule, groupObject["viewport"][0], groupObject["viewport"][1])){
-			cssAst["stylesheet"]["rules"][i]["critical"] = true;
-		}
-		else{
-			cssAst["stylesheet"]["rules"][i]["critical"] = false;
-		}
+		cssAst["stylesheet"]["rules"][i]["critical"] = matchesViewport(rule, groupObject["viewport"][0], groupObject["viewport"][1]);
 	}
 }
 

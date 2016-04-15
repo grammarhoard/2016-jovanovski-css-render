@@ -12,3 +12,4 @@ A critical path CSS extraction and injection tool using Node.js
 - ~~[Feature] Create 2 AST's for critical and noncritical CSS~~
 - ~~[Feature] Add media rules that don't apply to current viewport in the non-critical CSS~~
 - ~~[Feature] Automatically detect and extract CSS file links from given HTML files~~
+- ~~[Feature] Option to embed all noncritical in `<script>` tag or with original `<link>` tags~~
