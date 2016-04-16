@@ -1,10 +1,22 @@
 # CSS Focusr
 A critical path CSS extraction and injection tool using Node.js.
 
-Given the files, it looks for `<link rel='stylesheet'>` tags, extracts the CSS from the linked files,
-looks for critical CSS by rendering the input, and checking if any element defined by the selectors in the parsed CSS
-is positions within the defined viewport. All critical CSS is then inlined as a `<style>` tag in the `<head>` tag, and the rest
-is eiher inlined at the bottom of the `<body>` tag, or loaded from the existing `<link>` tags which have been moved to the bottom of
+CSS Focusr looks for critical "above the fold" CSS code. By defining a viewport, it renders the page and checks to see what 
+elements are primarily visible in that area. It then extracts all CSS rules that apply to these "critical" elements, and embeds
+them in a `<style>` tag at the very bottom of the `<head>` tag, moving the rest of the CSS to the bottom of the `<body>` tag.
+
+This allows the browser to start rendering the page much faster, because CSS is a render-blocking resource, meaning, while the browser
+is downloading all the CSS files defined in the head of the page, it will display a blank page, and only start rendering once it has them all
+downloaded.
+ 
+CSS Focusr helps solve this by inlining critical CSS in the head of the page (saving GET requests), and moving the rest
+to the bottom of the body, where they have no more elements to block, and can be applied without stopping the render process.
+
+###A more technical description
+CSS Focusr looks for `<link rel='stylesheet'>` tags, extracts the CSS from the linked files,
+looks for critical CSS by rendering the input HTML file, and checking if any element defined by the selectors in the parsed CSS
+are positioned within the defined viewport. All critical CSS is then inlined as a `<style>` tag in the `<head>` tag, and the rest
+are either inlined at the bottom of the `<body>` tag, or loaded from the existing `<link>` tags which have been moved to the bottom of
 the `<body>` tag.
 
 ## Usage
