@@ -36,16 +36,6 @@ page.open(htmlUrl, function () {
 							// Clean off pseudo stuff
 							if (selector.indexOf(":") != -1) {
 								selector = selector.substring(0, selector.indexOf(":"));
-								//var splitSelectors = selector.split(",");
-								//var pseudoCleanSelectors = "";
-								//for (var j = 0; j < splitSelectors.length; j++) {
-								//	var removedPseudoFromSelector = splitSelectors[j].substring(0, splitSelectors[j].indexOf(":"));
-								//	if (removedPseudoFromSelector.length > 0 && removedPseudoFromSelector !== " ") {
-								//		pseudoCleanSelectors += removedPseudoFromSelector + ",";
-								//	}
-								//}
-								//
-								//selector = pseudoCleanSelectors.substring(0, pseudoCleanSelectors.length - 1);
 							}
 
 							var elements;
@@ -53,7 +43,7 @@ page.open(htmlUrl, function () {
 								elements = $(selector);
 							}
 							catch (e) {
-								console.log("OPA: " + originalSelector + " \n" + selector);
+								//console.log("OPA: " + originalSelector + " \n" + selector);
 								continue;
 							}
 							var hit = false;

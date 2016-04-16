@@ -15,6 +15,10 @@ html, body{
 	width: 400px;
 }
 
+@keyframes "bla" {
+
+}
+
 .left div{
 	width: 100%;
 	color: white;

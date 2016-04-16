@@ -1,8 +1,29 @@
 # CSS Focusr
 A critical path CSS extraction and injection tool using Node.js
 
+## Usage
+Use the `config.json` to set options
+    {
+      "autoOpen": false,
+      "debug": false,
+      "allowJs": false,
+      "processExternalCss" : true,
+      "inlineNonCritical": false,
+      "groups":[
+        {
+          "enabled": true,
+          "baseDir": "tests/test1/",
+          "inputFile" : "pre.html",
+          "outputFile": "index.html",
+          "viewport" : [375, 667]
+        }
+        .
+        .
+        .
+      ]
+    }
 ## Todo
-- [Feature] Allow loading of HTML file via URL (ex: for Wordpress)
+- ~~[Feature] Allow loading of HTML file via URL (ex: for Wordpress)~~
 - [Research] Test whether `<link>` or `<style>` in body, `<script async>` or other variants are faster 
     - Embedding in `<style>` is faster for time to first render, but we need to look at TCP/IP packet size vs. new requests
 - [BugFix] Deal with crap like `a[href^="javascript:"]:after`

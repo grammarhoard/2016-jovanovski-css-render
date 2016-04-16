@@ -6,7 +6,7 @@
   "inlineNonCritical": false,
   "groups":[
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test1/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -20,7 +20,7 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -31,6 +31,13 @@
       "baseDir": "tests/test4/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": false,
+      "baseDir": "tests/test5/",
+      "inputFile" : "http://gorjan.rocks",
+      "outputFile": "critical.css",
       "viewport" : [1200, 900]
     }
   ]

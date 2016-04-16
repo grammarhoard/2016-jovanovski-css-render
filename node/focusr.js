@@ -5,6 +5,7 @@ var fs = require('fs'),
 	path = require('path'),
 	CleanCSS = require('clean-css'),
 	jsdom = require("jsdom"),
+	urlparse = require("url"),
 	request = require('request'),
 	MediaQuery = require('css-mediaquery'),
 	childProcess = require('child_process'),
@@ -31,9 +32,23 @@ function parseConfig(json) {
 }
 
 function parseGroup(groupObject) {
-	groupObject["html"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
 	groupObject["runs"] = 0;
-	findCSSInHTML(groupObject);
+	if (isRemoteUrl(groupObject["inputFile"])) {
+		request(groupObject["inputFile"], function (error, response, htmlData) {
+			if (!error && response.statusCode == 200) {
+				groupObject["html"] = htmlData;
+				findCSSInHTML(groupObject);
+			}
+			else {
+				console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
+			}
+		});
+
+	}
+	else {
+		groupObject["html"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+		findCSSInHTML(groupObject);
+	}
 }
 
 function findCSSInHTML(groupObject) {
@@ -47,7 +62,7 @@ function findCSSInHTML(groupObject) {
 				var stylesheets = window.document.querySelectorAll("link[rel='stylesheet']");
 				for (var i = 0; i < stylesheets.length; i++) {
 					var cssFile = stylesheets[i].getAttribute("href");
-					if(!isRemoteUrl(cssFile) || (global["processExternalCss"] && isRemoteUrl(cssFile))) {
+					if (!isRemoteUrl(cssFile) || (global["processExternalCss"] && isRemoteUrl(cssFile))) {
 						readCss(cssFile, groupObject);
 					}
 				}
@@ -57,11 +72,16 @@ function findCSSInHTML(groupObject) {
 }
 
 function readCss(cssFile, groupObject) {
-	var originalCssFile = cssFile;
+	var originalCssUrl = cssFile;
+
+	if (!isRemoteUrl(cssFile) && isRemoteUrl(groupObject["inputFile"])) {
+		cssFile = urlparse.resolve(groupObject["inputFile"], cssFile);
+	}
+
 	if (isRemoteUrl(cssFile)) {
 		request(cssFile, function (error, response, cssData) {
 			if (!error && response.statusCode == 200) {
-				createAST(cssData.toString(), originalCssFile, groupObject, false);
+				createAST(cssData.toString(), originalCssUrl, groupObject);
 			}
 			else {
 				console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
@@ -69,6 +89,7 @@ function readCss(cssFile, groupObject) {
 		});
 	}
 	else {
+
 		if (isBaseRelative(cssFile)) {
 			cssFile = groupObject["baseDir"] + cssFile.substring(1);
 		}
@@ -78,7 +99,7 @@ function readCss(cssFile, groupObject) {
 
 		fs.readFile(cssFile, 'utf8', function (error, cssData) {
 			if (!error) {
-				createAST(cssData, originalCssFile, groupObject, true, cssFile);
+				createAST(cssData, originalCssUrl, groupObject);
 			}
 			else {
 				console.log("[" + groupObject["groupID"] + "] Error fetching local file '" + cssFile + "'");
@@ -96,39 +117,35 @@ function isBaseRelative(url) {
 	return url.lastIndexOf("/", 0) === 0;
 }
 
-function createAST(cssData, cssFile, groupObject, changeUrls, cssFileUrl) {
+function createAST(cssData, originalCssUrl, groupObject) {
 	groupObject["runs"]++;
-	var cssAst = css.parse(cssData);
-	if(changeUrls){
-		changeRelativeUrlsInAst(cssAst["stylesheet"]["rules"], cssFileUrl, groupObject["baseDir"] + groupObject["outputFile"]);
-	}
+	var cssAst = css.parse(cssData, {silent: true});
+	changeRelativeUrlsInAst(cssAst["stylesheet"]["rules"], originalCssUrl);
 	markNoncriticalMedia(cssAst, groupObject);
-	checkIfSelectorsHit(groupObject, cssFile, cssAst);
+	checkIfSelectorsHit(groupObject, originalCssUrl, cssAst);
 }
 
-function changeRelativeUrlsInAst(rules, cssFileUrl, outputFileUrl){
-	var outputDir = path.dirname(outputFileUrl);
-	var cssDir = path.dirname(cssFileUrl);
+function changeRelativeUrlsInAst(rules, originalCssUrl) {
 	for (var i = 0; i < rules.length; i++) {
 		var rule = rules[i];
-		if(rule["rules"]!==undefined){
-			changeRelativeUrlsInAst(rule["rules"], cssFileUrl, outputFileUrl);
+		if (rule["rules"] !== undefined) {
+			changeRelativeUrlsInAst(rule["rules"], originalCssUrl);
 		}
-		else if(rule["declarations"]!==undefined){
+		else if (rule["declarations"] !== undefined) {
 			for (var j = 0; j < rule["declarations"].length; j++) {
 				var declaration = rule["declarations"][j];
 				var patt = new RegExp("url\\(.*\\..*\\)");
 				var regexResult = patt.exec(declaration["value"]);
-				if(regexResult!==null){
+				if (regexResult !== null) {
 					var originalValue = regexResult.toString();
 					var prefix = "";
-					regexResult = regexResult.toString().substring(4, regexResult.toString().length-1);
-					if(regexResult.indexOf("'")===0 || regexResult.indexOf('"')===0){
-						prefix = regexResult.substring(0,1);
-						regexResult = regexResult.substring(1, regexResult.length-1);
+					regexResult = regexResult.toString().substring(4, regexResult.toString().length - 1);
+					if (regexResult.indexOf("'") === 0 || regexResult.indexOf('"') === 0) {
+						prefix = regexResult.substring(0, 1);
+						regexResult = regexResult.substring(1, regexResult.length - 1);
 					}
-					if(!isRemoteUrl(regexResult)){
-						var newPath = "url(" + prefix + path.posix.relative(outputDir, cssDir + "/" + regexResult) + prefix + ")";
+					if (!isRemoteUrl(regexResult)) {
+						var newPath = "url(" + prefix + urlparse.resolve(originalCssUrl, regexResult) + prefix + ")";
 						declaration["value"] = declaration["value"].replace(originalValue, newPath);
 					}
 
@@ -152,12 +169,12 @@ function matchesViewport(rule, width, height) {
 	}
 	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], width, height)) {
 		for (var j = 0; j < rule["rules"].length; j++) {
-			if(matchesViewport(rule["rules"][j], width, height)){
+			if (matchesViewport(rule["rules"][j], width, height)) {
 				return true;
 			}
 		}
 	}
-	else{
+	else {
 		return false;
 	}
 }
@@ -171,7 +188,7 @@ function mediaQueryMatchesViewport(mediaQuery, width, height) {
 }
 
 //ASYNC
-function checkIfSelectorsHit(groupObject, cssFile, cssAst) {
+function checkIfSelectorsHit(groupObject, originalCssLink, cssAst) {
 
 	var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
 	var viewportW = groupObject["viewport"][0];
@@ -193,19 +210,23 @@ function checkIfSelectorsHit(groupObject, cssFile, cssAst) {
 					}
 				}
 
-				// Save script-stripped HTML to tmp file (since PhantomJS is annoyed by string HTML)
-				writeFile(groupObject["baseDir"] + groupObject["outputFile"], window.document.documentElement.outerHTML);
+				var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
+				if(isRemoteUrl(groupObject["inputFile"])){
+					htmlFile += ".html";
+				}
 
+				// Save script-stripped HTML to tmp file (since PhantomJS is annoyed by string HTML)
+				writeFile(htmlFile, window.document.documentElement.outerHTML);
 
 				// Save CSS selectors to tmp file because they may be too big for console argument
 				writeFile(tmpCssFile, JSON.stringify(cssAst));
 
 
-				console.log("[" + groupObject["groupID"] + "] Calling PhantomJS for " + cssFile);
+				console.log("[" + groupObject["groupID"] + "] Calling PhantomJS for " + originalCssLink);
 
 				var childArgs = [
 					path.join(__dirname, 'phantomjs-script.js'),
-					groupObject["baseDir"] + groupObject["outputFile"],
+					htmlFile,
 					tmpCssFile,
 					viewportW,
 					viewportH
@@ -218,8 +239,8 @@ function checkIfSelectorsHit(groupObject, cssFile, cssAst) {
 							var json = stdout.replace(/(\r\n|\n|\r)/gm, "");
 							if (json === "true") {
 								var processedAst = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
-								console.log("[" + groupObject["groupID"] + "] PhantomJS reported back for " + cssFile);
-								sliceCss(groupObject, cssFile, processedAst, tmpCssFile);
+								console.log("[" + groupObject["groupID"] + "] PhantomJS reported back for " + originalCssLink);
+								sliceCss(groupObject, originalCssLink, processedAst, tmpCssFile);
 							}
 							else {
 								console.log("[" + groupObject["groupID"] + "] A controlled exception occurred: " + json["errorMessage"] + " " + stdout);
@@ -240,17 +261,17 @@ function checkIfSelectorsHit(groupObject, cssFile, cssAst) {
 
 }
 
-function sliceCss(groupObject, cssFile, processedAst, tmpCssFile) {
+function sliceCss(groupObject, originalCssLink, processedAst, tmpCssFile) {
 
 	var criticalCssAst = JSON.parse(JSON.stringify(processedAst));
 	var nonCriticalCssAst = JSON.parse(JSON.stringify(processedAst));
 
 	for (var i = 0; i < processedAst["stylesheet"]["rules"].length; i++) {
 		var rule = processedAst["stylesheet"]["rules"][i];
-		if(rule["critical"]){
+		if (rule["critical"]) {
 			nonCriticalCssAst["stylesheet"]["rules"][i] = undefined;
 		}
-		else{
+		else {
 			criticalCssAst["stylesheet"]["rules"][i] = undefined;
 		}
 	}
@@ -264,13 +285,13 @@ function sliceCss(groupObject, cssFile, processedAst, tmpCssFile) {
 
 	var minifiedCriticalCss = new CleanCSS().minify(criticalCss).styles;
 	var minifiedNonCriticalCss = new CleanCSS().minify(nonCriticalCss).styles;
-	injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, tmpCssFile);
+	injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, originalCssLink, tmpCssFile);
 }
 
-function balanceArray(array){
+function balanceArray(array) {
 	var tmpArray = [];
 	for (var i = 0; i < array.length; i++) {
-		if(array[i] !== undefined){
+		if (array[i] !== undefined) {
 			tmpArray.push(array[i]);
 		}
 	}
@@ -278,7 +299,7 @@ function balanceArray(array){
 }
 
 //ASYNC
-function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, cssFile, tmpCssFile) {
+function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, originalCssLink, tmpCssFile) {
 	jsdom.env({
 		html: groupObject["html"],
 		done: function (error, window) {
@@ -287,45 +308,52 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 			}
 			else {
 
-				// Insert minified critical css in <style> tag
-				var head = window.document.head || window.document.getElementsByTagName('head')[0];
-				var body = window.document.body || window.document.getElementsByTagName('body')[0];
-				var criticalStyleTag = window.document.createElement('style');
-				criticalStyleTag.type = 'text/css';
-				criticalStyleTag.setAttribute("data-origin", cssFile);
-				if (criticalStyleTag.styleSheet) {
-					criticalStyleTag.styleSheet.cssText = minifiedCriticalCss;
-				} else {
-					criticalStyleTag.appendChild(window.document.createTextNode(minifiedCriticalCss));
-				}
-				head.appendChild(criticalStyleTag);
-
-
-				// Try and find <link> tag with CSS to remove it
-				var linkElement = window.document.querySelectorAll('link[href="' + cssFile + '"]')[0];
-				if (linkElement !== undefined) {
-					head.removeChild(linkElement);
-				}
-
-				if(global["inlineNonCritical"]) {
-					var nonCriticalStyleTag = window.document.createElement('style');
-					nonCriticalStyleTag.type = 'text/css';
-					criticalStyleTag.setAttribute("data-origin", cssFile);
-					if (nonCriticalStyleTag.styleSheet) {
-						nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
-					} else {
-						nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
+				if(isRemoteUrl(groupObject["inputFile"])){
+					if(groupObject["criticalCss"] === undefined){
+						groupObject["criticalCss"] = "";
 					}
-					body.appendChild(nonCriticalStyleTag);
+					groupObject["criticalCss"] += minifiedCriticalCss;
 				}
-				else{
-					body.appendChild(linkElement);
+				else {
+					// Insert minified critical css in <style> tag
+					var head = window.document.head || window.document.getElementsByTagName('head')[0];
+					var body = window.document.body || window.document.getElementsByTagName('body')[0];
+					var criticalStyleTag = window.document.createElement('style');
+					criticalStyleTag.type = 'text/css';
+					criticalStyleTag.setAttribute("data-origin", originalCssLink);
+					if (criticalStyleTag.styleSheet) {
+						criticalStyleTag.styleSheet.cssText = minifiedCriticalCss;
+					} else {
+						criticalStyleTag.appendChild(window.document.createTextNode(minifiedCriticalCss));
+					}
+					head.appendChild(criticalStyleTag);
+
+
+					// Try and find <link> tag with CSS to remove it
+					var linkElement = window.document.querySelectorAll('link[href="' + originalCssLink + '"]')[0];
+					if (linkElement !== undefined) {
+						head.removeChild(linkElement);
+					}
+
+					if (global["inlineNonCritical"]) {
+						var nonCriticalStyleTag = window.document.createElement('style');
+						nonCriticalStyleTag.type = 'text/css';
+						criticalStyleTag.setAttribute("data-origin", originalCssLink);
+						if (nonCriticalStyleTag.styleSheet) {
+							nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
+						} else {
+							nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
+						}
+						body.appendChild(nonCriticalStyleTag);
+					}
+					else {
+						body.appendChild(linkElement);
+					}
+
+
+					// Save HTML for possible next CSS file run
+					groupObject["html"] = window.document.documentElement.outerHTML;
 				}
-
-
-
-				// Save HTML for possible next CSS file run
-				groupObject["html"] = window.document.documentElement.outerHTML;
 
 				// Delete tmp CSS file
 				fs.unlink(tmpCssFile);
@@ -334,21 +362,28 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 				// Check if no more css runs remaining
 				if (groupObject["runs"] == 0) {
 
-					// Insert debug viewport box
-					if (global["debug"]) {
-						body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
-						groupObject["html"] = window.document.documentElement.outerHTML;
-					}
-
 					global["runningGroups"]--;
-
 					// Delete temp HTML file
-					fs.unlink(groupObject["baseDir"] + groupObject["outputFile"]);
+					var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
+					if(isRemoteUrl(groupObject["inputFile"])){
+						htmlFile += ".html";
+					}
+					fs.unlink(htmlFile);
 
-					// Save it
-					writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["html"]);
+					if(isRemoteUrl(groupObject["inputFile"])){
+						writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
+					}
+					else{
+						// Insert debug viewport box
+						if (global["debug"]) {
+							body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
+							groupObject["html"] = window.document.documentElement.outerHTML;
+						}
 
+						// Save it
+						writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["html"]);
 
+					}
 					console.log("[" + groupObject["groupID"] + "] File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated ");
 
 					if (global["autoOpen"]) {
