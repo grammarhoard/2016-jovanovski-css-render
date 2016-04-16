@@ -3,6 +3,7 @@ A critical path CSS extraction and injection tool using Node.js
 
 ## Usage
 Use the `config.json` to set options
+```
     {
       "autoOpen": false,
       "debug": false,
@@ -22,6 +23,7 @@ Use the `config.json` to set options
         .
       ]
     }
+```
 ## Todo
 - ~~[Feature] Allow loading of HTML file via URL (ex: for Wordpress)~~
 - [Research] Test whether `<link>` or `<style>` in body, `<script async>` or other variants are faster 
