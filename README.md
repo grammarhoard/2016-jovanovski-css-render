@@ -17,6 +17,13 @@ Use the `config.json` to set options
           "inputFile" : "pre.html",
           "outputFile": "index.html",
           "viewport" : [375, 667]
+        },
+        {
+          "enabled": false,
+          "baseDir": "tests/test5/",
+          "inputFile" : "http://gorjan.rocks",
+          "outputFile": "critical.css",
+          "viewport" : [1200, 900]
         }
         .
         .
@@ -24,6 +31,21 @@ Use the `config.json` to set options
       ]
     }
 ```
+
+### autoOpen
+[Buggy] Auto open the generated files upon completion
+### debug (requires local input file)
+Add a red-bordered div around on the generated HTML to show the area covered by the critical CSS viewport
+### allowJs
+Allow JS to be executed before looking for critical CSS.
+**WARNING** - processing will be very slow this way.
+### processExternalCss
+Allow extraction of critical css from external CSS files
+### inlineNonCritical
+If set to true, will make a new `<style>` tag at the end of the `body` and paste in all noncritical CSS.
+If set to false, will copy and paste all `<link rel='stylesheet'>` tags at the end of the `body`
+
+
 ## Todo
 - ~~[Feature] Allow loading of HTML file via URL (ex: for Wordpress)~~
 - [Research] Test whether `<link>` or `<style>` in body, `<script async>` or other variants are faster 
