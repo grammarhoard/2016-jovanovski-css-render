@@ -1,6 +1,12 @@
 # CSS Focusr
 A critical path CSS extraction and injection tool using Node.js.
 
+##Research questions:
+- RQ1: Does inlining critical CSS make a significant improvement on the time to first render?
+- RQ2: What are the methods that current tools use to generate critical CSS?
+- RQ3: How can generation of critical CSS be applied to dynamic web pages?
+
+##What is CSS Focusr
 CSS Focusr looks for critical "above the fold" CSS code. By defining a viewport, it renders the page and checks to see what 
 elements are primarily visible in that area. It then extracts all CSS rules that apply to these "critical" elements, and embeds
 them in a `<style>` tag at the very bottom of the `<head>` tag, moving the rest of the CSS to the bottom of the `<body>` tag.
@@ -19,7 +25,7 @@ are positioned within the defined viewport. All critical CSS is then inlined as 
 are either inlined at the bottom of the `<body>` tag, or loaded from the existing `<link>` tags which have been moved to the bottom of
 the `<body>` tag.
 
-## Usage
+##Usage
 Use the `config.json` to set options and processing groups
 ### Example
 ```
