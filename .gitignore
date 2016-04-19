@@ -1,4 +1,5 @@
 .idea
 BigQuery
 node/node_modules
+topsites/node_modules
 tests/test*/index.html

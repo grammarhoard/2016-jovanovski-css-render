@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "devDependencies": {
+    "request": "^2.71.0"
+  }
+}

@@ -1,0 +1,1 @@
+app.top=function(t,n,o){"use strict";return{init:function(){"ontouchstart"in window||navigator.maxTouchPoints?"touchstart":"click";t(".top-navToggle").on("click",function(n){t("body").toggleClass("has-nav"),n.preventDefault()})}}}($,app,Modernizr),$(app.top.init);
