@@ -1,6 +1,7 @@
 {
   "private": true,
   "devDependencies": {
-    "request": "^2.71.0"
+    "request": "^2.71.0",
+    "sleep": "^3.0.1"
   }
 }
