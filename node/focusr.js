@@ -338,7 +338,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 					if (global["inlineNonCritical"]) {
 						var nonCriticalStyleTag = window.document.createElement('style');
 						nonCriticalStyleTag.type = 'text/css';
-						criticalStyleTag.setAttribute("data-origin", originalCssLink);
+						//criticalStyleTag.setAttribute("data-origin", originalCssLink);
 						if (nonCriticalStyleTag.styleSheet) {
 							nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
 						} else {
