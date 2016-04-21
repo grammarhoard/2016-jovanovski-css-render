@@ -3,7 +3,8 @@ var fs = require('fs'),
 	request = require('request'),
 //	key = "d75bab0b8bf048418e97d46b6dc9f3a6" //simon
 //	key = "A.c62d0fd4a991b6fb36b2ab6b7b217723" //my second
-	key = "A.3feb7c69c6658aef2dc4e49d891264d2" //my first
+//	key = "A.3feb7c69c6658aef2dc4e49d891264d2" //my first
+	key = "A.8eb992381b7d5eb13485dd6858dab8e5" //my third
 	;
 
 function processUrl(site) {
@@ -235,7 +236,11 @@ function calculateTimes() {
 //generated 101-200 ON TEST
 //NO GOOGLE FONTS
 
+//run with mykey3 key 21-04
+//generated 201-300 ON TEST
+//NO GOOGLE FONTS
 
-//generateTests(100, 200);
-//getTestResults(100);
+
+//generateTests(200, 300);
+//getTestResults(200);
 calculateTimes();
