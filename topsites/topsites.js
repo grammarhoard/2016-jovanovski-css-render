@@ -8,13 +8,13 @@ var fs = require('fs'),
 
 function processUrl(site) {
 	console.log("doing: " + site);
-	var blockUrl = "http://www.webpagetest.org/runtest.php?url=" + site + "&k=" + key + "&f=json&web10=1&fvonly=1&block=.css&noimages=1&noopt=1&noheaders=1";
+	var blockUrl = "http://www.webpagetest.org/runtest.php?url=" + site + "&k=" + key + "&f=json&web10=1&fvonly=1&block=.css%20fonts.googleapis.com&noimages=1&noopt=1&noheaders=1";
 	var url = "http://www.webpagetest.org/runtest.php?url=" + site + "&k=" + key + "&f=json&web10=1&fvonly=1&noimages=1&noopt=1&noheaders=1&custom=%5Bdocument-height%5D%0Areturn%20Math.max(window.document.body.scrollHeight%2C%20window.document.body.offsetHeight%2C%20window.document.documentElement.clientHeight%2C%20window.document.documentElement.scrollHeight%2C%20window.document.documentElement.offsetHeight)%3B";
 	request(blockUrl, function (error, response, jsonData) {
 		if (!error && response.statusCode == 200) {
 			jsonData = JSON.parse(jsonData);
 			if (jsonData["statusCode"] === 200) {
-				fs.appendFile('testIDs.txt', jsonData["data"]["jsonUrl"] + ",true\n");
+				fs.appendFile('testIDs1.txt', jsonData["data"]["jsonUrl"] + ",true\n");
 			}
 			else {
 				console.log(JSON.stringify(jsonData));
@@ -28,7 +28,7 @@ function processUrl(site) {
 		if (!error && response.statusCode == 200) {
 			jsonData = JSON.parse(jsonData);
 			if (jsonData["statusCode"] === 200) {
-				fs.appendFile('testIDs.txt', jsonData["data"]["jsonUrl"] + ",false\n");
+				fs.appendFile('testIDs1.txt', jsonData["data"]["jsonUrl"] + ",false\n");
 			}
 			else {
 				console.log(JSON.stringify(jsonData));
@@ -70,7 +70,7 @@ function getTest(testUrl) {
 					if (jsonData["data"]["median"] !== undefined && jsonData["data"]["median"]["firstView"] !== undefined && jsonData["data"]["median"]["firstView"]["document-height"] !== undefined) {
 						height = jsonData["data"]["median"]["firstView"]["document-height"];
 					}
-					fs.appendFile('testResults.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
+					fs.appendFile('testResults1.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
 
 				}
 				else {
@@ -88,7 +88,7 @@ function getTest(testUrl) {
 }
 
 function getTestResults(start) {
-	fs.readFile("testIDs.txt", 'utf8', function (err, data) {
+	fs.readFile("testIDs1.txt", 'utf8', function (err, data) {
 		if (!err) {
 			var lines = data.split(/\r?\n/);
 			var cooldown = 0;
@@ -99,7 +99,7 @@ function getTestResults(start) {
 				if (testUrl === "") {
 					continue;
 				}
-				setTimeout(getTest, cooldown * 3000, testUrl);
+				setTimeout(getTest, cooldown * 2000, testUrl);
 
 			}
 		}
@@ -116,7 +116,7 @@ function calculateTimes() {
 	var max = 0;
 	var resolutions = [0, 0, 0, 0];
 	var times = [0, 0, 0, 0, 0];
-	fs.readFile("testResults.txt", 'utf8', function (err, data) {
+	fs.readFile("testResults1.txt", 'utf8', function (err, data) {
 			if (!err) {
 				var lines = data.split(/\r?\n/);
 				for (var n = 0; n < lines.length; n++) {
@@ -219,10 +219,23 @@ function calculateTimes() {
 //100 - 200
 //generated 165-335
 
-//run with mykey2 key 20-04
+//run with mykey1 key 20-04
 //100 - 200
 //generated 336-535
 
-//generateTests(200, 300);
-//getTestResults(335);
+//run with simon key 21-04
+//0 - 100
+//generated 536-735
+
+//run with mykey2 key 21-04
+//generated 0-100 ON TEST
+//NO GOOGLE FONTS
+
+//run with mykey key 21-04
+//generated 101-200 ON TEST
+//NO GOOGLE FONTS
+
+
+//generateTests(100, 200);
+//getTestResults(100);
 calculateTimes();

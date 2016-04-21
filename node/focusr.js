@@ -211,7 +211,7 @@ function checkIfSelectorsHit(groupObject, originalCssLink, cssAst) {
 				}
 
 				var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
-				if(isRemoteUrl(groupObject["inputFile"])){
+				if (isRemoteUrl(groupObject["inputFile"])) {
 					htmlFile += ".html";
 				}
 
@@ -308,8 +308,8 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 			}
 			else {
 
-				if(isRemoteUrl(groupObject["inputFile"])){
-					if(groupObject["criticalCss"] === undefined){
+				if (isRemoteUrl(groupObject["inputFile"])) {
+					if (groupObject["criticalCss"] === undefined) {
 						groupObject["criticalCss"] = "";
 					}
 					groupObject["criticalCss"] += minifiedCriticalCss;
@@ -347,7 +347,9 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 						body.appendChild(nonCriticalStyleTag);
 					}
 					else {
-						body.appendChild(linkElement);
+						var jsForLoadCss = window.document.createElement('script');
+						jsForLoadCss.innerHTML = "var cb = function() {	var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '" + originalCssLink + "';	var h = document.getElementsByTagName('head')[0]; h.parentNode.insertBefore(l, h); }; var raf = requestAnimationFrame || mozRequestAnimationFrame || webkitRequestAnimationFrame || msRequestAnimationFrame; if (raf) raf(cb); else window.addEventListener('load', cb);";
+						body.appendChild(jsForLoadCss);
 					}
 
 
@@ -365,15 +367,15 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 					global["runningGroups"]--;
 					// Delete temp HTML file
 					var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
-					if(isRemoteUrl(groupObject["inputFile"])){
+					if (isRemoteUrl(groupObject["inputFile"])) {
 						htmlFile += ".html";
 					}
 					fs.unlink(htmlFile);
 
-					if(isRemoteUrl(groupObject["inputFile"])){
+					if (isRemoteUrl(groupObject["inputFile"])) {
 						writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
 					}
-					else{
+					else {
 						// Insert debug viewport box
 						if (global["debug"]) {
 							body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
