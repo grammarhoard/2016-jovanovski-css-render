@@ -71,7 +71,7 @@ function getTest(testUrl) {
 					if (jsonData["data"]["median"] !== undefined && jsonData["data"]["median"]["firstView"] !== undefined && jsonData["data"]["median"]["firstView"]["document-height"] !== undefined) {
 						height = jsonData["data"]["median"]["firstView"]["document-height"];
 					}
-					fs.appendFile('testResults1.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
+					fs.appendFile('testResults2.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
 
 				}
 				else {
@@ -93,7 +93,7 @@ function getTestResults(start) {
 		if (!err) {
 			var lines = data.split(/\r?\n/);
 			var cooldown = 0;
-			for (var n = start; n < lines.length; n++) {
+			for (var n = start * 2; n < lines.length; n++) {
 				cooldown++;
 				var split = lines[n].split(",");
 				var testUrl = split[0];
@@ -117,7 +117,9 @@ function calculateTimes() {
 	var max = 0;
 	var resolutions = [0, 0, 0, 0];
 	var times = [0, 0, 0, 0, 0];
-	fs.readFile("testResults1.txt", 'utf8', function (err, data) {
+	var skipped = 0;
+	var processed = 0;
+	fs.readFile("testResults2.txt", 'utf8', function (err, data) {
 			if (!err) {
 				var lines = data.split(/\r?\n/);
 				for (var n = 0; n < lines.length; n++) {
@@ -143,9 +145,11 @@ function calculateTimes() {
 
 					if (timesArr[site] !== undefined) {
 						var diff = Math.abs(timesArr[site] - time);
-						if (diff < 10) {
+						if (diff < 5) {
+							skipped++;
 							continue;
 						}
+						processed++;
 						avgArr.push(diff);
 						if (diff < 500) {
 							times[0]++;
@@ -190,20 +194,28 @@ function calculateTimes() {
 					timesum += times[i];
 				}
 
-				console.log("Total average " + sum / avgArr.length + "ms");
-				console.log("Max " + max + "ms");
-				console.log("Min " + min + "ms");
-				console.log("<500: " + times[0] / (timesum / 100));
-				console.log("<1000: " + times[1] / (timesum / 100));
-				console.log("<1500: " + times[2] / (timesum / 100));
-				console.log("<2000: " + times[3] / (timesum / 100));
-				console.log(">2000: " + times[4] / (timesum / 100));
 				console.log("-----------");
-				console.log(resolutions.join());
-				console.log("<800: " + resolutions[0] / (ressum / 100));
-				console.log("<1000: " + resolutions[1] / (ressum / 100));
-				console.log("<1100: " + resolutions[2] / (ressum / 100));
-				console.log(">1100: " + resolutions[3] / (ressum / 100));
+				console.log("Total sites: 700");
+				console.log("Processed sites: " + (700 - skipped));
+				console.log("Skipped sites: " + skipped);
+				console.log("-----------");
+				console.log("Loading time difference:");
+				console.log("< 500ms: " + (times[0] / (timesum / 100)).toFixed(2) + "%");
+				console.log("< 1000ms: " + (times[1] / (timesum / 100)).toFixed(2) + "%");
+				console.log("< 1500ms: " + (times[2] / (timesum / 100)).toFixed(2) + "%");
+				console.log("< 2000ms: " + (times[3] / (timesum / 100)).toFixed(2) + "%");
+				console.log("> 2000ms: " + (times[4] / (timesum / 100)).toFixed(2) + "%");
+				console.log("----");
+				console.log("Maximum time saved " + max.toFixed(2) + "ms");
+				console.log("Minimum time saved " + min.toFixed(2) + "ms");
+				console.log("Total average saved: " + (sum / avgArr.length).toFixed(2) + "ms");
+				console.log("-----------");
+				console.log("Screen resolutions:");
+				console.log("< 800px: " + (resolutions[0] / (ressum / 100)).toFixed(2) + "%");
+				console.log("< 1000px: " + (resolutions[1] / (ressum / 100)).toFixed(2) + "%");
+				console.log("< 1100px: " + (resolutions[2] / (ressum / 100)).toFixed(2) + "%");
+				console.log("> 1100px: " + (resolutions[3] / (ressum / 100)).toFixed(2) + "%");
+				console.log("-----------");
 			}
 			else {
 				console.log("Tests file can not be opened");
@@ -212,35 +224,6 @@ function calculateTimes() {
 	);
 }
 
-//run with simon key 20-04
-//0 - 100
-//generated 0-164
-
-//run with mykey2 key 20-04
-//100 - 200
-//generated 165-335
-
-//run with mykey1 key 20-04
-//100 - 200
-//generated 336-535
-
-//run with simon key 21-04
-//0 - 100
-//generated 536-735
-
-//run with mykey2 key 21-04
-//generated 0-100 ON TEST
-//NO GOOGLE FONTS
-
-//run with mykey key 21-04
-//generated 101-200 ON TEST
-//NO GOOGLE FONTS
-
-//run with mykey3 key 21-04
-//generated 201-300 ON TEST
-//NO GOOGLE FONTS
-
-
-//generateTests(200, 300);
-//getTestResults(200);
+//generateTests(600, 700);
+//getTestResults(0);
 calculateTimes();

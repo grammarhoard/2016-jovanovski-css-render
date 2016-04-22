@@ -15,9 +15,6 @@ html, body{
 	width: 400px;
 }
 
-@keyframes "bla" {
-
-}
 
 .left div{
 	width: 100%;
@@ -62,6 +59,9 @@ html, body{
 	height: 125px;
 }
 
+.lazyLoaded{
+	opacity: 1;
+}
 
 .div7{
 	background-color: burlywood;

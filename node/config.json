@@ -10,6 +10,9 @@
       "baseDir": "tests/test1/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
       "viewport" : [375, 667]
     },
     {
@@ -24,6 +27,9 @@
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
       "viewport" : [1200, 900]
     },
     {

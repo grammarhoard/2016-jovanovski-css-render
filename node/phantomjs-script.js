@@ -23,7 +23,7 @@ page.open(htmlUrl, function () {
 		hitElements["hits"] = page.evaluate(function (cssAst, viewportWidth, viewportHeight) {
 			for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
 				var rule = cssAst["stylesheet"]["rules"][i];
-				if (rule["critical"]) {
+				if (!rule["critical"]) {
 					if (rule["type"] === "rule") {
 						var ruleHit = false;
 						for (var j = 0; j < rule["selectors"].length; j++) {

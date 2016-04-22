@@ -121,8 +121,25 @@ function createAST(cssData, originalCssUrl, groupObject) {
 	groupObject["runs"]++;
 	var cssAst = css.parse(cssData, {silent: true});
 	changeRelativeUrlsInAst(cssAst["stylesheet"]["rules"], originalCssUrl);
-	markNoncriticalMedia(cssAst, groupObject);
+	initCritical(cssAst["stylesheet"]["rules"], groupObject);
+	if (groupObject["alwaysInclude"] !== undefined) {
+		for (var i = 0; i < groupObject["alwaysInclude"].length; i++) {
+			markAlwaysIncludesAsCritical(cssAst["stylesheet"]["rules"], groupObject["alwaysInclude"][i]);
+		}
+	}
 	checkIfSelectorsHit(groupObject, originalCssUrl, cssAst);
+}
+
+function initCritical(rules, groupObject){
+	for (var i = 0; i < rules.length; i++) {
+		var rule = rules[i];
+		if(rule["type"] === "media") {
+			rule["critical"] = mediaQueryMatchesViewport(rule["media"], groupObject["viewport"][0], groupObject["viewport"][1]);
+		}
+		else{
+			rule["critical"] = false;
+		}
+	}
 }
 
 function changeRelativeUrlsInAst(rules, originalCssUrl) {
@@ -134,8 +151,8 @@ function changeRelativeUrlsInAst(rules, originalCssUrl) {
 		else if (rule["declarations"] !== undefined) {
 			for (var j = 0; j < rule["declarations"].length; j++) {
 				var declaration = rule["declarations"][j];
-				var patt = new RegExp("url\\(.*\\..*\\)");
-				var regexResult = patt.exec(declaration["value"]);
+				var regexPattern = new RegExp("url\\(.*\\..*\\)");
+				var regexResult = regexPattern.exec(declaration["value"]);
 				if (regexResult !== null) {
 					var originalValue = regexResult.toString();
 					var prefix = "";
@@ -155,27 +172,22 @@ function changeRelativeUrlsInAst(rules, originalCssUrl) {
 	}
 }
 
-function markNoncriticalMedia(cssAst, groupObject) {
-	//noinspection JSUnresolvedFunction
-	for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
-		var rule = cssAst["stylesheet"]["rules"][i];
-		cssAst["stylesheet"]["rules"][i]["critical"] = matchesViewport(rule, groupObject["viewport"][0], groupObject["viewport"][1]);
-	}
-}
-
-function matchesViewport(rule, width, height) {
-	if (rule["type"] === "rule") {
-		return true;
-	}
-	else if (rule["type"] === "media" && mediaQueryMatchesViewport(rule["media"], width, height)) {
-		for (var j = 0; j < rule["rules"].length; j++) {
-			if (matchesViewport(rule["rules"][j], width, height)) {
-				return true;
+function markAlwaysIncludesAsCritical(rules, ruleToInclude) {
+	var regexPattern = new RegExp(ruleToInclude);
+	for (var i = 0; i < rules.length; i++) {
+		var rule = rules[i];
+		if (rule["rules"] !== undefined) {
+			markAlwaysIncludesAsCritical(rule["rules"], ruleToInclude);
+		}
+		else if (rule["selectors"] !== undefined) {
+			for (var j = 0; j < rule["selectors"].length; j++) {
+				var selector = rule["selectors"][j];
+				if (regexPattern.test(selector)) {
+					rule["critical"] = true;
+					break;
+				}
 			}
 		}
-	}
-	else {
-		return false;
 	}
 }
 
@@ -349,7 +361,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 					else {
 						var jsForLoadCss = window.document.createElement('script');
 						jsForLoadCss.innerHTML = "var cb = function() {	var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '" + originalCssLink + "';	var h = document.getElementsByTagName('head')[0]; h.parentNode.insertBefore(l, h); }; var raf = requestAnimationFrame || mozRequestAnimationFrame || webkitRequestAnimationFrame || msRequestAnimationFrame; if (raf) raf(cb); else window.addEventListener('load', cb);";
-						body.appendChild(jsForLoadCss);
+						//body.appendChild(jsForLoadCss);
 					}
 
 
@@ -385,6 +397,9 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 						// Save it
 						writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["html"]);
 
+						renderScreenshot(groupObject["baseDir"] + groupObject["inputFile"], groupObject["baseDir"] + path.dirname(groupObject["inputFile"]) + "/preprocess.png", groupObject["viewport"][0], groupObject["viewport"][1]);
+						renderScreenshot(groupObject["baseDir"] + groupObject["outputFile"], groupObject["baseDir"] + path.dirname(groupObject["inputFile"]) + "/postprocess.png", groupObject["viewport"][0], groupObject["viewport"][1]);
+
 					}
 					console.log("[" + groupObject["groupID"] + "] File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated ");
 
@@ -400,6 +415,19 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 				}
 			}
 		}
+	});
+}
+
+function renderScreenshot(url, imageName, width, height) {
+	var childArgs = [
+		path.join(__dirname, 'phantomjs-render.js'),
+		url,
+		imageName,
+		width,
+		height
+	];
+	childProcess.execFile(binPath, childArgs, function (err, stdout, stderr) {
+		console.log(stdout + " " + stderr);
 	});
 }
 
