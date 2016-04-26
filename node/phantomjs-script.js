@@ -61,7 +61,7 @@ page.open(htmlUrl, function () {
 						}
 						rule["critical"] = ruleHit;
 					}
-					else if (rule["type"] === "media") {
+					else if (rule["type"] === "font-face") {
 						//TODO NO!
 						rule["critical"] = true;
 					}

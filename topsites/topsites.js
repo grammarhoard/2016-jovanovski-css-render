@@ -3,8 +3,8 @@ var fs = require('fs'),
 	request = require('request'),
 //	key = "d75bab0b8bf048418e97d46b6dc9f3a6" //simon
 //	key = "A.c62d0fd4a991b6fb36b2ab6b7b217723" //my second
-//	key = "A.3feb7c69c6658aef2dc4e49d891264d2" //my first
-	key = "A.8eb992381b7d5eb13485dd6858dab8e5" //my third
+	key = "A.3feb7c69c6658aef2dc4e49d891264d2" //my first
+//	key = "A.8eb992381b7d5eb13485dd6858dab8e5" //my third
 	;
 
 function processUrl(site) {
@@ -58,7 +58,6 @@ function generateTests(start, limit) {
 		}
 	});
 }
-
 function getTest(testUrl) {
 	console.log("trying: " + testUrl);
 	request(testUrl, function (error, response, jsonData) {
@@ -87,7 +86,6 @@ function getTest(testUrl) {
 		}
 	});
 }
-
 function getTestResults(start) {
 	fs.readFile("testIDs1.txt", 'utf8', function (err, data) {
 		if (!err) {
@@ -109,7 +107,6 @@ function getTestResults(start) {
 		}
 	});
 }
-
 function calculateTimes() {
 	var timesArr = [];
 	var avgArr = [];
@@ -195,8 +192,8 @@ function calculateTimes() {
 				}
 
 				console.log("-----------");
-				console.log("Total sites: 700");
-				console.log("Processed sites: " + (700 - skipped));
+				console.log("Total sites: 1000");
+				console.log("Processed sites: " + (1000 - skipped));
 				console.log("Skipped sites: " + skipped);
 				console.log("-----------");
 				console.log("Loading time difference:");
@@ -224,6 +221,6 @@ function calculateTimes() {
 	);
 }
 
-//generateTests(600, 700);
-//getTestResults(0);
+//generateTests(900, 1000);
+//getTestResults(900);
 calculateTimes();
