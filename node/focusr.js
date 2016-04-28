@@ -375,7 +375,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
                     else {
                         var jsForLoadCss = window.document.createElement('script');
                         jsForLoadCss.innerHTML = "var cb = function () { var s = ['" + linksToLoad.join("','") + "'];for(var i=0;i< s.length;i++){var l = document.createElement('link');l.rel = 'stylesheet';l.href = s[i];var h = document.getElementsByTagName('head')[0];h.parentNode.insertBefore(l, h);}};var raf = requestAnimationFrame || mozRequestAnimationFrame || webkitRequestAnimationFrame || msRequestAnimationFrame;if (raf) raf(cb); else window.addEventListener('load', cb);";
-                        body.appendChild(jsForLoadCss);
+                        //body.appendChild(jsForLoadCss);
                     }
 
 
