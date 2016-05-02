@@ -76,7 +76,7 @@ If set to false, will copy and paste all `<link rel='stylesheet'>` tags at the e
 
 
 ## Todo
-
+ -[Feature] Add noscript option for loading CSS
 - [BugFix] Find out why `open` does not work on any other test case than case 1
 - [Optimize] Remove overridden properties in generated CSS (ex `width: 0` ... `width: 100%`)
 - ~~[BugFix] Deal with crap like `a[href^="javascript:"]:after`~~
