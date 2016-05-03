@@ -61,7 +61,7 @@ page.open(htmlUrl, function () {
                 }
                 else if (rule["type"] === "font-face") {
                     //TODO NO!
-                    rule["critical"] = true;
+                    rule["critical"] = false;
                 }
             }
         }

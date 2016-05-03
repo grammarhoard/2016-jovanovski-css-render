@@ -12,99 +12,158 @@ var fs = require('fs'),
     phantomjs = require('phantomjs-prebuilt'),
     open = require("open"),
     binPath = phantomjs.path,
-    global = {};
+    global = {},
+    defaultConfig = {
+        "autoOpen": false,
+        "debug": false,
+        "allowJs": false,
+        "processExternalCss": true,
+        "inlineNonCritical": false,
+        "groups": []
+    },
+    defaultGroup = {
+        "enabled": true,
+        "baseDir": "tests/",
+        "inputFile": "",
+        "outputFile": "",
+        "alwaysInclude": [],
+        "wordpress": false,
+        "viewport": [1200, 900]
+    };
+
 
 function parseConfig(json) {
     console.log("------------------");
     console.log("Focusr run stared\n");
 
-    var id = 1;
-    global = json;
+    var groupID = 1;
+    global = extendConfig(defaultConfig, json);
     global["runningGroups"] = 0;
-    for (var i = 0; i < json["groups"].length; i++) {
-        var groupObject = json["groups"][i];
-        if (groupObject["enabled"]) {
-            groupObject["groupID"] = id++;
+    for (var i = 0; i < global["groups"].length; i++) {
+        var group = i;
+        global["groups"][i] = extendConfig(defaultGroup, global["groups"][i]);
+        var groupObject = global["groups"][i];
+
+        if(groupObject["wordpress"]){
+            request(groupObject["inputFile"] + "?focusr=yes", function (error, response, data) {
+                if (!error && response.statusCode == 200) {
+                    var links = JSON.parse(data);
+                    for (var key in links) {
+                        if (links.hasOwnProperty(key)) {
+                            var newGroup = extendConfig(defaultGroup, global["groups"][group]);
+                            newGroup["wordpress"] = false;
+                            newGroup["inputFile"] = links[key] + "?focusr=no";
+                            newGroup["outputFile"] = key + ".css";
+                            newGroup["groupID"] = groupID++;
+                            global["runningGroups"]++;
+                            parseGroup(newGroup);
+                        }
+                    }
+                }
+                else {
+                    console.log(groupObject["groupID"] + " Error fetching links from wordpress URL " + groupObject["inputFile"] + "?focusr=yes");
+                }
+            });
+        }
+        else if (groupObject["enabled"]) {
+            groupObject["groupID"] = groupID++;
             global["runningGroups"]++;
             parseGroup(groupObject);
         }
     }
 }
 
+function extendConfig(baseConfig, userConfig) {
+    var newConfig = {};
+    for (var key in baseConfig) {
+        if (baseConfig.hasOwnProperty(key)) {
+            newConfig[key] = baseConfig[key];
+        }
+    }
+    for (key in userConfig) {
+        if (userConfig.hasOwnProperty(key)) {
+            newConfig[key] = userConfig[key];
+        }
+    }
+    return newConfig;
+}
+
 function parseGroup(groupObject) {
-    groupObject["runs"] = 0;
+    groupObject["remainingCSSFiles"] = 0;
     if (isRemoteUrl(groupObject["inputFile"])) {
         request(groupObject["inputFile"], function (error, response, htmlData) {
             if (!error && response.statusCode == 200) {
-                groupObject["html"] = htmlData;
-                findCSSInHTML(groupObject);
+                groupObject["HTML"] = htmlData;
+                findCSSFiles(groupObject);
             }
             else {
-                console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
+                console.log(groupObject["groupID"] + " Error fetching remote file");
             }
         });
 
     }
     else {
-        groupObject["html"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
-        findCSSInHTML(groupObject);
+        groupObject["HTML"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+        findCSSFiles(groupObject);
     }
 }
 
-function findCSSInHTML(groupObject) {
+
+function findCSSFiles(groupObject) {
     jsdom.env({
-        html: groupObject["html"],
+        html: groupObject["HTML"],
         done: function (error, window) {
-            if (error) {
-                console.log("[" + groupObject["groupID"] + "] A jsdom error occurred: " + error);
-            }
-            else {
+            if (!error) {
                 var stylesheets = window.document.head.querySelectorAll("link[rel='stylesheet']");
                 for (var i = 0; i < stylesheets.length; i++) {
                     var cssFile = stylesheets[i].getAttribute("href");
                     if (!isRemoteUrl(cssFile) || (global["processExternalCss"] && isRemoteUrl(cssFile))) {
-                        groupObject["runs"]++;
-                        readCss(cssFile, groupObject);
+                        groupObject["remainingCSSFiles"]++;
+                        readCSS(cssFile, groupObject);
                     }
                 }
+            }
+            else {
+                console.log("[" + groupObject["groupID"] + "] A jsdom error occurred: " + error);
             }
         }
     });
 }
 
-function readCss(cssFile, groupObject) {
-    var originalCssUrl = cssFile;
+function readCSS(CSSUrl, groupObject) {
+    var unmodifiedCSSUrl = CSSUrl;
 
-    if (!isRemoteUrl(cssFile) && isRemoteUrl(groupObject["inputFile"])) {
-        cssFile = urlparse.resolve(groupObject["inputFile"], cssFile);
+
+    if (!isRemoteUrl(CSSUrl) && isRemoteUrl(groupObject["inputFile"])) {
+        CSSUrl = urlparse.resolve(groupObject["inputFile"], CSSUrl);
     }
 
-    if (isRemoteUrl(cssFile)) {
-        request(cssFile, function (error, response, cssData) {
+    if (isRemoteUrl(CSSUrl)) {
+        request(CSSUrl, function (error, response, cssData) {
             if (!error && response.statusCode == 200) {
-                createAST(cssData.toString(), originalCssUrl, groupObject);
+                createAST(cssData.toString(), unmodifiedCSSUrl, groupObject);
             }
             else {
-                console.log(groupObject["groupID"] + " Error fetching remote file '" + cssFile + "'");
-                createAST(undefined, originalCssUrl, groupObject);
+                console.log(groupObject["groupID"] + " Error fetching remote file '" + CSSUrl + "'");
+                createAST(undefined, unmodifiedCSSUrl, groupObject);
             }
         });
     }
     else {
-        if (isBaseRelative(cssFile)) {
-            cssFile = groupObject["baseDir"] + cssFile.substring(1);
+        if (isBaseRelative(CSSUrl)) {
+            CSSUrl = groupObject["baseDir"] + CSSUrl.substring(1);
         }
         else {
-            cssFile = groupObject["baseDir"] + path.dirname(groupObject["inputFile"]).substring(1) + cssFile;
+            CSSUrl = groupObject["baseDir"] + path.dirname(groupObject["inputFile"]).substring(1) + CSSUrl;
         }
 
-        fs.readFile(cssFile, 'utf8', function (error, cssData) {
+        fs.readFile(CSSUrl, 'utf8', function (error, cssData) {
             if (!error) {
-                createAST(cssData, originalCssUrl, groupObject);
+                createAST(cssData, unmodifiedCSSUrl, groupObject);
             }
             else {
-                console.log("[" + groupObject["groupID"] + "] Error fetching local file '" + cssFile + "'");
-                createAST(undefined, originalCssUrl, groupObject);
+                console.log("[" + groupObject["groupID"] + "] Error fetching local file '" + CSSUrl + "'");
+                createAST(undefined, unmodifiedCSSUrl, groupObject);
             }
         });
     }
@@ -112,34 +171,35 @@ function readCss(cssFile, groupObject) {
 }
 
 function isRemoteUrl(url) {
-    return url.lastIndexOf("http://", 0) === 0 || url.lastIndexOf("https://", 0) === 0 || url.lastIndexOf("www.", 0) === 0;
+    return url.indexOf("http://", 0) === 0 || url.indexOf("https://", 0) === 0 || url.indexOf("www.", 0) === 0;
 }
 
 function isBaseRelative(url) {
     return url.lastIndexOf("/", 0) === 0;
 }
 
-function createAST(cssData, originalCssUrl, groupObject) {
-    groupObject["runs"]--;
+function createAST(cssData, unmodifiedCSSUrl, groupObject) {
+    groupObject["remainingCSSFiles"]--;
+
     if (cssData !== undefined) {
-        if (groupObject["cssAst"] === undefined) {
-            groupObject["cssAst"] = css.parse(cssData, {silent: true});
+        if (groupObject["CSSAST"] === undefined) {
+            groupObject["CSSAST"] = css.parse(cssData, {silent: true});
         }
         else {
-            var cssAst = css.parse(cssData, {silent: true});
-            groupObject["cssAst"]["stylesheet"]["rules"] = groupObject["cssAst"]["stylesheet"]["rules"].concat(cssAst["stylesheet"]["rules"]);
+            var CSSAST = css.parse(cssData, {silent: true});
+            groupObject["CSSAST"]["stylesheet"]["rules"] = groupObject["CSSAST"]["stylesheet"]["rules"].concat(CSSAST["stylesheet"]["rules"]);
         }
     }
 
-    if (groupObject["runs"] == 0) {
-        changeRelativeUrlsInAst(groupObject["cssAst"]["stylesheet"]["rules"], originalCssUrl);
-        initCritical(groupObject["cssAst"]["stylesheet"]["rules"], groupObject);
-        if (groupObject["alwaysInclude"] !== undefined) {
+    if (groupObject["remainingCSSFiles"] == 0) {
+        changeRelativeUrlsInAst(groupObject["CSSAST"]["stylesheet"]["rules"], unmodifiedCSSUrl);
+        initCritical(groupObject["CSSAST"]["stylesheet"]["rules"], groupObject);
+        if (groupObject["alwaysInclude"].length > 0) {
             for (var i = 0; i < groupObject["alwaysInclude"].length; i++) {
-                markAlwaysIncludesAsCritical(groupObject["cssAst"]["stylesheet"]["rules"], groupObject["alwaysInclude"][i]);
+                markAlwaysIncludesAsCritical(groupObject["CSSAST"]["stylesheet"]["rules"], groupObject["alwaysInclude"][i]);
             }
         }
-        checkIfSelectorsHit(groupObject, groupObject["cssAst"]);
+        checkIfSelectorsHit(groupObject, groupObject["CSSAST"]);
     }
 
 }
@@ -156,11 +216,11 @@ function initCritical(rules, groupObject) {
     }
 }
 
-function changeRelativeUrlsInAst(rules, originalCssUrl) {
+function changeRelativeUrlsInAst(rules, unmodifiedCSSUrl) {
     for (var i = 0; i < rules.length; i++) {
         var rule = rules[i];
         if (rule["rules"] !== undefined) {
-            changeRelativeUrlsInAst(rule["rules"], originalCssUrl);
+            changeRelativeUrlsInAst(rule["rules"], unmodifiedCSSUrl);
         }
         else if (rule["declarations"] !== undefined) {
             for (var j = 0; j < rule["declarations"].length; j++) {
@@ -176,7 +236,7 @@ function changeRelativeUrlsInAst(rules, originalCssUrl) {
                         regexResult = regexResult.substring(1, regexResult.length - 1);
                     }
                     if (!isRemoteUrl(regexResult)) {
-                        var newPath = "url(" + prefix + urlparse.resolve(originalCssUrl, regexResult) + prefix + ")";
+                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCSSUrl, regexResult) + prefix + ")";
                         declaration["value"] = declaration["value"].replace(originalValue, newPath);
                     }
 
@@ -214,12 +274,12 @@ function mediaQueryMatchesViewport(mediaQuery, width, height) {
 }
 
 //ASYNC
-function checkIfSelectorsHit(groupObject, cssAst) {
+function checkIfSelectorsHit(groupObject, CSSAST) {
 
     var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
     var viewportW = groupObject["viewport"][0];
     var viewportH = groupObject["viewport"][1];
-    var html = groupObject["html"];
+    var html = groupObject["HTML"];
 
     jsdom.env({
         html: html,
@@ -245,7 +305,7 @@ function checkIfSelectorsHit(groupObject, cssAst) {
                 writeFile(htmlFile, window.document.documentElement.outerHTML);
 
                 // Save CSS selectors to tmp file because they may be too big for console argument
-                writeFile(tmpCssFile, JSON.stringify(cssAst));
+                writeFile(tmpCssFile, JSON.stringify(CSSAST));
 
 
                 console.log("[" + groupObject["groupID"] + "] Calling PhantomJS");
@@ -327,7 +387,7 @@ function balanceArray(array) {
 //ASYNC
 function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile) {
     jsdom.env({
-        html: groupObject["html"],
+        html: groupObject["HTML"],
         done: function (error, window) {
             if (error) {
                 console.log("A jsdom error occurred: " + error);
@@ -380,7 +440,7 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
 
 
                     // Save HTML for possible next CSS file run
-                    groupObject["html"] = window.document.documentElement.outerHTML;
+                    groupObject["HTML"] = window.document.documentElement.outerHTML;
                 }
 
                 // Delete tmp CSS file
@@ -401,11 +461,11 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
                     // Insert debug viewport box
                     if (global["debug"]) {
                         body.innerHTML = '<div style="border: 3px solid red; width: ' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
-                        groupObject["html"] = window.document.documentElement.outerHTML;
+                        groupObject["HTML"] = window.document.documentElement.outerHTML;
                     }
 
                     // Save it
-                    writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["html"]);
+                    writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["HTML"]);
 
                     //renderScreenshot(groupObject["baseDir"] + groupObject["inputFile"], groupObject["baseDir"] + path.dirname(groupObject["inputFile"]) + "/preprocess.png", groupObject["viewport"][0], groupObject["viewport"][1]);
                     //renderScreenshot(groupObject["baseDir"] + groupObject["outputFile"], groupObject["baseDir"] + path.dirname(groupObject["inputFile"]) + "/postprocess.png", groupObject["viewport"][0], groupObject["viewport"][1]);

@@ -48,17 +48,11 @@
     },
     {
       "enabled": true,
-      "baseDir": "../wordpress/",
-      "inputFile" : "http://gorjan.rocks/research/thesis/wordpress/index.php/2016/05/02/post2/",
-      "outputFile": "focusr/wordpress/single.css",
-      "viewport" : [1200, 900]
-    },
-    {
-      "enabled": true,
-      "baseDir": "../wordpress/",
+      "wordpress": true,
+      "baseDir": "../wordpress/focusr/wordpress/",
       "inputFile" : "http://gorjan.rocks/research/thesis/wordpress/",
-      "outputFile": "focusr/wordpress/homepage.css",
       "viewport" : [1200, 900]
     }
   ]
 }
+
