@@ -1,3 +1,8 @@
+
+//-----------------------
+// GLOBAL VARS
+//-----------------------
+
 var fs = require('fs'),
     mkdirp = require('mkdirp'),
     getDirName = require('path').dirname,
@@ -32,6 +37,11 @@ var fs = require('fs'),
         "viewport": [1200, 900],
         "outputJS": false
     };
+
+
+//-----------------------
+// FUNCTIONS
+//-----------------------
 
 function parseConfig(json) {
     console.log("------------------");
@@ -98,19 +108,6 @@ function parseConfig(json) {
 
 }
 
-function injectAuth(url, auth) {
-    if (url.indexOf("http://", 0) === 0) {
-        return url.replace("http://", "http://" + auth + "@");
-    }
-    else if (url.indexOf("https://", 0) === 0) {
-        return url.replace("http://", "https://" + auth + "@");
-    }
-    else if (url.indexOf("www.", 0) === 0) {
-        return url.replace("www.", "http://" + auth + "@www.");
-    }
-    return "";
-}
-
 function extendConfig(baseConfig, userConfig) {
     var newConfig = {};
     for (var key in baseConfig) {
@@ -150,6 +147,18 @@ function parseGroup(groupObject) {
     }
 }
 
+function injectAuth(url, auth) {
+    if (url.indexOf("http://", 0) === 0) {
+        return url.replace("http://", "http://" + auth + "@");
+    }
+    else if (url.indexOf("https://", 0) === 0) {
+        return url.replace("http://", "https://" + auth + "@");
+    }
+    else if (url.indexOf("www.", 0) === 0) {
+        return url.replace("www.", "http://" + auth + "@www.");
+    }
+    return "";
+}
 
 function findCSSFiles(groupObject) {
     jsdom.env({
@@ -216,14 +225,6 @@ function readCSS(CSSUrl, groupObject) {
 
 }
 
-function isRemoteUrl(url) {
-    return url.indexOf("http://", 0) === 0 || url.indexOf("https://", 0) === 0 || url.indexOf("www.", 0) === 0;
-}
-
-function isBaseRelative(url) {
-    return url.lastIndexOf("/", 0) === 0;
-}
-
 function createAST(cssData, unmodifiedCSSUrl, groupObject) {
     groupObject["remainingCSSFiles"]--;
 
@@ -262,36 +263,6 @@ function initCritical(rules, groupObject) {
     }
 }
 
-function changeRelativeUrlsInAst(rules, unmodifiedCSSUrl) {
-    for (var i = 0; i < rules.length; i++) {
-        var rule = rules[i];
-        if (rule["rules"] !== undefined) {
-            changeRelativeUrlsInAst(rule["rules"], unmodifiedCSSUrl);
-        }
-        else if (rule["declarations"] !== undefined) {
-            for (var j = 0; j < rule["declarations"].length; j++) {
-                var declaration = rule["declarations"][j];
-                var regexPattern = new RegExp("url\\(.*\\..*\\)");
-                var regexResult = regexPattern.exec(declaration["value"]);
-                if (regexResult !== null) {
-                    var originalValue = regexResult.toString();
-                    var prefix = "";
-                    regexResult = regexResult.toString().substring(4, regexResult.toString().length - 1);
-                    if (regexResult.indexOf("'") === 0 || regexResult.indexOf('"') === 0) {
-                        prefix = regexResult.substring(0, 1);
-                        regexResult = regexResult.substring(1, regexResult.length - 1);
-                    }
-                    if (!isRemoteUrl(regexResult)) {
-                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCSSUrl, regexResult) + prefix + ")";
-                        declaration["value"] = declaration["value"].replace(originalValue, newPath);
-                    }
-
-                }
-            }
-        }
-    }
-}
-
 function markAlwaysIncludesAsCritical(rules, ruleToInclude) {
     var regexPattern = new RegExp(ruleToInclude);
     for (var i = 0; i < rules.length; i++) {
@@ -319,7 +290,6 @@ function mediaQueryMatchesViewport(mediaQuery, width, height) {
     });
 }
 
-//ASYNC
 function checkIfSelectorsHit(groupObject, CSSAST) {
 
     var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
@@ -420,25 +390,6 @@ function sliceCss(groupObject, processedAst, tmpCssFile) {
     injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile);
 }
 
-function balanceArray(array) {
-    var tmpArray = [];
-    for (var i = 0; i < array.length; i++) {
-        if (array[i] !== undefined) {
-            tmpArray.push(array[i]);
-        }
-    }
-    return tmpArray;
-}
-
-function generateLoadCSSJS(stylesheets) {
-    var linksToLoad = [];
-    for (var i = 0; i < stylesheets.length; i++) {
-        linksToLoad.push(stylesheets[i].getAttribute("href"));
-    }
-    return 'var fl=function(){for(var e=["' + linksToLoad.join('","') + '"],t=0;t<e.length;t++){var n=document.createElement("link");n.rel="stylesheet",n.href=e[t],document.body.appendChild(n)}},raf=requestAnimationFrame||mozRequestAnimationFrame||webkitRequestAnimationFrame||msRequestAnimationFrame;raf?raf(function(){window.setTimeout(fl,0)}):window.addEventListener("load",fl);';
-}
-
-//ASYNC
 function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile) {
     jsdom.env({
         html: groupObject["HTML"],
@@ -540,6 +491,10 @@ function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObjec
     });
 }
 
+//-----------------------
+// HELPER FUNCTIONS
+//-----------------------
+
 function renderScreenshot(url, imageName, width, height) {
     var childArgs = [
         path.join(__dirname, 'phantomjs-render.js'),
@@ -553,6 +508,62 @@ function renderScreenshot(url, imageName, width, height) {
     });
 }
 
+function isRemoteUrl(url) {
+    return url.indexOf("http://", 0) === 0 || url.indexOf("https://", 0) === 0 || url.indexOf("www.", 0) === 0;
+}
+
+function isBaseRelative(url) {
+    return url.lastIndexOf("/", 0) === 0;
+}
+
+function balanceArray(array) {
+    var tmpArray = [];
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] !== undefined) {
+            tmpArray.push(array[i]);
+        }
+    }
+    return tmpArray;
+}
+
+function changeRelativeUrlsInAst(rules, unmodifiedCSSUrl) {
+    for (var i = 0; i < rules.length; i++) {
+        var rule = rules[i];
+        if (rule["rules"] !== undefined) {
+            changeRelativeUrlsInAst(rule["rules"], unmodifiedCSSUrl);
+        }
+        else if (rule["declarations"] !== undefined) {
+            for (var j = 0; j < rule["declarations"].length; j++) {
+                var declaration = rule["declarations"][j];
+                var regexPattern = new RegExp("url\\(.*\\..*\\)");
+                var regexResult = regexPattern.exec(declaration["value"]);
+                if (regexResult !== null) {
+                    var originalValue = regexResult.toString();
+                    var prefix = "";
+                    regexResult = regexResult.toString().substring(4, regexResult.toString().length - 1);
+                    if (regexResult.indexOf("'") === 0 || regexResult.indexOf('"') === 0) {
+                        prefix = regexResult.substring(0, 1);
+                        regexResult = regexResult.substring(1, regexResult.length - 1);
+                    }
+                    if (!isRemoteUrl(regexResult)) {
+                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCSSUrl, regexResult) + prefix + ")";
+                        declaration["value"] = declaration["value"].replace(originalValue, newPath);
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+function generateLoadCSSJS(stylesheets) {
+    var linksToLoad = [];
+    for (var i = 0; i < stylesheets.length; i++) {
+        linksToLoad.push(stylesheets[i].getAttribute("href"));
+    }
+    return 'var fl=function(){for(var e=["' + linksToLoad.join('","') + '"],t=0;t<e.length;t++){var n=document.createElement("link");n.rel="stylesheet",n.href=e[t],document.body.appendChild(n)}},raf=requestAnimationFrame||mozRequestAnimationFrame||webkitRequestAnimationFrame||msRequestAnimationFrame;raf?raf(function(){window.setTimeout(fl,0)}):window.addEventListener("load",fl);';
+}
+
 function writeFile(path, contents) {
     mkdirp(getDirName(path), function (error) {
         if (error) {
@@ -563,7 +574,10 @@ function writeFile(path, contents) {
         }
     });
 }
-//---------------------------------------------------------------------
+
+//-----------------------
+// MAIN CALL
+//-----------------------
 
 fs.readFile("config.json", 'utf8', function (err, data) {
     if (!err) {
