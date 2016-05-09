@@ -47,10 +47,18 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "wordpress": true,
       "baseDir": "../wordpress/focusr/wordpress/",
       "inputFile" : "http://gorjan.rocks/research/thesis/wordpress/",
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": true,
+      "wordpress": true,
+      "baseDir": "../wordpress/focusr/wordpress/",
+      "httpAuth": "tnw:PmwQfGf7cGUq2ypY",
+      "inputFile" : "http://gorjan.dev.thenextweb.com/",
       "viewport" : [1200, 900]
     }
   ]
