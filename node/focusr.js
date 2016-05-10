@@ -3,7 +3,6 @@
 //-----------------------
 
 var phantomjs = require('phantomjs-prebuilt'),
-    binPath = phantomjs.path,
     childProcess = require('child_process'),
     css = require('css'),
     cssCleaner = require('clean-css'),
@@ -46,8 +45,7 @@ var global = {},
 //-----------------------
 
 function parseConfig(json) {
-    console.log("------------------");
-    console.log("Focusr run stared\n");
+    focusrHelper.intro();
 
     var groupID = 1;
     global = extendConfig(defaultConfig, json);
@@ -314,174 +312,127 @@ function checkIfSelectorsHit(groupObject, CSSAST) {
 
     focusrHelper.writeFile(htmlFile, html);
     focusrHelper.writeFile(tmpCssFile, JSON.stringify(CSSAST));
-
     focusrHelper.logMessage(groupObject["groupID"], "Calling PhantomJS");
 
-    var childArgs = [
-        path.join(__dirname, 'phantomJS.js'),
-        htmlFile,
-        tmpCssFile,
-        viewportW,
-        viewportH
-    ];
+    var phantomArguments = [path.join(__dirname, 'phantomJS.js'), htmlFile, tmpCssFile, viewportW, viewportH];
 
-    // Run PhantomJS
-    childProcess.execFile(binPath, childArgs, function (err, stdout, stderr) {
-        if (!err) {
-            var result = stdout.replace(/(\r\n|\n|\r)/gm, "");
+    childProcess.execFile(phantomjs.path, phantomArguments, function (error, output, errorOutout) {
+        if (!error) {
+            var result = output.trim();
             if (result === "true") {
                 focusrHelper.logMessage(groupObject["groupID"], "PhantomJS reported back");
                 var parseError = false;
-                var processedAst;
+                var processedAST;
                 try {
-                    processedAst = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
+                    processedAST = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
                 }
-                catch(exception){
+                catch (exception) {
                     parseError = true;
                     focusrHelper.logMessage(groupObject["groupID"], "Error occurred while paring PhantomJS output: " + exception.message, 2);
                 }
 
-                if(!parseError) {
-                    sliceCss(groupObject, processedAst, tmpCssFile);
+                if (!parseError) {
+                    sliceCss(groupObject, processedAST, tmpCssFile);
                 }
             }
             else {
-                focusrHelper.logMessage(groupObject["groupID"], "A controlled exception occurred: " + json["errorMessage"] + " " + stdout, 2);
+                focusrHelper.logMessage(groupObject["groupID"], "A controlled exception occurred: " + json["errorMessage"] + " " + output, 2);
             }
 
         }
         else {
-            focusrHelper.logMessage(groupObject["groupID"], "A PhantomJS error occurred: " + err + " " + stdout + " " + stderr, 2);
+            focusrHelper.logMessage(groupObject["groupID"], "A PhantomJS error occurred: " + output + " " + errorOutout, 2);
         }
     });
-
-
 }
 
-function sliceCss(groupObject, processedAst, tmpCssFile) {
-    var criticalCssAst = JSON.parse(JSON.stringify(processedAst)), nonCriticalCssAst = JSON.parse(JSON.stringify(processedAst));
+function sliceCss(groupObject, processedAST, tmpCssFile) {
+    //Deep cloning
+    var criticalCssAst = JSON.parse(JSON.stringify(processedAST)), nonCriticalCssAst = JSON.parse(JSON.stringify(processedAST));
+    var originalRules = processedAST["stylesheet"]["rules"], criticalRules = criticalCssAst["stylesheet"]["rules"], nonCriticalRules = nonCriticalCssAst["stylesheet"]["rules"];
 
-    for (var i = 0; i < processedAst["stylesheet"]["rules"].length; i++) {
-        var rule = processedAst["stylesheet"]["rules"][i];
+    for (var i = 0; i < originalRules.length; i++) {
+        var rule = originalRules[i];
         if (rule["critical"]) {
-            nonCriticalCssAst["stylesheet"]["rules"][i] = undefined;
+            nonCriticalRules[i] = undefined;
         }
         else {
-            criticalCssAst["stylesheet"]["rules"][i] = undefined;
+            criticalRules[i] = undefined;
         }
     }
 
-    criticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(criticalCssAst["stylesheet"]["rules"]);
-    nonCriticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(nonCriticalCssAst["stylesheet"]["rules"]);
+    criticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(criticalRules);
+    nonCriticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(nonCriticalRules);
 
     var criticalCss = css.stringify(criticalCssAst), nonCriticalCss = css.stringify(nonCriticalCssAst);
     var minifiedCriticalCss = new cssCleaner().minify(criticalCss).styles, minifiedNonCriticalCss = new cssCleaner().minify(nonCriticalCss).styles;
 
-    injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile);
+    generateResult(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile);
 }
 
-function injectInlineCss(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile) {
+function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
     jsdom.env({
         html: groupObject["HTML"],
         done: function (error, window) {
             if (error) {
                 focusrHelper.logMessage(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
+                return;
+            }
+
+            var head = window.document.head || window.document.getElementsByTagName('head')[0];
+            var body = window.document.body || window.document.getElementsByTagName('body')[0];
+            var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
+
+            if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+                groupObject["criticalCss"] += criticalCss;
+                if (groupObject["outputJS"]) {
+                    focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], focusrHelper.generateLoadCSSJS(stylesheets));
+                    focusrHelper.logMessage(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputJS"] + "' generated", 1);
+                }
             }
             else {
+                head.appendChild(focusrHelper.generateStyleTag(window, criticalCss));
+                for (var i = 0; i < stylesheets.length; i++) {
+                    head.removeChild(stylesheets[i]);
+                }
 
-                var head = window.document.head || window.document.getElementsByTagName('head')[0];
-                var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
-                if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                    if (groupObject["criticalCss"] === undefined) {
-                        groupObject["criticalCss"] = "";
-                    }
-                    groupObject["criticalCss"] += minifiedCriticalCss;
-
-                    if (groupObject["outputJS"]) {
-                        focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], focusrHelper.generateLoadCSSJS(stylesheets));
-                        focusrHelper.logMessage(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputJS"] + "' generated", 1);
-                    }
+                if (global["inlineNonCritical"]) {
+                    body.appendChild(focusrHelper.generateStyleTag(window, nonCriticalCss));
                 }
                 else {
-                    // Insert minified critical css in <style> tag
-                    var body = window.document.body || window.document.getElementsByTagName('body')[0];
-                    var criticalStyleTag = window.document.createElement('style');
-                    criticalStyleTag.type = 'text/css';
-                    if (criticalStyleTag.styleSheet) {
-                        criticalStyleTag.styleSheet.cssText = minifiedCriticalCss;
-                    } else {
-                        criticalStyleTag.appendChild(window.document.createTextNode(minifiedCriticalCss));
-                    }
-                    head.appendChild(criticalStyleTag);
-
-
-                    // Try and find <link> tag with CSS to remove it
-                    for (var i = 0; i < stylesheets.length; i++) {
-                        head.removeChild(stylesheets[i]);
-                    }
-
-                    if (global["inlineNonCritical"]) {
-                        var nonCriticalStyleTag = window.document.createElement('style');
-                        nonCriticalStyleTag.type = 'text/css';
-                        if (nonCriticalStyleTag.styleSheet) {
-                            nonCriticalStyleTag.styleSheet.cssText = minifiedNonCriticalCss;
-                        } else {
-                            nonCriticalStyleTag.appendChild(window.document.createTextNode(minifiedNonCriticalCss));
-                        }
-                        body.appendChild(nonCriticalStyleTag);
-                    }
-                    else {
-                        var jsForLoadCss = window.document.createElement('script');
-                        jsForLoadCss.innerHTML = focusrHelper.generateLoadCSSJS(stylesheets);
-                        body.appendChild(jsForLoadCss);
-                    }
-
-                    // Save HTML for possible next CSS file run
-                    groupObject["HTML"] = window.document.documentElement.outerHTML;
+                    var jsForLoadCss = window.document.createElement('script');
+                    jsForLoadCss.innerHTML = focusrHelper.generateLoadCSSJS(stylesheets);
+                    body.appendChild(jsForLoadCss);
                 }
+            }
 
-                // Delete tmp CSS file
-                fs.unlink(tmpCssFile);
+            focusrHelper.collectGarbage(tmpCssFile, groupObject);
+            global["runningGroups"]--;
 
-                global["runningGroups"]--;
-                // Delete temp HTML file
-                var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
-                if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                    htmlFile += ".html";
+            if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+                focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
+            }
+            else {
+                if (global["debug"]) {
+                    body.innerHTML = focusrHelper.insertDebugBox(body);
                 }
-                fs.unlink(htmlFile);
+                var resultHTML = window.document.documentElement.outerHTML;
+                focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML);
+            }
+            focusrHelper.logMessage(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
 
-                if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                    focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
-                }
-                else {
-                    // Insert debug viewport box
-                    if (global["debug"]) {
-                        body.innerHTML = '<div style="border:3px solid red;width:' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
-                        groupObject["HTML"] = window.document.documentElement.outerHTML;
-                    }
-
-                    // Save it
-                    focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["HTML"]);
-
-                }
-                focusrHelper.logMessage(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
-
-                // Check if no more groups running
-                if (global["runningGroups"] === 0) {
-                    console.log("\nFocusr run ended");
-                    console.log("------------------");
-                }
+            if (global["runningGroups"] === 0) {
+                focusrHelper.outro();
             }
         }
     });
 }
 
-function transformRulesRelativeToOutput(rules, unmodifiedcssUrl) {
+function transformRulesRelativeToOutput(rules, unmodifiedCssUrl) {
     for (var i = 0; i < rules.length; i++) {
         var rule = rules[i];
         if (rule["rules"] !== undefined) {
-            transformRulesRelativeToOutput(rule["rules"], unmodifiedcssUrl);
+            transformRulesRelativeToOutput(rule["rules"], unmodifiedCssUrl);
         }
         else if (rule["declarations"] !== undefined) {
             for (var j = 0; j < rule["declarations"].length; j++) {
@@ -497,7 +448,7 @@ function transformRulesRelativeToOutput(rules, unmodifiedcssUrl) {
                         regexResult = regexResult.substring(1, regexResult.length - 1);
                     }
                     if (!focusrHelper.isRemoteUrl(regexResult)) {
-                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedcssUrl, regexResult) + prefix + ")";
+                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCssUrl, regexResult) + prefix + ")";
                         declaration["value"] = declaration["value"].replace(originalValue, newPath);
                     }
 
