@@ -2,6 +2,7 @@ var page = require('webpage').create(),
     system = require('system'),
     fs = require('fs'),
     htmlUrl = system.args[1],
+    tmpCssUrl = system.args[1],
     viewportWidth = system.args[3],
     viewportHeight = system.args[4];
 
@@ -13,6 +14,11 @@ page.viewportSize = {
     width: viewportWidth,
     height: viewportHeight
 };
+
+page.settings.userAgent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
+page.settings.javascriptEnabled = false;
+page.settings.webSecurityEnabled = false;
+
 
 page.open(htmlUrl, function () {
     var hitElements = {success: "true"};
@@ -60,7 +66,6 @@ page.open(htmlUrl, function () {
                     rule["critical"] = ruleHit;
                 }
                 else if (rule["type"] === "font-face") {
-                    //TODO NO!
                     rule["critical"] = false;
                 }
             }
@@ -68,7 +73,7 @@ page.open(htmlUrl, function () {
 
         return cssAst;
     }, cssAst, viewportWidth, viewportHeight);
-    fs.write(system.args[2], JSON.stringify(hitElements["hits"]), 'w');
+    fs.write(tmpCssUrl, JSON.stringify(hitElements["hits"]), 'w');
     console.log(hitElements["success"]);
     phantom.exit();
 });

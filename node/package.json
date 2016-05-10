@@ -5,6 +5,7 @@
     "css": "^2.2.1",
     "css-mediaquery": "^0.1.2",
     "clean-css": "^3.4.12",
+    "colors": "^1.1.2",
     "jsdom": "^8.3.1",
     "mkdirp": "^0.5.1",
     "request": "^2.71.0",

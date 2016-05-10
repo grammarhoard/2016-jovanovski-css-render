@@ -1,108 +1,124 @@
 var fs = require('fs'),
-	jsdom = require("jsdom"),
-	mkdirp = require('mkdirp'),
-	path = require('path'),
-	getDirName = require('path').dirname,
-	request = require('request'),
-	wptUrl = "ec2-52-53-186-94.us-west-1.compute.amazonaws.com",
-	key = "33f6b472561edfcf6130b2a65b687104f9ed5d62",
-	cooldown = 500
-	;
+    jsdom = require("jsdom"),
+    mkdirp = require('mkdirp'),
+    path = require('path'),
+    exec = require('child_process').exec,
+    getDirName = require('path').dirname,
+    request = require('request'),
+    wptUrl = "52.9.202.97",
+    key = "33f6b472561edfcf6130b2a65b687104f9ed5d62",
+    cooldown = 5000,
+    siteBase = "http://gorjan.rocks/research/thesis/topsites/"
+    ;
 
 function generateTests(start, limit) {
-	fs.readFile("alexa.csv", 'utf8', function (err, data) {
-		if (!err) {
-			var lines = data.split(/\r?\n/);
-			var i = 0;
-			for (var n = start; n < limit; n++) {
-				i++;
-				var site =lines[n].split(",")[1];
+    fs.readFile("alexa.csv", 'utf8', function (err, data) {
+        if (!err) {
+            var lines = data.split(/\r?\n/);
+            var i = 0;
+            for (var n = start; n < limit; n++) {
+                i++;
+                var site = lines[n].split(",")[1];
 
-				if(site.indexOf("http:") !== 0){
-					site = "http://" + site + "/";
-				}
+                if (site.indexOf("http:") !== 0) {
+                    site = "http://" + site + "/";
+                }
 
 
-				if (site !== "") {
-					setTimeout(saveHTML, i * cooldown, site, n);
-				}
-			}
-		}
-		else {
-			console.log("Alexa file can not be opened");
-		}
-	});
+                if (site !== "") {
+                    setTimeout(saveHTML, i * cooldown, site, n);
+                }
+            }
+        }
+        else {
+            console.log("Alexa file can not be opened");
+        }
+    });
 }
 
 function saveHTML(site, id) {
-	console.log("Requesting HTML for: " + site + " (" + id + ")");
-	(function(site, id){
-		request(site, function (error, response, data) {
-			if (!error && response.statusCode == 200) {
-				jsdom.env({
-					html: data,
-					done: function (error, window) {
-						if (error) {
-							console.log("A jsdom error occurred: " + error);
-						}
-						else {
-							var head = window.document.head || window.document.getElementsByTagName('head')[0];
-							var base = window.document.createElement('base');
-							base.href = site;
-							head.insertBefore(base, head.firstChild);
+    console.log("Requesting HTML for: " + site + " (" + id + ")");
+    (function (site, id) {
+        request(site, function (error, response, data) {
+            if (!error && response.statusCode == 200) {
+                jsdom.env({
+                    html: data,
+                    done: function (error, window) {
+                        if (error) {
+                            console.log("A jsdom error occurred: " + error);
+                        }
+                        else {
+                            var head = window.document.head || window.document.getElementsByTagName('head')[0];
+                            var base = window.document.createElement('base');
+                            base.href = site;
+                            head.insertBefore(base, head.firstChild);
 
-							var html = window.document.documentElement.outerHTML;
-							var path = "testSites/" + id + "/original.html";
+                            var html = window.document.documentElement.outerHTML;
+                            var baseDir = "../topsites/testSites/" + id + "/";
+                            var original = "original.html";
 
-							mkdirp(getDirName(path), function (error) {
-								if (error) {
-									console.log("Error writing file " + path);
-								}
-								else {
-									fs.writeFileSync(path, html, {flag: 'w'});
+                            (function (baseDir, original, id) {
+                                mkdirp(getDirName(baseDir + original), function (error) {
+                                    if (error) {
+                                        console.log("Error writing file " + baseDir + original);
+                                    }
+                                    else {
+                                        fs.writeFileSync(baseDir + original, html, {flag: 'w'});
+                                        console.log("Saved " + id + "");
+                                        //exec("node ../node/focusr.js " + baseDir + " " + original + " " + "focused.html",
+                                        //    function (error, stdout) {
+                                        //        console.log("Focusr done (" + id + ")");
+                                        //        processUrl(siteBase + "testSites/"+id+"/" + "original.html", id);
+                                        //        processUrl(siteBase + "testSites/"+id+"/" + "focused.html", id);
+                                        //    });
+                                    }
+                                });
+                            })(baseDir, original, id);
 
-								}
-							});
 
-						}
-					}
-				});
+                        }
+                    }
+                });
 
-			}
-			else {
-				console.log(" Error fetching remote site '" + site + "': " + error);
-			}
-		});
-	})(site, id);
+            }
+            else {
+                console.log(" Error fetching remote site '" + site + "': " + error);
+            }
+        });
+    })(site, id);
 
 }
 
-generateTests(0,1);
+
+function processUrl(site, id) {
+	console.log("doing: " + site + " (" + id + ")");
+	var url = "http://"+wptUrl+"/runtest.php?url=" + encodeURIComponent(site) + "&k=" + key + "&f=json&location=EC2-WPT_wptdriver:Chrome.Cable";
+
+	(function(url, id){
+		request(url, function (error, response, jsonData) {
+			if (!error && response.statusCode == 200) {
+				jsonData = JSON.parse(jsonData);
+				if (jsonData["statusCode"] === 200) {
+                    console.log(jsonData["data"]["jsonUrl"]);
+					fs.appendFile('analysisID.txt', jsonData["data"]["jsonUrl"] + " | "+id+"\n");
+				}
+				else {
+					console.log(JSON.stringify(jsonData));
+				}
+			}
+			else {
+				console.log(" Error fetching remote site '" + "'");
+			}
+		});
+	})(url, id);
+
+}
+
 
 //----------------------------------
+generateTests(400, 800);
+//----------------------------------
 
-//function processUrl(site, id) {
-//	console.log("doing: " + site + " id " + id);
-//	var url = "http://"+wptUrl+"/runtest.php?url=" + site + "&k=" + key + "&f=json&web10=1&noimages=1&noopt=1&noheaders=1&location=EC2-WPT_wptdriver:Chrome.Cable";
-//
-//	(function(url, id){
-//		request(url, function (error, response, jsonData) {
-//			if (!error && response.statusCode == 200) {
-//				jsonData = JSON.parse(jsonData);
-//				if (jsonData["statusCode"] === 200) {
-//					fs.appendFile('analysisID.txt', jsonData["data"]["jsonUrl"] + " | "+id+"\n");
-//				}
-//				else {
-//					console.log(JSON.stringify(jsonData));
-//				}
-//			}
-//			else {
-//				console.log(" Error fetching remote site '" + "'");
-//			}
-//		});
-//	})(url, id);
-//
-//}
 //function generateTests(start, limit) {
 //	fs.readFile("alexa.csv", 'utf8', function (err, data) {
 //		if (!err) {
