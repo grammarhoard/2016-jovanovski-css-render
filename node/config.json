@@ -5,7 +5,7 @@
   "inlineNonCritical": false,
   "groups":[
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "../topsites/testSites/40/",
       "inputFile" : "original.html",
       "outputFile": "focused.html",
@@ -43,11 +43,14 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "wordpress": true,
       "baseDir": "../wordpress/focusr/wordpress/",
       "httpAuth": "tnw:PmwQfGf7cGUq2ypY",
       "inputFile" : "http://gorjan.dev.thenextweb.com/",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
       "viewport" : [1200, 900]
     }
   ]

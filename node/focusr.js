@@ -291,6 +291,37 @@ function createAST(cssData, unmodifiedCssUrl, groupObject) {
     }
 }
 
+
+function transformRulesRelativeToOutput(rules, unmodifiedCssUrl) {
+    for (var i = 0; i < rules.length; i++) {
+        var rule = rules[i];
+        if (rule["rules"] !== undefined) {
+            transformRulesRelativeToOutput(rule["rules"], unmodifiedCssUrl);
+        }
+        else if (rule["declarations"] !== undefined) {
+            for (var j = 0; j < rule["declarations"].length; j++) {
+                var declaration = rule["declarations"][j];
+                var regexPattern = new RegExp("url\\(.*\\..*\\)");
+                var regexResult = regexPattern.exec(declaration["value"]);
+                if (regexResult !== null) {
+                    var originalValue = regexResult.toString();
+                    var prefix = "";
+                    regexResult = regexResult.toString().substring(4, regexResult.toString().length - 1);
+                    if (regexResult.indexOf("'") === 0 || regexResult.indexOf('"') === 0) {
+                        prefix = regexResult.substring(0, 1);
+                        regexResult = regexResult.substring(1, regexResult.length - 1);
+                    }
+                    if (!focusrHelper.isRemoteUrl(regexResult)) {
+                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCssUrl, regexResult) + prefix + ")";
+                        declaration["value"] = declaration["value"].replace(originalValue, newPath);
+                    }
+
+                }
+            }
+        }
+    }
+}
+
 function markAllRulesAsNoncritical(rules) {
     for (var i = 0; i < rules.length; i++) {
         rules[i]["critical"] = false;
@@ -434,6 +465,9 @@ function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
             var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
 
             if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+                if(groupObject["criticalCss"] === undefined){
+                    groupObject["criticalCss"] = "";
+                }
                 groupObject["criticalCss"] += criticalCss;
                 if (groupObject["outputJS"]) {
                     focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], focusrHelper.generateLoadCSSJS(stylesheets));
@@ -477,35 +511,6 @@ function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
     });
 }
 
-function transformRulesRelativeToOutput(rules, unmodifiedCssUrl) {
-    for (var i = 0; i < rules.length; i++) {
-        var rule = rules[i];
-        if (rule["rules"] !== undefined) {
-            transformRulesRelativeToOutput(rule["rules"], unmodifiedCssUrl);
-        }
-        else if (rule["declarations"] !== undefined) {
-            for (var j = 0; j < rule["declarations"].length; j++) {
-                var declaration = rule["declarations"][j];
-                var regexPattern = new RegExp("url\\(.*\\..*\\)");
-                var regexResult = regexPattern.exec(declaration["value"]);
-                if (regexResult !== null) {
-                    var originalValue = regexResult.toString();
-                    var prefix = "";
-                    regexResult = regexResult.toString().substring(4, regexResult.toString().length - 1);
-                    if (regexResult.indexOf("'") === 0 || regexResult.indexOf('"') === 0) {
-                        prefix = regexResult.substring(0, 1);
-                        regexResult = regexResult.substring(1, regexResult.length - 1);
-                    }
-                    if (!focusrHelper.isRemoteUrl(regexResult)) {
-                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCssUrl, regexResult) + prefix + ")";
-                        declaration["value"] = declaration["value"].replace(originalValue, newPath);
-                    }
-
-                }
-            }
-        }
-    }
-}
 
 //-----------------------
 // MAIN CALL
