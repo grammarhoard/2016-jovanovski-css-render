@@ -4,20 +4,22 @@ var page = require('webpage').create(),
     htmlUrl = system.args[1],
     tmpCssUrl = system.args[1],
     viewportWidth = system.args[3],
-    viewportHeight = system.args[4];
+    viewportHeight = system.args[4],
+    jsEnabled = system.args[5];
 
 page.onConsoleMessage = function (msg) {
-    console.log('console: ' + msg);
+    fs.write("log.txt", msg, 'w');
 };
 page.viewportSize = {
     width: viewportWidth,
     height: viewportHeight
 };
 page.settings.userAgent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
-page.settings.javascriptEnabled = false;
+page.settings.javascriptEnabled = jsEnabled;
 page.settings.webSecurityEnabled = false;
-
-
+page.onLoadStarted = function() {
+    page.navigationLocked = true;
+};
 page.open(htmlUrl, function () {
     var hitElements = {success: "true"};
     var tmpCssFile = fs.open(system.args[2], 'r');

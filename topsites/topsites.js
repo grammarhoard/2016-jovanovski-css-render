@@ -64,18 +64,19 @@ function getTest(testUrl) {
 		if (!error && response.statusCode == 200) {
 			try {
 				jsonData = JSON.parse(jsonData);
-				if (jsonData["statusText"] === "Test Complete") {
-					var height = "";
-					console.log("done " + jsonData["data"]["url"]);
-					if (jsonData["data"]["median"] !== undefined && jsonData["data"]["median"]["firstView"] !== undefined && jsonData["data"]["median"]["firstView"]["document-height"] !== undefined) {
-						height = jsonData["data"]["median"]["firstView"]["document-height"];
-					}
-					fs.appendFile('testResults2.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
-
-				}
-				else {
-					console.log("Incomplete test!!");
-				}
+				fs.appendFile('rqres/'+jsonData["data"]["id"]+'.txt', JSON.stringify(jsonData));
+				//if (jsonData["statusText"] === "Test Complete") {
+				//	var height = "";
+				//	console.log("done " + jsonData["data"]["url"]);
+				//	if (jsonData["data"]["median"] !== undefined && jsonData["data"]["median"]["firstView"] !== undefined && jsonData["data"]["median"]["firstView"]["document-height"] !== undefined) {
+				//		height = jsonData["data"]["median"]["firstView"]["document-height"];
+				//	}
+				//	fs.appendFile('testResults2.txt', jsonData["data"]["url"] + "," + jsonData["data"]["runs"]["1"]["firstView"]["render"] + "," + height + "\n");
+                //
+				//}
+				//else {
+				//	console.log("Incomplete test!!");
+				//}
 			}
 			catch (ex) {
 				console.log("op ex");
@@ -98,7 +99,7 @@ function getTestResults(start) {
 				if (testUrl === "") {
 					continue;
 				}
-				setTimeout(getTest, cooldown * 2000, testUrl);
+				setTimeout(getTest, cooldown * 1000, testUrl);
 
 			}
 		}
@@ -222,5 +223,5 @@ function calculateTimes() {
 }
 
 //generateTests(900, 1000);
-//getTestResults(900);
-calculateTimes();
+getTestResults(0);
+//calculateTimes();
