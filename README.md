@@ -2,9 +2,9 @@
 A critical path CSS extraction and injection tool using Node.js.
 
 ##Research questions:
-- RQ1: Does inlining critical CSS make a significant improvement on the time to first render?
-- RQ2: What are the methods that current tools use to generate critical CSS?
-- RQ3: How can generation of critical CSS be applied to dynamic web pages?
+- RQ1: Do requests to external CSS files make a significant negative impact on the time to first render?
+- RQ2: What methods do existing tools use for detection, extraction and inlining of critical CSS rules?
+- RQ3: How can critical CSS inlining be automated for dynamic web pages?
 
 ##What is CSS Focusr
 CSS Focusr looks for critical "above the fold" CSS code. By defining a viewport, it renders the page and checks to see what 
@@ -29,36 +29,43 @@ the `<body>` tag.
 Use the `config.json` to set options and processing groups
 ### Example
 ```
+{
+  "debug": false,
+  "allowJs": false,
+  "processExternalCss" : true,
+  "inlineNonCritical": false,
+  "groups":[
     {
-      "autoOpen": false,
-      "debug": false,
-      "allowJs": false,
-      "processExternalCss" : true,
-      "inlineNonCritical": false,
-      "groups":[
-        {
-          "enabled": true,
-          "baseDir": "tests/test1/",
-          "inputFile" : "pre.html",
-          "outputFile": "index.html",
-          "viewport" : [375, 667]
-        },
-        {
-          "enabled": false,
-          "baseDir": "tests/test5/",
-          "inputFile" : "http://gorjan.rocks",
-          "outputFile": "critical.css",
-          "viewport" : [1200, 900]
-        }
-        .
-        .
-        .
-      ]
+      "enabled": true,
+      "baseDir": "tests/test3/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": false,
+      "baseDir": "tests/test5/",
+      "inputFile" : "http://thenextweb.com/facebook/2016/04/17/facebook-activates-safety-check-wake-earthquake-ecuador/",
+      "outputFile": "critical.css",
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": true,
+      "wordpress": true,
+      "baseDir": "../wordpress/focusr/wordpress/",
+      "inputFile" : "http://thenextweb.com/",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
+      "viewport" : [1200, 900]
     }
+  ]
+}
 ```
 
-### autoOpen
-[Buggy] Auto open the generated files upon completion in your default program of choice.
 ### debug
 Works only on local input files (duh).
 
@@ -73,19 +80,3 @@ Allow extraction of critical CSS from external CSS files in `<link>` tags
 If set to true, will make a new `<style>` tag at the end of the `<body>` and paste in all noncritical CSS.
 
 If set to false, will copy and paste all `<link rel='stylesheet'>` tags at the end of the `body`
-
-
-## Todo
- -[Feature] Add noscript option for loading CSS
-- [BugFix] Find out why `open` does not work on any other test case than case 1
-- [Optimize] Remove overridden properties in generated CSS (ex `width: 0` ... `width: 100%`)
-- ~~[BugFix] Deal with crap like `a[href^="javascript:"]:after`~~
-- ~~[BugFix] Deal with crap like `@-ms-viewport`~~
-- ~~[Optimize] Remove multiple calls to PhantomJS~~
-- ~~[Research] Test whether `<link>` or `<style>` in body, `<script async>` or other variants are faster ~~
-- ~~[Feature] Allow loading of HTML file via URL (ex: for Wordpress)~~
-- ~~[BugFix] Take care of relative paths in CSS (ex `background-image` `font-face`)~~
-- ~~[Feature] Create 2 AST's for critical and noncritical CSS~~
-- ~~[Feature] Add media rules that don't apply to current viewport in the non-critical CSS~~
-- ~~[Feature] Automatically detect and extract CSS file links from given HTML files~~
-- ~~[Feature] Option to embed all noncritical in `<script>` tag or with original `<link>` tags~~
