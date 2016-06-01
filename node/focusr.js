@@ -10,8 +10,7 @@ var phantomjs = require('phantomjs-prebuilt'),
     jsdom = require("jsdom"),
     mediaQueryMatcher = require('css-mediaquery'),
     path = require('path'),
-    request = require('request'),
-    urlparse = require("url");
+    request = require('request');
 
 var focusrHelper = require("./lib/helpers.js");
 
@@ -80,10 +79,8 @@ function focus(baseDir, inputFile, outputFile, baseUrl) {
 }
 
 function prepWordpress(groupObject, groupID) {
-    var linksUrl = groupObject["inputFile"] + "?focusr=yes";
-    if (groupObject["httpAuth"] !== "") {
-        linksUrl = focusrHelper.injectAuth(linksUrl, groupObject["httpAuth"]);
-    }
+    var linksUrl = focusrHelper.prepUrlAuthentication(groupObject["inputFile"] + "?focusr=yes", groupObject["httpAuth"]);
+
     request(linksUrl, function (error, response, data) {
         if (!error && response.statusCode == 200) {
             try {
@@ -130,15 +127,11 @@ function extendConfig(baseConfig, userConfig) {
 function parseGroup(groupObject) {
     groupObject["remainingCSSFiles"] = 0;
     if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-        var url = groupObject["inputFile"];
-        if (groupObject["httpAuth"] !== "") {
-            url = focusrHelper.injectAuth(url, groupObject["httpAuth"]);
-        }
+        var url = focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
 
-        request(url, function (error, response, htmlData) {
+        request(url, function (error, response, html) {
             if (!error && response.statusCode == 200) {
-                groupObject["HTML"] = htmlData;
-                findCSSFiles(groupObject);
+                saveHTMLToGroup(groupObject, html);
             }
             else {
                 focusrHelper.log(groupObject["groupID"], "Error fetching remote file", 2);
@@ -147,9 +140,14 @@ function parseGroup(groupObject) {
 
     }
     else {
-        groupObject["HTML"] = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
-        findCSSFiles(groupObject);
+        var html = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+        saveHTMLToGroup(groupObject, html);
     }
+}
+
+function saveHTMLToGroup(groupObject, html) {
+    groupObject["HTML"] = html;
+    findCSSFiles(groupObject);
 }
 
 function findCSSFiles(groupObject) {
@@ -157,28 +155,15 @@ function findCSSFiles(groupObject) {
         html: groupObject["HTML"],
         done: function (error, window) {
             if (!error) {
-                var base = window.document.head.querySelectorAll("base");
-                if (base.length > 0) {
-                    groupObject["baseUrl"] = base[0].getAttribute("href");
-                }
-
+                saveBaseTagIfPresent(groupObject, window);
                 var stylesheets = window.document.head.querySelectorAll("link[rel='stylesheet']");
                 if (stylesheets.length > 0) {
-                    for (var i = 0; i < stylesheets.length; i++) {
-                        var cssFile = stylesheets[i].getAttribute("href");
-                        if (!focusrHelper.isRemoteUrl(cssFile) || (global["processExternalCss"] && focusrHelper.isRemoteUrl(cssFile))) {
-                            groupObject["remainingCSSFiles"]++;
-                            readCSS(cssFile, groupObject);
-                        }
-                    }
+                    parseStyleSheets(groupObject, stylesheets);
                 }
                 else {
                     focusrHelper.log(groupObject["groupID"], "No linked stylesheets found [noLinks]", 2);
-                    //focusrHelper.endEarly(groupObject);
                     global["runningGroups"]--;
-                    if (global["runningGroups"] == 0) {
-                        focusrHelper.printOutro();
-                    }
+                    printOutroIfNeeded();
                 }
             }
             else {
@@ -188,33 +173,36 @@ function findCSSFiles(groupObject) {
     });
 }
 
-function readCSS(cssUrl, groupObject) {
+function printOutroIfNeeded() {
+    if (global["runningGroups"] == 0) {
+        focusrHelper.printOutro();
+    }
+}
+
+function saveBaseTagIfPresent(groupObject, window) {
+    var base = window.document.head.querySelectorAll("base");
+    if (base.length > 0) {
+        groupObject["baseUrl"] = base[0].getAttribute("href");
+    }
+}
+
+function parseStyleSheets(groupObject, stylesheets) {
+    for (var i = 0; i < stylesheets.length; i++) {
+        var cssUrl = stylesheets[i].getAttribute("href");
+        if (!focusrHelper.isRemoteUrl(cssUrl) || (global["processExternalCss"] && focusrHelper.isRemoteUrl(cssUrl))) {
+            groupObject["remainingCSSFiles"]++;
+            readCSSFile(cssUrl, groupObject);
+        }
+    }
+}
+
+function readCSSFile(cssUrl, groupObject) {
     var unmodifiedCssUrl = cssUrl;
-
-    // Protocol-less URL fix
-    if (cssUrl.indexOf("//") == 0) {
-        cssUrl = "http:" + cssUrl;
-    }
-
-    // Relative CSS URL in a remote input file fix
-    if ((focusrHelper.isRemoteUrl(groupObject["inputFile"]) && !focusrHelper.isRemoteUrl(cssUrl)) || groupObject["baseUrl"] !== undefined) {
-        if (groupObject["baseUrl"] !== undefined) {
-            cssUrl = urlparse.resolve(groupObject["baseUrl"], cssUrl);
-        }
-        else {
-            cssUrl = urlparse.resolve(groupObject["inputFile"], cssUrl);
-        }
-
-    }
-
+    cssUrl = focusrHelper.prepCssUrl(cssUrl, groupObject["inputFile"], groupObject["baseUrl"]);
     focusrHelper.log(groupObject["groupID"], "Found CSS file: '" + cssUrl + "'");
 
     if (focusrHelper.isRemoteUrl(cssUrl)) {
-        var url = cssUrl;
-        if (groupObject["httpAuth"] !== "") {
-            url = focusrHelper.injectAuth(url, groupObject["httpAuth"]);
-        }
-
+        var url = focusrHelper.prepUrlAuthentication(cssUrl, groupObject["httpAuth"]);
         request(url, function (error, response, cssData) {
             var responseData = undefined;
             if (!error && response.statusCode == 200) {
@@ -241,7 +229,7 @@ function readCSS(cssUrl, groupObject) {
             var responseData = undefined;
             if (!error) {
                 responseData = cssData;
-                focusrHelper.log(groupObject["groupID"],"Fetched file: '" + cssUrl + "'", 1);
+                focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
             }
             else {
                 focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
@@ -272,7 +260,6 @@ function createAST(cssData, unmodifiedCssUrl, groupObject) {
     if (groupObject["remainingCSSFiles"] == 0) {
         if (groupObject["CSSAST"] === undefined) {
             focusrHelper.log(groupObject["groupID"], "No CSS AST to work on [noAst]", 2);
-            //focusrHelper.endEarly(groupObject);
             focusrHelper.printOutro();
             return;
         }
@@ -416,10 +403,10 @@ function checkIfSelectorsHit(groupObject, CSSAST) {
 
         }
         else {
-            if(output==""){
+            if (output == "") {
                 focusrHelper.log(groupObject["groupID"], "The PhantomJS call timed out after " + global["renderTimeout"] + "ms", 2);
             }
-            else{
+            else {
                 focusrHelper.log(groupObject["groupID"], "A PhantomJS error occurred: " + output + " " + errorOutput, 2);
             }
 
@@ -465,7 +452,7 @@ function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
             var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
 
             if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                if(groupObject["criticalCss"] === undefined){
+                if (groupObject["criticalCss"] === undefined) {
                     groupObject["criticalCss"] = "";
                 }
                 groupObject["criticalCss"] += criticalCss;
@@ -497,16 +484,14 @@ function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
             }
             else {
                 if (global["debug"]) {
-                    body.innerHTML = focusrHelper.insertDebugBox(body);
+                    body.innerHTML = focusrHelper.insertDebugBox(body, groupObject);
                 }
                 var resultHTML = window.document.documentElement.outerHTML;
                 focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML);
             }
             focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
 
-            if (global["runningGroups"] === 0) {
-                focusrHelper.printOutro();
-            }
+            printOutroIfNeeded();
         }
     });
 }

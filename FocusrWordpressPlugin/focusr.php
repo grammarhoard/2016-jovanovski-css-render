@@ -50,7 +50,7 @@
                 $paths->homepage = get_option('siteurl');
 
                 // Get random post
-                $args = ['post_type' => 'post', 'numberposts' => 1, 'order' => 'DESC', 'orderby' => 'date'];
+                $args = ['post_type' => 'post', 'numberposts' => 1, 'order' => 'DESC', 'orderby' => 'rand'];
                 query_posts($args);
                 if (have_posts()) {
                     while (have_posts()) {
@@ -237,7 +237,6 @@
             $body = $dom->getElementsByTagName('body')[0];
             $head = $dom->getElementsByTagName('head')[0];
             $linkTags = iterator_to_array($dom->getElementsByTagName('link'));
-            $scriptTags = iterator_to_array($dom->getElementsByTagName('script'));
             $srcLinks = [];
 
             //remove links
@@ -306,16 +305,8 @@
             $critical .= "</style>";
             $loadCSS .= "</script>";
 
-            //inject css and js
-            //TODO PREPEND
             $this->prependHTML($head, $critical);
             $this->appendHTML($body, $loadCSS);
-
-            //async scripts
-//            foreach ($scriptTags as $script) {
-//                $script->setAttribute("async", "");
-//            }
-
 
             $buffer = $dom->saveHTML();
 

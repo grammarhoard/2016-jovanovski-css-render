@@ -1,7 +1,8 @@
 var colors = require('colors'),
     fs = require('fs'),
     getDirName = require('path').dirname,
-    mkdirp = require('mkdirp');
+    mkdirp = require('mkdirp'),
+    urlparse = require("url");
 
 module.exports = {
     balanceArray: function (array) {
@@ -13,21 +14,13 @@ module.exports = {
         }
         return tmpArray;
     },
-    collectGarbage: function (tmpCssFile, groupObject){
+    collectGarbage: function (tmpCssFile, groupObject) {
         fs.unlink(tmpCssFile);
         var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
         if (this.isRemoteUrl(groupObject["inputFile"])) {
             htmlFile += ".html";
         }
         fs.unlink(htmlFile);
-    },
-    endEarly: function (groupObject){
-        if(!this.isRemoteUrl(groupObject["inputFile"])) {
-            this.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["HTML"]);
-        }
-        else{
-            this.writeFile(groupObject["baseDir"] + groupObject["outputFile"], "");
-        }
     },
     generateLoadCSSJS: function (stylesheets) {
         var linksToLoad = [];
@@ -36,7 +29,7 @@ module.exports = {
         }
         return '/* Focusr */ var fl=function(){for(var e=["' + linksToLoad.join('","') + '"],t=0;t<e.length;t++){var n=document.createElement("link");n.rel="stylesheet",n.href=e[t],document.body.appendChild(n)}},raf=requestAnimationFrame||mozRequestAnimationFrame||webkitRequestAnimationFrame||msRequestAnimationFrame;raf?raf(function(){window.setTimeout(fl,0)}):window.addEventListener("load",fl);';
     },
-    generateStyleTag: function(window, rules){
+    generateStyleTag: function (window, rules) {
         rules += "/* Focusr */ ";
         var criticalStyleTag = window.document.createElement('style');
         criticalStyleTag.type = 'text/css';
@@ -47,7 +40,24 @@ module.exports = {
         }
         return criticalStyleTag;
     },
-    injectAuth: function (url, authenticationData) {
+    prepCssUrl: function (cssUrl, inputFile, baseUrl){
+        if (cssUrl.indexOf("//") == 0) {
+            cssUrl = "http:" + cssUrl;
+        }
+        if ((this.isRemoteUrl(inputFile) && !this.isRemoteUrl(cssUrl)) || baseUrl !== undefined) {
+            if (baseUrl !== undefined) {
+                cssUrl = urlparse.resolve(baseUrl, cssUrl);
+            }
+            else {
+                cssUrl = urlparse.resolve(inputFile, cssUrl);
+            }
+        }
+        return cssUrl;
+    },
+    prepUrlAuthentication: function (url, authenticationData) {
+        if (authenticationData === "") {
+            return url;
+        }
         if (url.indexOf("http://", 0) === 0) {
             return url.replace("http://", "http://" + authenticationData + "@");
         }
@@ -59,7 +69,7 @@ module.exports = {
         }
         return url;
     },
-    insertDebugBox: function(body){
+    insertDebugBox: function (body, groupObject) {
         return '<div style="border:3px solid red;width:' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
     },
     isBaseRelative: function (url) {
@@ -70,31 +80,31 @@ module.exports = {
     },
     log: function (groupID, message, messageType) {
         var prefix = "[" + groupID + "] - ";
-        if(groupID==-1){
+        if (groupID == -1) {
             prefix = "";
         }
 
-        if(messageType == 1){
+        if (messageType == 1) {
             console.log(prefix + colors.green(message));
         }
-        else if(messageType == 2){
+        else if (messageType == 2) {
             console.log(prefix + colors.red(message));
         }
-        else{
+        else {
             console.log(prefix + message);
         }
     },
-    printIntro: function(){
+    printIntro: function () {
         this.log(-1, "---------------------");
         this.log(-1, "| Focusr run started |");
         this.log(-1, "---------------------\n");
     },
-    printOutro: function(){
+    printOutro: function () {
         this.log(-1, "\n---------------------");
         this.log(-1, "| Focusr run ended |");
         this.log(-1, "---------------------");
     },
-    printUsage: function(){
+    printUsage: function () {
         this.log(-1, "Focusr usage requires 3 arguments in this order:");
         this.log(-1, "\t" + colors.green("baseDirectory") + " - the directory of the index.html file to work on");
         this.log(-1, "\t" + colors.green("inputFile") + " - the input file relative to the baseDirectory");
