@@ -79,7 +79,8 @@ function focus(baseDir, inputFile, outputFile, baseUrl) {
 }
 
 function prepWordpress(groupObject, groupID) {
-    var linksUrl = focusrHelper.prepUrlAuthentication(groupObject["inputFile"] + "?focusr=yes", groupObject["httpAuth"]);
+    groupObject["inputFile"] += "?focusr=links";
+    var linksUrl = focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
 
     request(linksUrl, function (error, response, data) {
         if (!error && response.statusCode == 200) {
@@ -90,7 +91,7 @@ function prepWordpress(groupObject, groupID) {
                     if (links.hasOwnProperty(key)) {
                         var newGroup = extendConfig(defaultGroup, groupObject);
                         newGroup["wordpress"] = false;
-                        newGroup["inputFile"] = links[key] + "?focusr=no";
+                        newGroup["inputFile"] = links[key] + "?focusr=disable";
                         newGroup["outputFile"] = key + ".css";
                         newGroup["outputJS"] = key + ".js";
                         newGroup["groupID"] = groupID + "." + subgroupID++;
@@ -100,11 +101,11 @@ function prepWordpress(groupObject, groupID) {
                 }
             }
             catch (exception) {
-                focusrHelper.log(groupObject["groupID"], "Bad response from WordPress URL " + groupObject["inputFile"] + "?focusr=yes: " + exception.message, 2);
+                focusrHelper.log(groupObject["groupID"], "Bad response from WordPress URL " + groupObject["inputFile"] + ": " + exception.message, 2);
             }
         }
         else {
-            focusrHelper.log(groupObject["groupID"], "Error fetching links from WordPress URL " + groupObject["inputFile"] + "?focusr=yes", 2);
+            focusrHelper.log(groupObject["groupID"], "Error fetching links from WordPress URL " + groupObject["inputFile"], 2);
         }
     });
 }
