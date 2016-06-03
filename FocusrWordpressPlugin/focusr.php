@@ -16,14 +16,26 @@
 
         public function __construct()
         {
+            // Plugin timing
             add_action("activated_plugin", [$this, "load_plugin_last"]);
+
+            // Requests
+            add_action('init', [$this, 'pages_request']);
+            add_action('template_redirect', [$this, 'catch_template_redirect'], 99999);
+
+            // Admin panel
             add_action('admin_menu', [$this, 'create_plugin_settings_page']);
             add_action('admin_init', [$this, 'setup_sections']);
             add_action('admin_init', [$this, 'setup_fields']);
-            add_action('init', [$this, 'pages_request']);
-            //add_action('wp_head', [$this, 'hook_css']);
-            add_action('template_redirect', [$this, 'catch_template_redirect'], 99999);
+
+            // HTML modification
+            add_action('wp_footer', [$this, 'inject_load_css_javascript']);
+            add_action('wp_head', [$this, 'inject_critical_css']);
         }
+
+        // ----------------------------------------------------------------------------------
+        // PLUGIN TIMING FUNCTIONS
+        // ----------------------------------------------------------------------------------
 
         public function load_plugin_last()
         {
@@ -44,53 +56,71 @@
 
         public function pages_request()
         {
-            if (isset($_REQUEST['focusr']) && $_REQUEST['focusr'] == "yes") {
-                global $wp_query;
-                $paths = new stdClass();
-                $paths->homepage = get_option('siteurl');
-
-                // Get random post
-                $args = ['post_type' => 'post', 'numberposts' => 1, 'order' => 'DESC', 'orderby' => 'rand'];
-                query_posts($args);
-                if (have_posts()) {
-                    while (have_posts()) {
-                        the_post();
-                        $paths->single = get_permalink($wp_query->post->ID);
-                        break;
-                    }
-                }
-
-                // Get random page
-                $args = ['post_type' => 'page', 'numberposts' => 1, 'orderby' => 'rand'];
-                query_posts($args);
-                if (have_posts()) {
-                    while (have_posts()) {
-                        the_post();
-                        $paths->page = get_permalink($wp_query->post->ID);
-                        break;
-                    }
-                }
-
-                // Random category
-                $taxonomy = 'category';
-                $terms = get_terms($taxonomy);
-                shuffle($terms);
-                if ($terms) {
-                    foreach ($terms as $term) {
-                        $paths->category = get_category_link($term->term_id);
-                        break;
-                    }
-                }
-                echo json_encode($paths);
+            if (isset($_REQUEST['focusr']) && $_REQUEST['focusr'] === "links") {
+                echo $this->get_random_links();
                 die();
             }
-            else if (isset($_REQUEST['focusr']) && $_REQUEST['focusr'] == "no") {
-                $this->ignore = true;
+            else if (isset($_REQUEST['focusr']) && $_REQUEST['focusr'] === "disable") {
+                $this->remove_actions();
             }
         }
 
+        public function get_random_links()
+        {
+            global $wp_query;
+            $links = new stdClass();
+            $links->homepage = get_option('siteurl');
+
+            // Get random post
+            $args = ['post_type' => 'post', 'numberposts' => 1, 'order' => 'DESC', 'orderby' => 'rand'];
+            query_posts($args);
+            if (have_posts()) {
+                while (have_posts()) {
+                    the_post();
+                    $links->single = get_permalink($wp_query->post->ID);
+                    break;
+                }
+            }
+
+            // Get random page
+            $args = ['post_type' => 'page', 'numberposts' => 1, 'orderby' => 'rand'];
+            query_posts($args);
+            if (have_posts()) {
+                while (have_posts()) {
+                    the_post();
+                    $links->page = get_permalink($wp_query->post->ID);
+                    break;
+                }
+            }
+
+            // Random category
+            $taxonomy = 'category';
+            $terms = get_terms($taxonomy);
+            shuffle($terms);
+            if ($terms) {
+                foreach ($terms as $term) {
+                    $links->category = get_category_link($term->term_id);
+                    break;
+                }
+            }
+
+            return json_encode($links);
+        }
+
+        public function remove_actions()
+        {
+            remove_action('wp_footer', [$this, 'inject_load_css_javascript']);
+            remove_action('wp_head', [$this, 'inject_critical_css']);
+            remove_action('template_redirect', [$this, 'catch_template_redirect'], 99999);
+        }
+
+        public function catch_template_redirect()
+        {
+            ob_start([$this, 'remove_link_tags']);
+        }
+
         // ----------------------------------------------------------------------------------
-        // SETTINGS FUNCTIONS
+        // ADMIN PANEL FUNCTIONS
         // ----------------------------------------------------------------------------------
 
         public function create_plugin_settings_page()
@@ -137,14 +167,6 @@
         public function setup_fields()
         {
             $fields = [
-//                [
-//                    'uid'     => 'focusr_enabled',
-//                    'label'   => 'Enabled',
-//                    'section' => 'section_main',
-//                    'type'    => 'checkbox',
-//                    'options' => false,
-//                    'default' => 'checked'
-//                ],
                 [
                     'uid'          => 'focusr_output_dir',
                     'label'        => 'CSS directory',
@@ -201,58 +223,14 @@
         }
 
         // ----------------------------------------------------------------------------------
-        // CSS FUNCTIONS
+        // HTML MODIFICATION FUNCTIONS
         // ----------------------------------------------------------------------------------
 
-        public function process_page($buffer)
+        public function inject_critical_css()
         {
-
-            if ($this->ignore) {
-                return $buffer;
-            }
-
-//            require_once(plugin_dir_path(__FILE__) . 'lib/simple_html_dom.php');
-//            $html = new simple_html_dom();
-//            $dom = $html->load($buffer);
-//            $links = [];
-//            $linkNodes = $dom->find('link[rel="stylesheet"]');
-//            foreach ($linkNodes as $node) {
-//                $links[] = $node->href;
-//                $node->outertext = "";
-//            }
-//
-//            $loadCSSJS = "<script>var cb = function () { var s = ['" . implode("','", $links) . "'];for(var i=0;i< s.length;i++){var l = document.createElement('link');l.rel = 'stylesheet';l.href = s[i];var h = document.getElementsByTagName('head')[0];h.parentNode.insertBefore(l, h);}};var raf = requestAnimationFrame || mozRequestAnimationFrame || webkitRequestAnimationFrame || msRequestAnimationFrame;if (raf) raf(cb); else window.addEventListener('load', cb);</script>";
-//            $body = $dom->find("body")[0];
-//            $body->outertext = "<body>" . $body->innertext . $loadCSSJS . '</body>';
-//
-//            $dom->save();
-//
-//            $buffer = $dom;
-
-//            -----------------------------------
-
-
-            $dom = new DOMDocument;
-            $dom->loadHTML(mb_convert_encoding($buffer, 'HTML-ENTITIES', "UTF-8"));
-            $body = $dom->getElementsByTagName('body')[0];
-            $head = $dom->getElementsByTagName('head')[0];
-            $linkTags = iterator_to_array($dom->getElementsByTagName('link'));
-            $srcLinks = [];
-
-            //remove links
-            foreach ($linkTags as $link) {
-                $attribute = $link->getAttribute("rel");
-                if (isset($attribute) && !is_null($attribute) && $attribute == "stylesheet") {
-                    $link->parentNode->removeChild($link);
-                    $srcLinks[] = $link->getAttribute("href");
-                }
-            }
-
-            //load files
             $outputDir = get_option('focusr_output_dir', 'focusr/wordpress/');
 
             $critical = "<style data-generated-by='focusr'>";
-            $loadCSS = "<script data-generated-by='focusr'>";
             if ($outputDir && $outputDir !== "") {
                 if (!$this->endsWith($outputDir, "/")) {
                     $outputDir .= "/";
@@ -283,6 +261,38 @@
                 } catch (Exception $e) {
                     $critical .= "/*exc2*/";
                 }
+            }
+            else {
+                $critical .= "/*nofolder*/";
+            }
+            $critical .= "</style>";
+
+            echo $critical;
+        }
+
+        public function inject_load_css_javascript()
+        {
+            $outputDir = get_option('focusr_output_dir', 'focusr/wordpress/');
+            $loadCSS = "<script data-generated-by='focusr'>";
+            if ($outputDir && $outputDir !== "") {
+                if (!$this->endsWith($outputDir, "/")) {
+                    $outputDir .= "/";
+                }
+                if (is_home()) {
+                    $prefix = "homepage";
+                }
+                else if (is_single()) {
+                    $prefix = "single";
+                }
+                else if (is_page()) {
+                    $prefix = "page";
+                }
+                else if (is_category()) {
+                    $prefix = "category";
+                }
+                else {
+                    return;
+                }
 
                 $jsFilename = $this->get_base_path() . "/" . $outputDir . $prefix . ".js";
                 try {
@@ -292,57 +302,29 @@
                     }
                     else {
                         fclose($handle);
-                        $loadCSS .= "/*exc*/";
+                        $loadCSS .= "/*Focusr: Can't load JS file*/";
                     }
                     fclose($handle);
                 } catch (Exception $e) {
-                    $loadCSS .= "/*exc2*/";
+                    $loadCSS .= "/*Focusr: Can't load JS file*/";
                 }
             }
-            else{
-                $critical .= "/*nofolder*/";
-            }
-            $critical .= "</style>";
             $loadCSS .= "</script>";
 
-            $this->prependHTML($head, $critical);
-            $this->appendHTML($body, $loadCSS);
-
-            $buffer = $dom->saveHTML();
-
-            return mb_convert_encoding($buffer, "UTF-8", 'HTML-ENTITIES');
+            echo $loadCSS;
         }
 
-        public function appendHTML(DOMNode $parent, $source)
+        public function remove_link_tags($buffer)
         {
-            $tmpDoc = new DOMDocument();
-            $tmpDoc->loadHTML($source);
-            foreach ($tmpDoc->getElementsByTagName('head')->item(0)->childNodes as $node) {
-                $node = $parent->ownerDocument->importNode($node, true);
-                $parent->appendChild($node);
-            }
+            $re = "/<link .*rel=('|\")stylesheet\\1.*(\/>|<\/link>|>)/";
+            $buffer = preg_replace($re, "", $buffer);
+
+            return $buffer;
         }
 
-        public function prependHTML(DOMNode $parent, $source)
-        {
-            $tmpDoc = new DOMDocument();
-            $tmpDoc->loadHTML($source);
-            foreach ($tmpDoc->getElementsByTagName('head')->item(0)->childNodes as $node) {
-                $node = $parent->ownerDocument->importNode($node, true);
-                $parent->insertBefore($node, $parent->childNodes->item(0));
-            }
-        }
-
-        public function catch_template_redirect()
-        {
-            ob_start();
-            ob_start([$this, 'process_page']);
-        }
-
-        public function endsWith($haystack, $needle)
-        {
-            return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
-        }
+        // ----------------------------------------------------------------------------------
+        // HELPER FUNCTIONS
+        // ----------------------------------------------------------------------------------
 
         public function get_base_path()
         {
@@ -352,13 +334,14 @@
             if (@file_exists(dirname(dirname($base)) . "/wp-config.php")) {
                 $path = dirname(dirname($base));
             }
-            else
+            else {
                 if (@file_exists(dirname(dirname(dirname($base))) . "/wp-config.php")) {
                     $path = dirname(dirname(dirname($base)));
                 }
-                else
+                else {
                     $path = false;
-
+                }
+            }
             if ($path != false) {
                 $path = str_replace("\\", "/", $path);
             }
@@ -366,6 +349,10 @@
             return $path;
         }
 
+        public function endsWith($haystack, $needle)
+        {
+            return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
+        }
 
     }
 
