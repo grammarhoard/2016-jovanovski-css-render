@@ -12,8 +12,6 @@
 
     class Focusr
     {
-        private $ignore = false;
-
         public function __construct()
         {
             // Plugin timing
@@ -139,7 +137,7 @@
         public function plugin_settings_page_content()
         { ?>
             <div class="wrap">
-                <h2>Focusr Settings</h2>
+                <h2>Focusr - Critical CSS Inliner</h2>
                 <form method="post" action="options.php">
                     <?php
                         settings_fields('focusr_fields');
@@ -152,16 +150,7 @@
 
         public function setup_sections()
         {
-            add_settings_section('section_main', 'Main settings', [$this, 'section_callback'], 'focusr_fields');
-        }
-
-        public function section_callback($arguments)
-        {
-            switch ($arguments['id']) {
-                case 'section_main':
-                    echo 'We need some paths here in order to find generated critical CSS';
-                    break;
-            }
+            add_settings_section('section_main', 'Settings', null, 'focusr_fields');
         }
 
         public function setup_fields()
@@ -192,8 +181,8 @@
                 $value = $arguments['default'];
             }
 
-            if ($helper = $arguments['helper']) {
-                printf('<span class="helper"> %s</span>', $helper); // Show it
+            if ($arguments['helper']) {
+                printf('<span class="helper"> %s</span>', $arguments['helper']);
             }
 
             switch ($arguments['type']) {
@@ -217,8 +206,8 @@
                     break;
             }
 
-            if ($supplimental = $arguments['supplemental']) {
-                printf('<p class="description">%s</p>', $supplimental); // Show it
+            if ($arguments['supplemental']) {
+                printf('<p class="description">%s</p>', $arguments['supplemental']);
             }
         }
 
