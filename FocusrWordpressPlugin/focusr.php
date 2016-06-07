@@ -2,12 +2,12 @@
 
     /*
     Plugin Name: Focusr
-    Plugin URI: http://gorjan.rocks
+    Plugin URI: https://github.com/jovanovski/criticalcss
     Description: A plugin to enable Focusr critical CSS to be embedded
-    Version: 0.1
+    Version: 1.0
     Author: Gorjan Jovanovski
     Author URI: http://gorjan.rocks
-    License: GPL2
+    License: MIT License
     */
 
     class Focusr
