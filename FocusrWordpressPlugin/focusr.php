@@ -27,7 +27,7 @@
             add_action('admin_init', [$this, 'setup_fields']);
 
             // HTML modification
-            add_action('wp_footer', [$this, 'inject_load_css_javascript']);
+            add_action('wp_footer', [$this, 'inject_javascript']);
             add_action('wp_head', [$this, 'inject_critical_css']);
         }
 
@@ -150,7 +150,7 @@
 
         public function setup_sections()
         {
-            add_settings_section('section_main', 'Settings', null, 'focusr_fields');
+            add_settings_section('section_main', 'Settings', NULL, 'focusr_fields');
         }
 
         public function setup_fields()
@@ -221,82 +221,34 @@
 
             $critical = "<style data-generated-by='focusr'>";
             if ($outputDir && $outputDir !== "") {
-                if (!$this->endsWith($outputDir, "/")) {
+                if (!$this->ends_with($outputDir, "/")) {
                     $outputDir .= "/";
                 }
-                $prefix = "homepage";
-
-                if (is_single()) {
-                    $prefix = "single";
-                }
-                else if (is_page()) {
-                    $prefix = "page";
-                }
-                else if (is_category()) {
-                    $prefix = "category";
-                }
-
+                $prefix = $this->get_current_prefix();
                 $cssFilename = $this->get_base_path() . "/" . $outputDir . $prefix . ".css";
-                try {
-                    $handle = fopen($cssFilename, "r");
-                    if ($handle) {
-                        $critical .= fread($handle, filesize($cssFilename));
-                    }
-                    else {
-                        fclose($handle);
-                        $critical .= "/*exc*/";
-                    }
-                    fclose($handle);
-                } catch (Exception $e) {
-                    $critical .= "/*exc2*/";
-                }
+                $critical .= $this->read_file($cssFilename, "/*Focusr: Can't load JS file*/");
             }
             else {
-                $critical .= "/*nofolder*/";
+                $critical .= "/* Focusr: Output folder not found */";
             }
             $critical .= "</style>";
 
             echo $critical;
         }
 
-        public function inject_load_css_javascript()
+        public function inject_javascript()
         {
             $outputDir = get_option('focusr_output_dir', 'focusr/wordpress/');
             $loadCSS = "<script data-generated-by='focusr'>";
             if ($outputDir && $outputDir !== "") {
-                if (!$this->endsWith($outputDir, "/")) {
+                if (!$this->ends_with($outputDir, "/")) {
                     $outputDir .= "/";
                 }
-                if (is_home()) {
-                    $prefix = "homepage";
-                }
-                else if (is_single()) {
-                    $prefix = "single";
-                }
-                else if (is_page()) {
-                    $prefix = "page";
-                }
-                else if (is_category()) {
-                    $prefix = "category";
-                }
-                else {
-                    return;
-                }
 
+                $prefix = $this->get_current_prefix();
                 $jsFilename = $this->get_base_path() . "/" . $outputDir . $prefix . ".js";
-                try {
-                    $handle = fopen($jsFilename, "r");
-                    if ($handle) {
-                        $loadCSS .= fread($handle, filesize($jsFilename));
-                    }
-                    else {
-                        fclose($handle);
-                        $loadCSS .= "/*Focusr: Can't load JS file*/";
-                    }
-                    fclose($handle);
-                } catch (Exception $e) {
-                    $loadCSS .= "/*Focusr: Can't load JS file*/";
-                }
+                $loadCSS .= $this->read_file($jsFilename, "/*Focusr: Can't load JS file*/");
+
             }
             $loadCSS .= "</script>";
 
@@ -307,7 +259,6 @@
         {
             $re = "/<link .*rel=('|\")stylesheet\\1.*(\/>|<\/link>|>)/";
             $buffer = preg_replace($re, "", $buffer);
-
             return $buffer;
         }
 
@@ -338,9 +289,43 @@
             return $path;
         }
 
-        public function endsWith($haystack, $needle)
+        public function ends_with($haystack, $needle)
         {
             return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
+        }
+
+        public function get_current_prefix()
+        {
+            $prefix = "homepage";
+            if (is_single()) {
+                $prefix = "single";
+            }
+            else if (is_page()) {
+                $prefix = "page";
+            }
+            else if (is_category()) {
+                $prefix = "category";
+            }
+
+            return $prefix;
+        }
+
+        public function read_file($filename, $errorMessage)
+        {
+            try {
+                $handle = fopen($filename, "r");
+                if ($handle) {
+                    $contents = fread($handle, filesize($filename));
+                }
+                else {
+                    $contents = $errorMessage;
+                }
+                fclose($handle);
+            } catch (Exception $e) {
+                $contents = $errorMessage;
+            }
+
+            return $contents;
         }
 
     }
