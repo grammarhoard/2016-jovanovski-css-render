@@ -1,15 +1,10 @@
 # CSS Focusr
 A critical path CSS extraction and injection tool using Node.js.
 
-##Research questions:
-- RQ1: Do requests to external CSS files make a significant negative impact on the time to first render?
-- RQ2: What methods do existing tools use for detection, extraction and inlining of critical CSS rules?
-- RQ3: How can critical CSS inlining be automated for dynamic web pages?
-
 ##What is CSS Focusr
-CSS Focusr looks for critical "above the fold" CSS code. By defining a viewport, it renders the page and checks to see what 
-elements are primarily visible in that area. It then extracts all CSS rules that apply to these "critical" elements, and embeds
-them in a `<style>` tag at the very bottom of the `<head>` tag, moving the rest of the CSS to the bottom of the `<body>` tag.
+CSS Focusr looks for critical "above the fold" CSS rules. By giving it a viewport size, it renders your page and checks to see what 
+elements are primarily visible in that viewport. It then extracts all CSS rules that apply to these "critical" elements, and embeds
+them in a `<style>` tag in the `<head>` tag, loading the rest of the CSS from the bottom of the `<body>` tag with Javascript.
 
 This allows the browser to start rendering the page much faster, because CSS is a render-blocking resource, meaning, while the browser
 is downloading all the CSS files defined in the head of the page, it will display a blank page, and only start rendering once it has them all
@@ -20,14 +15,14 @@ to the bottom of the body, where they have no more elements to block, and can be
 
 ###A more technical description
 CSS Focusr looks for `<link rel='stylesheet'>` tags, extracts the CSS from the linked files,
-looks for critical CSS by rendering the input HTML file, and checking if any element defined by the selectors in the parsed CSS
+looks for critical CSS by rendering the input HTML file/URL, and checking if any element defined by the selectors in the parsed CSS
 are positioned within the defined viewport. All critical CSS is then inlined as a `<style>` tag in the `<head>` tag, and the rest
-are either inlined at the bottom of the `<body>` tag, or loaded from the existing `<link>` tags which have been moved to the bottom of
-the `<body>` tag.
+is added into a Javascript function at the end of the `<body>` tag that uses the browser animation queue to load them in asynchronously.
 
 ##Usage
-Use the `config.json` to set options and processing groups
+Each HTML file/URL that needs to be processed should be defined in its own group. Do this via `config.json` file, where you also override the default options of the tool.
 ### Example
+This is the full default configuration file, with all possible settings that can be overridden.
 ```
 {
   "debug": false,

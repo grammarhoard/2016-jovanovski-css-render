@@ -1,258 +1,184 @@
-//-----------------------
-// NODEJS MODULES
-//-----------------------
+// ----------------------------------------------------------------------------------
+// NODE.JS MODULES
+// ----------------------------------------------------------------------------------
 
-var phantomjs = require('phantomjs-prebuilt'),
-    childProcess = require('child_process'),
-    css = require('css'),
-    cssCleaner = require('clean-css'),
-    fs = require('fs'),
-    jsdom = require("jsdom"),
-    mediaQueryMatcher = require('css-mediaquery'),
-    path = require('path'),
-    request = require('request');
+var _phantomJs = require('phantomjs-prebuilt'),
+    _childProcess = require('child_process'),
+    _reworkCss = require('css'),
+    _cssCleaner = require('clean-css'),
+    _fileSystem = require('fs'),
+    _jsDOM = require("jsdom"),
+    _path = require('path'),
+    _request = require('request'),
+    _urlParse = require("url");
 
-var focusrHelper = require("./lib/helpers.js");
+var _focusrAst = require("./lib/ast.js"),
+    _focusrHelper = require("./lib/helpers.js"),
+    _focusrWordpress = require("./lib/wordpress.js"),
+    _focusrDom = require("./lib/dom.js");
 
-//-----------------------
-// GLOBAL VARIABLES
-//-----------------------
+// ----------------------------------------------------------------------------------
+// FOCUSR FUNCTIONS
+// ----------------------------------------------------------------------------------
+function readConfig(filename) {
+    var result = undefined;
+    try {
+        result = _fileSystem.readFileSync(filename, 'utf8');
+    }
+    catch (exception) {
+        _focusrHelper.log(-1, "Can't open configuration file: " + filename + ": " + exception.message, 2);
+    }
+    return result;
+}
 
-var global = {},
-    defaultConfig = {
-        "allowJS": false,
-        "debug": false,
-        "processExternalCss": true,
-        "inlineNonCritical": false,
-        "renderTimeout": 60000,
-        "groups": []
-    },
-    defaultGroup = {
-        "enabled": true,
-        "baseDir": "tests/",
-        "inputFile": "",
-        "outputFile": "",
-        "alwaysInclude": [],
-        "httpAuth": "",
-        "wordpress": false,
-        "viewport": [1200, 900],
-        "outputJS": false
-    };
-
-//-----------------------
-// FUNCTIONS
-//-----------------------
-
-function parseConfig(json) {
-
+function parseConfig(configFileName) {
+    var userConfigString = readConfig(configFileName);
+    if (userConfigString === undefined) {
+        return;
+    }
+    var userConfig = JSON.parse(userConfigString);
     var groupID = 1;
-    global = extendConfig(defaultConfig, json);
-    global["runningGroups"] = 0;
-    for (var i = 0; i < global["groups"].length; i++) {
-        var groupObject = global["groups"][i] = extendConfig(defaultGroup, global["groups"][i]);
+    var config = _focusrHelper.extendDefaultConfig(userConfig);
+    config["runningGroups"] = 0;
+    for (var i = 0; i < config["groups"].length; i++) {
+        var groupObject = config["groups"][i] = _focusrHelper.extendGroupConfig(config["groups"][i]);
         if (!groupObject["enabled"]) {
             continue;
         }
         if (groupObject["wordpress"]) {
-            prepWordpress(groupObject, groupID++);
+            _focusrWordpress.getWordpressGroups(config, groupObject, groupID++, function(wordpressGroups){
+                for (var j = 0; j < wordpressGroups.length; j++) {
+                    parseGroup(config, wordpressGroups[j]);
+                }
+            });
         }
         else {
             groupObject["groupID"] = groupID++;
-            global["runningGroups"]++;
-            parseGroup(groupObject);
+            config["runningGroups"]++;
+            parseGroup(config, groupObject);
         }
     }
 }
 
-function focus(baseDir, inputFile, outputFile, baseUrl) {
-    global = extendConfig(defaultConfig, {});
-    var newGroup = extendConfig(defaultGroup, {});
-    newGroup["baseDir"] = baseDir;
-    newGroup["inputFile"] = inputFile;
-    newGroup["outputFile"] = outputFile;
-    newGroup["groupID"] = 0;
-    if (baseUrl !== undefined) {
-        newGroup["baseUrl"] = baseUrl;
-    }
-    global["runningGroups"] = 1;
-    parseGroup(newGroup);
-}
-
-function prepWordpress(groupObject, groupID) {
-    groupObject["inputFile"] += "?focusr=links";
-    var linksUrl = focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
-
-    request(linksUrl, function (error, response, data) {
-        if (!error && response.statusCode == 200) {
-            try {
-                var links = JSON.parse(data);
-                var subgroupID = 1;
-                for (var key in links) {
-                    if (links.hasOwnProperty(key)) {
-                        var newGroup = extendConfig(defaultGroup, groupObject);
-                        newGroup["wordpress"] = false;
-                        newGroup["inputFile"] = links[key] + "?focusr=disable";
-                        newGroup["outputFile"] = key + ".css";
-                        newGroup["outputJS"] = key + ".js";
-                        newGroup["groupID"] = groupID + "." + subgroupID++;
-                        global["runningGroups"]++;
-                        parseGroup(newGroup);
-                    }
-                }
-            }
-            catch (exception) {
-                focusrHelper.log(groupObject["groupID"], "Bad response from WordPress URL " + groupObject["inputFile"] + ": " + exception.message, 2);
-            }
-        }
-        else {
-            focusrHelper.log(groupObject["groupID"], "Error fetching links from WordPress URL " + groupObject["inputFile"], 2);
-        }
-    });
-}
-
-function extendConfig(baseConfig, userConfig) {
-    var newConfig = {};
-    for (var key in baseConfig) {
-        if (baseConfig.hasOwnProperty(key)) {
-            newConfig[key] = baseConfig[key];
-        }
-    }
-    for (key in userConfig) {
-        if (userConfig.hasOwnProperty(key)) {
-            newConfig[key] = userConfig[key];
-        }
-    }
-    return newConfig;
-}
-
-function parseGroup(groupObject) {
+function parseGroup(config, groupObject) {
     groupObject["remainingCSSFiles"] = 0;
-    if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-        var url = focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
-
-        request(url, function (error, response, html) {
+    if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+        var url = _focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
+        _request(url, function (error, response, html) {
             if (!error && response.statusCode == 200) {
-                saveHTMLToGroup(groupObject, html);
+                saveHTMLToGroup(config, groupObject, html);
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "Error fetching remote file", 2);
+                _focusrHelper.log(groupObject["groupID"], "Error fetching remote file", 2);
             }
         });
-
     }
     else {
-        var html = fs.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
-        saveHTMLToGroup(groupObject, html);
+        var html = _fileSystem.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+        saveHTMLToGroup(config, groupObject, html);
     }
 }
 
-function saveHTMLToGroup(groupObject, html) {
+function saveHTMLToGroup(config, groupObject, html) {
     groupObject["HTML"] = html;
-    findCSSFiles(groupObject);
+    findCSSFiles(config, groupObject);
 }
 
-function findCSSFiles(groupObject) {
-    jsdom.env({
+function findCSSFiles(config, groupObject) {
+    _jsDOM.env({
         html: groupObject["HTML"],
         done: function (error, window) {
             if (!error) {
-                saveBaseTagIfPresent(groupObject, window);
+                window = _focusrDom.saveBaseTagIfPresent(groupObject, window);
                 var stylesheets = window.document.head.querySelectorAll("link[rel='stylesheet']");
                 if (stylesheets.length > 0) {
-                    parseStyleSheets(groupObject, stylesheets);
+                    parseStyleSheets(config, groupObject, stylesheets);
                 }
                 else {
-                    focusrHelper.log(groupObject["groupID"], "No linked stylesheets found [noLinks]", 2);
-                    global["runningGroups"]--;
-                    printOutroIfNeeded();
+                    _focusrHelper.log(groupObject["groupID"], "No linked stylesheets found [noLinks]", 2);
+                    config["runningGroups"]--;
+                    printOutroIfNeeded(config);
                 }
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
+                _focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
             }
         }
     });
 }
 
-function printOutroIfNeeded() {
-    if (global["runningGroups"] == 0) {
-        focusrHelper.printOutro();
+function printOutroIfNeeded(config) {
+    if (config["runningGroups"] == 0) {
+        _focusrHelper.printOutro();
     }
 }
 
-function saveBaseTagIfPresent(groupObject, window) {
-    var base = window.document.head.querySelectorAll("base");
-    if (base.length > 0) {
-        groupObject["baseUrl"] = base[0].getAttribute("href");
-    }
-}
-
-function parseStyleSheets(groupObject, stylesheets) {
+function parseStyleSheets(config, groupObject, stylesheets) {
     for (var i = 0; i < stylesheets.length; i++) {
         var cssUrl = stylesheets[i].getAttribute("href");
-        if (!focusrHelper.isRemoteUrl(cssUrl) || (global["processExternalCss"] && focusrHelper.isRemoteUrl(cssUrl))) {
+        if (!_focusrHelper.isRemoteUrl(cssUrl) || (config["processExternalCss"] && _focusrHelper.isRemoteUrl(cssUrl))) {
             groupObject["remainingCSSFiles"]++;
-            readCSSFile(cssUrl, groupObject);
+            readCSSFile(config, cssUrl, groupObject);
         }
     }
 }
 
-function readCSSFile(cssUrl, groupObject) {
+function readCSSFile(config, cssUrl, groupObject) {
     var unmodifiedCssUrl = cssUrl;
-    cssUrl = focusrHelper.prepCssUrl(cssUrl, groupObject["inputFile"], groupObject["baseUrl"]);
-    focusrHelper.log(groupObject["groupID"], "Found CSS file: '" + cssUrl + "'");
+    cssUrl = _focusrHelper.prepCssUrl(cssUrl, groupObject["inputFile"], groupObject["baseUrl"]);
+    _focusrHelper.log(groupObject["groupID"], "Found CSS file: '" + cssUrl + "'");
 
-    if (focusrHelper.isRemoteUrl(cssUrl)) {
-        var url = focusrHelper.prepUrlAuthentication(cssUrl, groupObject["httpAuth"]);
-        request(url, function (error, response, cssData) {
+    if (_focusrHelper.isRemoteUrl(cssUrl)) {
+        var url = _focusrHelper.prepUrlAuthentication(cssUrl, groupObject["httpAuth"]);
+        _request(url, function (error, response, cssData) {
             var responseData = undefined;
             if (!error && response.statusCode == 200) {
                 responseData = cssData.toString();
-                focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
+                _focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
+                _focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
             }
-            createAST(responseData, unmodifiedCssUrl, groupObject);
+            createAST(config, groupObject, responseData, unmodifiedCssUrl);
         });
     }
     else {
         // Base relative URL in local file fix
-        if (focusrHelper.isBaseRelative(cssUrl)) {
+        if (_focusrHelper.isBaseRelative(cssUrl)) {
             cssUrl = groupObject["baseDir"] + cssUrl.substring(1);
         }
         // Relative URL in local file fix
         else {
-            cssUrl = groupObject["baseDir"] + path.dirname(groupObject["inputFile"]).substring(1) + cssUrl;
+            cssUrl = groupObject["baseDir"] + _path.dirname(groupObject["inputFile"]).substring(1) + cssUrl;
         }
 
-        fs.readFile(cssUrl, 'utf8', function (error, cssData) {
+        _fileSystem.readFile(cssUrl, 'utf8', function (error, cssData) {
             var responseData = undefined;
             if (!error) {
                 responseData = cssData;
-                focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
+                _focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
+                _focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
             }
-            createAST(responseData, unmodifiedCssUrl, groupObject);
+            createAST(config, groupObject, responseData, unmodifiedCssUrl);
         });
     }
 
 }
 
-function createAST(cssData, unmodifiedCssUrl, groupObject) {
+function createAST(config, groupObject, cssData, unmodifiedCssUrl) {
     groupObject["remainingCSSFiles"]--;
 
     // Successful fetch of data
     if (cssData !== undefined) {
         //First CSS file, build the initial AST tree
         if (groupObject["CSSAST"] === undefined) {
-            groupObject["CSSAST"] = css.parse(cssData, {silent: true});
+            groupObject["CSSAST"] = _reworkCss.parse(cssData, {silent: true});
         }
         //Already existing CSS AST, append newly parsed rules to it
         else {
-            var CSSAST = css.parse(cssData, {silent: true});
+            var CSSAST = _reworkCss.parse(cssData, {silent: true});
             groupObject["CSSAST"]["stylesheet"]["rules"] = groupObject["CSSAST"]["stylesheet"]["rules"].concat(CSSAST["stylesheet"]["rules"]);
         }
     }
@@ -260,25 +186,24 @@ function createAST(cssData, unmodifiedCssUrl, groupObject) {
     // All CSS files found in group processed
     if (groupObject["remainingCSSFiles"] == 0) {
         if (groupObject["CSSAST"] === undefined) {
-            focusrHelper.log(groupObject["groupID"], "No CSS AST to work on [noAst]", 2);
-            focusrHelper.printOutro();
+            _focusrHelper.log(groupObject["groupID"], "No CSS AST to work on [noAst]", 2);
+            _focusrHelper.printOutro();
             return;
         }
         // Transform all relative URLs in CSS into relative to the output file
         var rules = groupObject["CSSAST"]["stylesheet"]["rules"];
         //TODO do all of this in another function, run each rule instead of multiple traversals
         transformRulesRelativeToOutput(rules, unmodifiedCssUrl);
-        markAllRulesAsNoncritical(rules);
-        markMatchingMediaQueriesAsCritical(rules, groupObject);
+        _focusrAst.markAllRulesAsNoncritical(rules);
+        _focusrDom.markMatchingMediaQueriesAsCritical(rules, groupObject);
         if (groupObject["alwaysInclude"].length > 0) {
             for (var i = 0; i < groupObject["alwaysInclude"].length; i++) {
                 markAlwaysIncludesAsCritical(rules, groupObject["alwaysInclude"][i]);
             }
         }
-        checkIfSelectorsHit(groupObject, groupObject["CSSAST"]);
+        checkIfSelectorsHit(config, groupObject, groupObject["CSSAST"]);
     }
 }
-
 
 function transformRulesRelativeToOutput(rules, unmodifiedCssUrl) {
     for (var i = 0; i < rules.length; i++) {
@@ -299,28 +224,13 @@ function transformRulesRelativeToOutput(rules, unmodifiedCssUrl) {
                         prefix = regexResult.substring(0, 1);
                         regexResult = regexResult.substring(1, regexResult.length - 1);
                     }
-                    if (!focusrHelper.isRemoteUrl(regexResult)) {
-                        var newPath = "url(" + prefix + urlparse.resolve(unmodifiedCssUrl, regexResult) + prefix + ")";
+                    if (!_focusrHelper.isRemoteUrl(regexResult)) {
+                        var newPath = "url(" + prefix + _urlParse.resolve(unmodifiedCssUrl, regexResult) + prefix + ")";
                         declaration["value"] = declaration["value"].replace(originalValue, newPath);
                     }
 
                 }
             }
-        }
-    }
-}
-
-function markAllRulesAsNoncritical(rules) {
-    for (var i = 0; i < rules.length; i++) {
-        rules[i]["critical"] = false;
-    }
-}
-
-function markMatchingMediaQueriesAsCritical(rules, groupObject) {
-    for (var i = 0; i < rules.length; i++) {
-        var rule = rules[i];
-        if (rule["type"] === "media") {
-            rule["critical"] = mediaQueryMatchesViewport(rule["media"], groupObject["viewport"][0], groupObject["viewport"][1]);
         }
     }
 }
@@ -343,21 +253,7 @@ function markAlwaysIncludesAsCritical(rules, ruleToInclude) {
     }
 }
 
-function mediaQueryMatchesViewport(mediaQuery, width, height) {
-    try {
-        return mediaQueryMatcher.match(mediaQuery, {
-            width: width + 'px',
-            height: height + 'px',
-            type: 'screen'
-        });
-    }
-    catch (exception) {
-        focusrHelper.log(-1, "Bad media query: '" + mediaQuery + "'", 2);
-        return false;
-    }
-}
-
-function checkIfSelectorsHit(groupObject, CSSAST) {
+function checkIfSelectorsHit(config, groupObject, CSSAST) {
 
     var tmpCssFile = groupObject["baseDir"] + groupObject["outputFile"] + Date.now() + ".txt";
     var viewportW = groupObject["viewport"][0];
@@ -365,57 +261,57 @@ function checkIfSelectorsHit(groupObject, CSSAST) {
     var html = groupObject["HTML"];
 
     var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
-    if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+    if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
         htmlFile += ".html";
     }
 
-    focusrHelper.writeFile(htmlFile, html);
-    focusrHelper.writeFile(tmpCssFile, JSON.stringify(CSSAST));
-    focusrHelper.log(groupObject["groupID"], "Calling PhantomJS");
+    _focusrHelper.writeFile(htmlFile, html);
+    _focusrHelper.writeFile(tmpCssFile, JSON.stringify(CSSAST));
+    _focusrHelper.log(groupObject["groupID"], "Calling PhantomJS");
 
-    var phantomArguments = [path.join(__dirname, 'phantomJS.js'), htmlFile, tmpCssFile, viewportW, viewportH, global["allowJS"]];
+    var phantomArguments = [_path.join(__dirname, 'phantomJS.js'), htmlFile, tmpCssFile, viewportW, viewportH, config["allowJS"]];
     var execOptions = {
         encoding: 'utf8',
-        timeout: global["renderTimeout"],
+        timeout: config["renderTimeout"],
         killSignal: 'SIGTERM'
     };
-    childProcess.execFile(phantomjs.path, phantomArguments, execOptions, function (error, output, errorOutput) {
+    _childProcess.execFile(_phantomJs.path, phantomArguments, execOptions, function (error, output, errorOutput) {
         if (!error) {
             var result = output.trim();
             if (result === "true") {
-                focusrHelper.log(groupObject["groupID"], "PhantomJS reported back");
+                _focusrHelper.log(groupObject["groupID"], "PhantomJS reported back");
                 var parseError = false;
                 var processedAST;
                 try {
-                    processedAST = JSON.parse(fs.readFileSync(tmpCssFile, "utf-8"));
+                    processedAST = JSON.parse(_fileSystem.readFileSync(tmpCssFile, "utf-8"));
                 }
                 catch (exception) {
                     parseError = true;
-                    focusrHelper.log(groupObject["groupID"], "Error occurred while paring PhantomJS output: " + exception.message, 2);
+                    _focusrHelper.log(groupObject["groupID"], "Error occurred while paring PhantomJS output: " + exception.message, 2);
                 }
 
                 if (!parseError) {
-                    sliceCss(groupObject, processedAST, tmpCssFile);
+                    sliceCss(config, groupObject, processedAST, tmpCssFile);
                 }
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "A controlled exception occurred: " + json["errorMessage"] + " " + output, 2);
+                _focusrHelper.log(groupObject["groupID"], "A controlled exception occurred: " + json["errorMessage"] + " " + output, 2);
             }
 
         }
         else {
             if (output == "") {
-                focusrHelper.log(groupObject["groupID"], "The PhantomJS call timed out after " + global["renderTimeout"] + "ms", 2);
+                _focusrHelper.log(groupObject["groupID"], "The PhantomJS call timed out after " + config["renderTimeout"] + "ms", 2);
             }
             else {
-                focusrHelper.log(groupObject["groupID"], "A PhantomJS error occurred: " + output + " " + errorOutput, 2);
+                _focusrHelper.log(groupObject["groupID"], "A PhantomJS error occurred: " + output + " " + errorOutput, 2);
             }
 
         }
     });
 }
 
-function sliceCss(groupObject, processedAST, tmpCssFile) {
+function sliceCss(config, groupObject, processedAST, tmpCssFile) {
     //Deep cloning
     var criticalCssAst = JSON.parse(JSON.stringify(processedAST)), nonCriticalCssAst = JSON.parse(JSON.stringify(processedAST));
     var originalRules = processedAST["stylesheet"]["rules"], criticalRules = criticalCssAst["stylesheet"]["rules"], nonCriticalRules = nonCriticalCssAst["stylesheet"]["rules"];
@@ -430,21 +326,21 @@ function sliceCss(groupObject, processedAST, tmpCssFile) {
         }
     }
 
-    criticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(criticalRules);
-    nonCriticalCssAst["stylesheet"]["rules"] = focusrHelper.balanceArray(nonCriticalRules);
+    criticalCssAst["stylesheet"]["rules"] = _focusrHelper.balanceArray(criticalRules);
+    nonCriticalCssAst["stylesheet"]["rules"] = _focusrHelper.balanceArray(nonCriticalRules);
 
-    var criticalCss = css.stringify(criticalCssAst, {silent: true}), nonCriticalCss = css.stringify(nonCriticalCssAst, {silent: true});
-    var minifiedCriticalCss = new cssCleaner().minify(criticalCss).styles, minifiedNonCriticalCss = new cssCleaner().minify(nonCriticalCss).styles;
+    var criticalCss = _reworkCss.stringify(criticalCssAst, {silent: true}), nonCriticalCss = _reworkCss.stringify(nonCriticalCssAst, {silent: true});
+    var minifiedCriticalCss = new _cssCleaner().minify(criticalCss).styles, minifiedNonCriticalCss = new _cssCleaner().minify(nonCriticalCss).styles;
 
-    generateResult(minifiedCriticalCss, minifiedNonCriticalCss, groupObject, tmpCssFile);
+    generateResult(config, groupObject, minifiedCriticalCss, minifiedNonCriticalCss, tmpCssFile);
 }
 
-function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
-    jsdom.env({
+function generateResult(config, groupObject, criticalCss, nonCriticalCss, tmpCssFile) {
+    _jsDOM.env({
         html: groupObject["HTML"],
         done: function (error, window) {
             if (error) {
-                focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
+                _focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
                 return;
             }
 
@@ -452,76 +348,98 @@ function generateResult(criticalCss, nonCriticalCss, groupObject, tmpCssFile) {
             var body = window.document.body || window.document.getElementsByTagName('body')[0];
             var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
 
-            if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+            if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
                 if (groupObject["criticalCss"] === undefined) {
                     groupObject["criticalCss"] = "";
                 }
                 groupObject["criticalCss"] += criticalCss;
                 if (groupObject["outputJS"]) {
-                    focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], focusrHelper.generateLoadCSSJS(stylesheets));
-                    focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputJS"] + "' generated", 1);
+                    _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], _focusrDom.generateLoadCSSJS(stylesheets));
+                    _focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputJS"] + "' generated", 1);
                 }
             }
             else {
                 for (var i = 0; i < stylesheets.length; i++) {
                     head.removeChild(stylesheets[i]);
                 }
-                head.appendChild(focusrHelper.generateStyleTag(window, criticalCss));
+                head.appendChild(_focusrDom.generateStyleTag(window, criticalCss));
 
-                if (global["inlineNonCritical"]) {
-                    body.appendChild(focusrHelper.generateStyleTag(window, nonCriticalCss));
+                if (config["inlineNonCritical"]) {
+                    body.appendChild(_focusrDom.generateStyleTag(window, nonCriticalCss));
                 }
                 else {
                     var jsForLoadCss = window.document.createElement('script');
-                    jsForLoadCss.innerHTML = focusrHelper.generateLoadCSSJS(stylesheets);
+                    jsForLoadCss.innerHTML = _focusrDom.generateLoadCSSJS(stylesheets);
                     body.appendChild(jsForLoadCss);
                 }
             }
-            focusrHelper.collectGarbage(tmpCssFile, groupObject);
-            global["runningGroups"]--;
+            _focusrHelper.collectGarbage(tmpCssFile, groupObject);
+            config["runningGroups"]--;
 
-            if (focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
+            if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+                _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
             }
             else {
-                if (global["debug"]) {
-                    body.innerHTML = focusrHelper.insertDebugBox(body, groupObject);
+                if (config["debug"]) {
+                    body.innerHTML = _focusrDom.insertDebugBox(body, groupObject);
                 }
                 var resultHTML = window.document.documentElement.outerHTML;
-                focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML);
+                _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML);
             }
-            focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
+            _focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
 
-            printOutroIfNeeded();
+            printOutroIfNeeded(config);
         }
     });
 }
 
+// ----------------------------------------------------------------------------------
+// INITIALIZATION
+// ----------------------------------------------------------------------------------
 
-//-----------------------
-// MAIN CALL
-//-----------------------
-
-if (process.argv.length > 2) {
-    if (process.argv.length >= 5) {
-        focusrHelper.printIntro();
-        focus(process.argv[2], process.argv[3], process.argv[4]);
-    }
-    else {
-        focusrHelper.printUsage();
-    }
-
-}
-else {
-    fs.readFile("config.json", 'utf8', function (err, data) {
-        if (!err) {
-            focusrHelper.printIntro();
-            parseConfig(JSON.parse(data));
-        }
-        else {
-            console.log("Config file can not be opened");
-        }
-    });
+function initialize() {
+    _focusrHelper.printIntro();
+    parseConfig("config.json");
 }
 
-exports.focus = focus;
+initialize();
+
+
+//TODO make exports
+//exports.focus = focus;
+
+
+//function focus(baseDir, inputFile, outputFile, baseUrl) {
+//    global = extendConfig(defaultConfig, {});
+//    var newGroup = extendConfig(defaultGroup, {});
+//    newGroup["baseDir"] = baseDir;
+//    newGroup["inputFile"] = inputFile;
+//    newGroup["outputFile"] = outputFile;
+//    newGroup["groupID"] = 0;
+//    if (baseUrl !== undefined) {
+//        newGroup["baseUrl"] = baseUrl;
+//    }
+//    global["runningGroups"] = 1;
+//    parseGroup(newGroup);
+//}
+//if (process.argv.length > 2) {
+//    if (process.argv.length >= 5) {
+//        _focusrHelper.printIntro();
+//        focus(process.argv[2], process.argv[3], process.argv[4]);
+//    }
+//    else {
+//        _focusrHelper.printUsage();
+//    }
+//
+//}
+//else {
+//    _fileSystem.readFile("config.json", 'utf8', function (err, data) {
+//        if (!err) {
+//            _focusrHelper.printIntro();
+//            parseConfig(JSON.parse(data));
+//        }
+//        else {
+//            console.log("Config file can not be opened");
+//        }
+//    });
+//}

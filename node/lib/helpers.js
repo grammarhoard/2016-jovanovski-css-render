@@ -1,8 +1,28 @@
-var colors = require('colors'),
-    fs = require('fs'),
-    getDirName = require('path').dirname,
-    mkdirp = require('mkdirp'),
-    urlparse = require("url");
+var _colors = require('colors'),
+    _fileSystem = require('fs'),
+    _getDirName = require('path').dirname,
+    _makeDirPath = require('mkdirp'),
+    _urlParse = require("url");
+
+var defaultConfig = {
+    "allowJS": false,
+    "debug": false,
+    "processExternalCss": true,
+    "inlineNonCritical": false,
+    "renderTimeout": 60000,
+    "groups": []
+},
+    defaultGroup = {
+        "enabled": true,
+        "baseDir": "tests/",
+        "inputFile": "",
+        "outputFile": "",
+        "alwaysInclude": [],
+        "httpAuth": "",
+        "wordpress": false,
+        "viewport": [1200, 900],
+        "outputJS": false
+    };
 
 module.exports = {
     balanceArray: function (array) {
@@ -15,41 +35,43 @@ module.exports = {
         return tmpArray;
     },
     collectGarbage: function (tmpCssFile, groupObject) {
-        fs.unlink(tmpCssFile);
+        _fileSystem.unlink(tmpCssFile);
         var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
         if (this.isRemoteUrl(groupObject["inputFile"])) {
             htmlFile += ".html";
         }
-        fs.unlink(htmlFile);
+        _fileSystem.unlink(htmlFile);
     },
-    generateLoadCSSJS: function (stylesheets) {
-        var linksToLoad = [];
-        for (var i = 0; i < stylesheets.length; i++) {
-            linksToLoad.push(stylesheets[i].getAttribute("href"))
+    extendDefaultConfig: function(userConfig){
+        return this.extendConfig(defaultConfig, userConfig);
+    },
+    extendGroupConfig: function(userConfig){
+        return this.extendConfig(defaultGroup, userConfig);
+    },
+    extendConfig: function (baseConfig, userConfig) {
+        var newConfig = {};
+        for (var key in baseConfig) {
+            if (baseConfig.hasOwnProperty(key)) {
+                newConfig[key] = baseConfig[key];
+            }
         }
-        return '/* Focusr */ var fl=function(){for(var e=["' + linksToLoad.join('","') + '"],t=0;t<e.length;t++){var n=document.createElement("link");n.rel="stylesheet",n.href=e[t],document.body.appendChild(n)}},raf=requestAnimationFrame||mozRequestAnimationFrame||webkitRequestAnimationFrame||msRequestAnimationFrame;raf?raf(function(){window.setTimeout(fl,0)}):window.addEventListener("load",fl);';
-    },
-    generateStyleTag: function (window, rules) {
-        rules += "/* Focusr */ ";
-        var criticalStyleTag = window.document.createElement('style');
-        criticalStyleTag.type = 'text/css';
-        if (criticalStyleTag.styleSheet) {
-            criticalStyleTag.styleSheet.cssText = rules;
-        } else {
-            criticalStyleTag.appendChild(window.document.createTextNode(rules));
+        for (key in userConfig) {
+            if (userConfig.hasOwnProperty(key)) {
+                newConfig[key] = userConfig[key];
+            }
         }
-        return criticalStyleTag;
+        return newConfig;
     },
-    prepCssUrl: function (cssUrl, inputFile, baseUrl){
+    prepCssUrl: function (cssUrl, inputFile, baseUrl) {
         if (cssUrl.indexOf("//") == 0) {
             cssUrl = "http:" + cssUrl;
         }
         if ((this.isRemoteUrl(inputFile) && !this.isRemoteUrl(cssUrl)) || baseUrl !== undefined) {
             if (baseUrl !== undefined) {
-                cssUrl = urlparse.resolve(baseUrl, cssUrl);
+                cssUrl = _urlParse.resolve(baseUrl, cssUrl);
             }
             else {
-                cssUrl = urlparse.resolve(inputFile, cssUrl);
+                cssUrl = _urlParse.resolve(inputFile, cssUrl);
             }
         }
         return cssUrl;
@@ -69,9 +91,6 @@ module.exports = {
         }
         return url;
     },
-    insertDebugBox: function (body, groupObject) {
-        return '<div style="border:3px solid red;width:' + groupObject["viewport"][0] + 'px; height:' + groupObject["viewport"][1] + 'px;position:absolute;top:0;left:0;z-index:2147483647"></div>' + body.innerHTML;
-    },
     isBaseRelative: function (url) {
         return url.lastIndexOf("/", 0) === 0;
     },
@@ -85,10 +104,10 @@ module.exports = {
         }
 
         if (messageType == 1) {
-            console.log(prefix + colors.green(message));
+            console.log(prefix + _colors.green(message));
         }
         else if (messageType == 2) {
-            console.log(prefix + colors.red(message));
+            console.log(prefix + _colors.red(message));
         }
         else {
             console.log(prefix + message);
@@ -106,13 +125,13 @@ module.exports = {
     },
     printUsage: function () {
         this.log(-1, "Focusr usage requires 3 arguments in this order:");
-        this.log(-1, "\t" + colors.green("baseDirectory") + " - the directory of the index.html file to work on");
-        this.log(-1, "\t" + colors.green("inputFile") + " - the input file relative to the baseDirectory");
-        this.log(-1, "\t" + colors.green("outputFile") + " - the output file relative to the baseDirectory");
+        this.log(-1, "\t" + _colors.green("baseDirectory") + " - the directory of the index.html file to work on");
+        this.log(-1, "\t" + _colors.green("inputFile") + " - the input file relative to the baseDirectory");
+        this.log(-1, "\t" + _colors.green("outputFile") + " - the output file relative to the baseDirectory");
     },
     writeFile: function (path, contents) {
-        mkdirp.sync(getDirName(path));
-        fs.writeFileSync(path, contents, {flag: 'w'});
+        _makeDirPath.sync(_getDirName(path));
+        _fileSystem.writeFileSync(path, contents, {flag: 'w'});
 
     }
 };
