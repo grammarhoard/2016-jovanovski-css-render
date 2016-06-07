@@ -26,14 +26,14 @@ var defaultConfig = {
     };
 
 module.exports = {
-    balanceArray: function (array) {
-        var tmpArray = [];
-        for (var i = 0; i < array.length; i++) {
-            if (array[i] !== undefined) {
-                tmpArray.push(array[i]);
+    removeUndefinedRules: function (rules) {
+        var definedRules = [];
+        for (var i = 0; i < rules.length; i++) {
+            if (rules[i] !== undefined) {
+                definedRules.push(rules[i]);
             }
         }
-        return tmpArray;
+        return definedRules;
     },
     collectGarbage: function (tmpCssFile, groupObject) {
         _fileSystem.unlink(tmpCssFile);

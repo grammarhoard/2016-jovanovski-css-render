@@ -1,6 +1,5 @@
 {
   "debug": false,
-  "allowJs": false,
   "processExternalCss" : true,
   "inlineNonCritical": false,
   "groups":[
