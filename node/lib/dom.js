@@ -1,7 +1,3 @@
-var _mediaQuery = require('css-mediaquery');
-
-var _focusrHelper = require("./helpers.js");
-
 module.exports = {
     generateStyleTag: function (window, rules) {
         rules += "/* Focusr */ ";
@@ -30,26 +26,5 @@ module.exports = {
             groupObject["baseUrl"] = base[0].getAttribute("href");
         }
         return window;
-    },
-    mediaQueryMatchesViewport: function (mediaQuery, width, height) {
-        try {
-            return _mediaQuery.match(mediaQuery, {
-                width: width + 'px',
-                height: height + 'px',
-                type: 'screen'
-            });
-        }
-        catch (exception) {
-            _focusrHelper.log(-1, "Bad media query: '" + mediaQuery + "'", 2);
-            return false;
-        }
-    },
-    markMatchingMediaQueriesAsCritical: function (rules, groupObject) {
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[i];
-            if (rule["type"] === "media") {
-                rule["critical"] = this.mediaQueryMatchesViewport(rule["media"], groupObject["viewport"][0], groupObject["viewport"][1]);
-            }
-        }
     }
 };

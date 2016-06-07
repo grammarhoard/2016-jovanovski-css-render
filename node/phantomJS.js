@@ -21,11 +21,10 @@ page.onLoadStarted = function() {
     page.navigationLocked = true;
 };
 page.open(htmlUrl, function () {
-    var hitElements = {success: "true"};
     var tmpCssFile = fs.open(system.args[2], 'r');
     var cssAst = JSON.parse(tmpCssFile.read());
     tmpCssFile.close();
-    hitElements["hits"] = page.evaluate(function (cssAst, viewportWidth, viewportHeight) {
+    var criticalHits = page.evaluate(function (cssAst, viewportWidth, viewportHeight) {
         for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
             var rule = cssAst["stylesheet"]["rules"][i];
             if (!rule["critical"]) {
@@ -73,8 +72,8 @@ page.open(htmlUrl, function () {
 
         return cssAst;
     }, cssAst, viewportWidth, viewportHeight);
-    fs.write(tmpCssUrl, JSON.stringify(hitElements["hits"]), 'w');
-    console.log(hitElements["success"]);
+    fs.write(tmpCssUrl, JSON.stringify(criticalHits), 'w');
+    console.log("success");
     phantom.exit();
 });
 

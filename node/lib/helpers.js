@@ -2,16 +2,17 @@ var _colors = require('colors'),
     _fileSystem = require('fs'),
     _getDirName = require('path').dirname,
     _makeDirPath = require('mkdirp'),
+    _path = require('path'),
     _urlParse = require("url");
 
 var defaultConfig = {
-    "allowJS": false,
-    "debug": false,
-    "processExternalCss": true,
-    "inlineNonCritical": false,
-    "renderTimeout": 60000,
-    "groups": []
-},
+        "allowJS": false,
+        "debug": false,
+        "processExternalCss": true,
+        "inlineNonCritical": false,
+        "renderTimeout": 60000,
+        "groups": []
+    },
     defaultGroup = {
         "enabled": true,
         "baseDir": "tests/",
@@ -42,10 +43,10 @@ module.exports = {
         }
         _fileSystem.unlink(htmlFile);
     },
-    extendDefaultConfig: function(userConfig){
+    extendDefaultConfig: function (userConfig) {
         return this.extendConfig(defaultConfig, userConfig);
     },
-    extendGroupConfig: function(userConfig){
+    extendGroupConfig: function (userConfig) {
         return this.extendConfig(defaultGroup, userConfig);
     },
     extendConfig: function (baseConfig, userConfig) {
@@ -61,6 +62,28 @@ module.exports = {
             }
         }
         return newConfig;
+    },
+    isBaseRelative: function (url) {
+        return url.lastIndexOf("/", 0) === 0;
+    },
+    isRemoteUrl: function (url) {
+        return url.indexOf("http://", 0) === 0 || url.indexOf("https://", 0) === 0 || url.indexOf("www.", 0) === 0;
+    },
+    log: function (groupID, message, messageType) {
+        var prefix = "[" + groupID + "] - ";
+        if (groupID == -1) {
+            prefix = "";
+        }
+
+        if (messageType == 1) {
+            console.log(prefix + _colors.green(message));
+        }
+        else if (messageType == 2) {
+            console.log(prefix + _colors.red(message));
+        }
+        else {
+            console.log(prefix + message);
+        }
     },
     prepCssUrl: function (cssUrl, inputFile, baseUrl) {
         if (cssUrl.indexOf("//") == 0) {
@@ -91,26 +114,17 @@ module.exports = {
         }
         return url;
     },
-    isBaseRelative: function (url) {
-        return url.lastIndexOf("/", 0) === 0;
-    },
-    isRemoteUrl: function (url) {
-        return url.indexOf("http://", 0) === 0 || url.indexOf("https://", 0) === 0 || url.indexOf("www.", 0) === 0;
-    },
-    log: function (groupID, message, messageType) {
-        var prefix = "[" + groupID + "] - ";
-        if (groupID == -1) {
-            prefix = "";
-        }
-
-        if (messageType == 1) {
-            console.log(prefix + _colors.green(message));
-        }
-        else if (messageType == 2) {
-            console.log(prefix + _colors.red(message));
+    prepLocalUrl: function(url, groupObject){
+        if (this.isBaseRelative(url)) {
+            return groupObject["baseDir"] + url.substring(1);
         }
         else {
-            console.log(prefix + message);
+            return groupObject["baseDir"] + _path.dirname(groupObject["inputFile"]).substring(1) + url;
+        }
+    },
+    printOutroIfNeeded: function (config) {
+        if (config["runningGroups"] == 0) {
+            this.printOutro();
         }
     },
     printIntro: function () {
