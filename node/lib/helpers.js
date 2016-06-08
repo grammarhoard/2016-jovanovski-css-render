@@ -156,7 +156,7 @@ module.exports = {
         }
     },
     printOutroIfNeeded: function (config) {
-        if (config["runningGroups"] == 0) {
+        if (config["runningGroups"] === 0) {
             this.printOutro();
         }
     },

@@ -60,39 +60,34 @@ function runPhantomJs(htmlPath, tmpCssPath, viewportWidth, viewportHeight){
             }
 
             function focusr_processRule(rule, viewportWidth, viewportHeight) {
-                if (rule["type"] === "rule") {
-                    for (var i = 0; i < rule["selectors"].length; i++) {
-                        var selector = rule["selectors"][i];
-                        selector = focusr_removePseudoSelector(selector);
+                for (var i = 0; i < rule["selectors"].length; i++) {
+                    var selector = rule["selectors"][i];
+                    selector = focusr_removePseudoSelector(selector);
 
-                        if (focusr_checkForAtRule(selector, rule)) {
-                            continue;
-                        }
+                    if (focusr_checkForAtRule(selector, rule)) {
+                        continue;
+                    }
 
-                        var elements = focusr_getElementsFromDom(window, selector);
-                        var foundElementInViewport = false;
-                        for (var j = 0; j < elements.length; j++) {
-                            var element = elements[j];
-                            if (focusr_isElementInViewport(element, viewportWidth, viewportHeight)) {
-                                foundElementInViewport = true;
-                                break;
-                            }
-                        }
-                        if (foundElementInViewport) {
-                            rule["critical"] = true;
+                    var elements = focusr_getElementsFromDom(window, selector);
+                    var foundElementInViewport = false;
+                    for (var j = 0; j < elements.length; j++) {
+                        var element = elements[j];
+                        if (focusr_isElementInViewport(element, viewportWidth, viewportHeight)) {
+                            foundElementInViewport = true;
                             break;
                         }
                     }
-                }
-                else if (rule["type"] === "font-face") {
-                    rule["critical"] = false;
+                    if (foundElementInViewport) {
+                        rule["critical"] = true;
+                        break;
+                    }
                 }
             }
 
             function focusr_processRules() {
                 for (var i = 0; i < cssAst["stylesheet"]["rules"].length; i++) {
                     var rule = cssAst["stylesheet"]["rules"][i];
-                    if (!rule["critical"]) {
+                    if (!rule["critical"] && rule["type"] === "rule") {
                         focusr_processRule(rule, viewportWidth, viewportHeight);
                     }
                 }
