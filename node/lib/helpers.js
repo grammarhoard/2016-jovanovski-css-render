@@ -35,13 +35,8 @@ module.exports = {
         }
         return definedRules;
     },
-    collectGarbage: function (tmpCssFile, groupObject) {
+    deleteFile: function (tmpCssFile) {
         _fileSystem.unlink(tmpCssFile);
-        var htmlFile = groupObject["baseDir"] + groupObject["outputFile"];
-        if (this.isRemoteUrl(groupObject["inputFile"])) {
-            htmlFile += ".html";
-        }
-        _fileSystem.unlink(htmlFile);
     },
     extendDefaultConfig: function (userConfig) {
         return this.extendConfig(defaultConfig, userConfig);
@@ -63,6 +58,9 @@ module.exports = {
         }
         return newConfig;
     },
+    getLogCountVerb: function (count){
+        return count === 1 ? "is" : "are";
+    },
     isBaseRelative: function (url) {
         return url.lastIndexOf("/", 0) === 0;
     },
@@ -71,19 +69,54 @@ module.exports = {
     },
     log: function (groupID, message, messageType) {
         var prefix = "[" + groupID + "] - ";
-        if (groupID == -1) {
+        if (groupID === -1) {
             prefix = "";
         }
 
-        if (messageType == 1) {
+        if (messageType === 1) {
             console.log(prefix + _colors.green(message));
         }
-        else if (messageType == 2) {
+        else if (messageType === 2) {
             console.log(prefix + _colors.red(message));
         }
         else {
             console.log(prefix + message);
         }
+    },
+    logGroupInfo: function (groups) {
+        var totalGroups = 0;
+        var wordpressGroups = 0;
+        var localGroups = 0;
+        var remoteGroups = 0;
+        for (var i = 0; i < groups.length; i++) {
+            var groupObject = groups[i];
+            if(!groupObject["enabled"]){
+                continue;
+            }
+
+            totalGroups++;
+            if(groupObject["wordpress"]){
+                wordpressGroups++;
+            }
+            else if(this.isRemoteUrl(groupObject["inputFile"])){
+                remoteGroups++;
+            }
+            else{
+                localGroups++;
+            }
+        }
+
+        this.log(-1, "Working with a total of " + totalGroups + " groups, of which:");
+        if(localGroups){
+            this.log(-1, "\t" + localGroups + " " + this.getLogCountVerb(localGroups) + " local input files");
+        }
+        if(remoteGroups){
+            this.log(-1, "\t" + remoteGroups + " " + this.getLogCountVerb(remoteGroups) + " local remote files");
+        }
+        if(wordpressGroups){
+            this.log(-1, "\t" + wordpressGroups + " " + this.getLogCountVerb(wordpressGroups) + " Wordpress");
+        }
+        this.log(-1, "\n");
     },
     prepCssUrl: function (cssUrl, inputFile, baseUrl) {
         if (cssUrl.indexOf("//") == 0) {
@@ -114,7 +147,7 @@ module.exports = {
         }
         return url;
     },
-    prepLocalUrl: function(url, groupObject){
+    prepLocalUrl: function (url, groupObject) {
         if (this.isBaseRelative(url)) {
             return groupObject["baseDir"] + url.substring(1);
         }
@@ -138,14 +171,16 @@ module.exports = {
         this.log(-1, "---------------------");
     },
     printUsage: function () {
-        this.log(-1, "Focusr usage requires 3 arguments in this order:");
+        this.log(-1, "Focusr CLI requires 3 arguments in this order:");
         this.log(-1, "\t" + _colors.green("baseDirectory") + " - the directory of the index.html file to work on");
         this.log(-1, "\t" + _colors.green("inputFile") + " - the input file relative to the baseDirectory");
         this.log(-1, "\t" + _colors.green("outputFile") + " - the output file relative to the baseDirectory");
     },
-    writeFile: function (path, contents) {
+    writeFile: function (path, contents, shouldOutputToLog, groupID) {
         _makeDirPath.sync(_getDirName(path));
         _fileSystem.writeFileSync(path, contents, {flag: 'w'});
-
+        if (shouldOutputToLog !== undefined && shouldOutputToLog) {
+            this.log(groupID, "File '" + path + "' generated", 1);
+        }
     }
 };

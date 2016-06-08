@@ -40,20 +40,21 @@ function parseConfig(configFileName) {
     var groupID = 1;
     var config = _focusrHelper.extendDefaultConfig(userConfig);
     config["runningGroups"] = 0;
+    _focusrHelper.logGroupInfo(config["groups"]);
     for (var i = 0; i < config["groups"].length; i++) {
         var groupObject = config["groups"][i] = _focusrHelper.extendGroupConfig(config["groups"][i]);
         if (!groupObject["enabled"]) {
             continue;
         }
+        groupObject["groupID"] = groupID++;
         if (groupObject["wordpress"]) {
-            _focusrWordpress.getWordpressGroups(config, groupObject, groupID++, function (wordpressGroups) {
+            _focusrWordpress.getWordpressGroups(config, groupObject, function (wordpressGroups) {
                 for (var j = 0; j < wordpressGroups.length; j++) {
                     parseGroup(config, wordpressGroups[j]);
                 }
             });
         }
         else {
-            groupObject["groupID"] = groupID++;
             config["runningGroups"]++;
             parseGroup(config, groupObject);
         }
@@ -139,7 +140,7 @@ function parseReadCSSFile(config, groupObject, error, responseData, cssUrl, unmo
     var data = undefined;
     if (!error) {
         data = responseData.toString();
-        _focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'", 1);
+        _focusrHelper.log(groupObject["groupID"], "Fetched file: '" + cssUrl + "'");
     }
     else {
         _focusrHelper.log(groupObject["groupID"], "Error fetching remote file '" + cssUrl + "'", 2);
@@ -285,39 +286,47 @@ function generateResult(config, groupObject, criticalCss, tmpCssFile) {
                 return;
             }
 
-            var head = window.document.head || window.document.getElementsByTagName('head')[0];
-            var body = window.document.body || window.document.getElementsByTagName('body')[0];
-            var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
-
             if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                groupObject["criticalCss"] = criticalCss;
-                _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], groupObject["criticalCss"]);
-                _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], _focusrDom.generateLoadJS(stylesheets));
-                if (groupObject["outputJS"]) {
-                    _focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
-                    _focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputJS"] + "' generated", 1);
-                }
+                outputForRemoteInput(groupObject, criticalCss, window);
+                var htmlFile = groupObject["baseDir"] + groupObject["outputFile"] + ".html";
+                _focusrHelper.deleteFile(htmlFile);
             }
             else {
-                head = _focusrDom.removeLinkTags(head, stylesheets);
-                head.appendChild(_focusrDom.generateStyleTag(window, criticalCss));
-                body.appendChild(_focusrDom.generateLoadCSSJSTag(window, stylesheets));
+                outputForLocalInput(config, groupObject, criticalCss, window)
             }
 
-            _focusrHelper.collectGarbage(tmpCssFile, groupObject);
             config["runningGroups"]--;
-
-            if (!_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
-                if (config["debug"]) {
-                    body.innerHTML = _focusrDom.insertDebugBox(body, groupObject);
-                }
-                var resultHTML = window.document.documentElement.outerHTML;
-                _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML);
-                _focusrHelper.log(groupObject["groupID"], "File '" + groupObject["baseDir"] + groupObject["outputFile"] + "' generated", 1);
-            }
+            _focusrHelper.deleteFile(tmpCssFile);
             _focusrHelper.printOutroIfNeeded(config);
         }
     });
+}
+
+function outputForRemoteInput(groupObject, criticalCss, window) {
+    var head = window.document.head || window.document.getElementsByTagName('head')[0];
+    var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
+
+    _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], criticalCss, true, groupObject["groupID"]);
+
+    if (groupObject["outputJS"]) {
+        _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], _focusrDom.generateLoadJS(stylesheets), true, groupObject["groupID"]);
+    }
+}
+
+function outputForLocalInput(config, groupObject, criticalCss, window) {
+    var head = window.document.head || window.document.getElementsByTagName('head')[0];
+    var body = window.document.body || window.document.getElementsByTagName('body')[0];
+    var stylesheets = head.querySelectorAll("link[rel='stylesheet']");
+
+    head = _focusrDom.removeLinkTags(head, stylesheets);
+    head.appendChild(_focusrDom.generateStyleTag(window, criticalCss));
+    body.appendChild(_focusrDom.generateLoadCSSJSTag(window, stylesheets));
+
+    if (config["debug"]) {
+        body.innerHTML = _focusrDom.insertDebugBox(body, groupObject);
+    }
+    var resultHTML = window.document.documentElement.outerHTML;
+    _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML, true, groupObject["groupID"]);
 }
 
 // ----------------------------------------------------------------------------------
@@ -331,42 +340,4 @@ function initialize() {
 
 initialize();
 
-
-//TODO make exports
-//exports.focus = focus;
-
-
-//function focus(baseDir, inputFile, outputFile, baseUrl) {
-//    global = extendConfig(defaultConfig, {});
-//    var newGroup = extendConfig(defaultGroup, {});
-//    newGroup["baseDir"] = baseDir;
-//    newGroup["inputFile"] = inputFile;
-//    newGroup["outputFile"] = outputFile;
-//    newGroup["groupID"] = 0;
-//    if (baseUrl !== undefined) {
-//        newGroup["baseUrl"] = baseUrl;
-//    }
-//    global["runningGroups"] = 1;
-//    parseGroup(newGroup);
-//}
-//if (process.argv.length > 2) {
-//    if (process.argv.length >= 5) {
-//        _focusrHelper.printIntro();
-//        focus(process.argv[2], process.argv[3], process.argv[4]);
-//    }
-//    else {
-//        _focusrHelper.printUsage();
-//    }
-//
-//}
-//else {
-//    _fileSystem.readFile("config.json", 'utf8', function (err, data) {
-//        if (!err) {
-//            _focusrHelper.printIntro();
-//            parseConfig(JSON.parse(data));
-//        }
-//        else {
-//            console.log("Config file can not be opened");
-//        }
-//    });
-//}
+//process.argv

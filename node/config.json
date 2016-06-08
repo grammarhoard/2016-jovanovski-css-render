@@ -11,14 +11,14 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test2/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
       "viewport" : [1200, 900]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -28,17 +28,18 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test4/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
       "viewport" : [1200, 900]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "baseDir": "tests/test5/",
       "inputFile" : "http://thenextweb.com/facebook/2016/04/17/facebook-activates-safety-check-wake-earthquake-ecuador/",
       "outputFile": "critical.css",
+      "outputJS": "critical.js",
       "viewport" : [1200, 900]
     },
     {

@@ -3,14 +3,16 @@ var _request = require('request');
 var _focusrHelper = require("./helpers.js");
 
 module.exports = {
-    getWordpressGroups: function (global, groupObject, groupID, callback) {
+    getWordpressGroups: function (global, groupObject, callback) {
+        _focusrHelper.log(groupObject["groupID"], "Hey, a Wordpress site, trying to contact the Focusr plugin...");
         var wordpressLinksUrl = _focusrHelper.prepUrlAuthentication(groupObject["inputFile"] + "?focusr=links", groupObject["httpAuth"]);
-        (function (that) {
+        (function (that, groupObject) {
             _request(wordpressLinksUrl, function (error, response, responseData) {
                 if (!error && response.statusCode === 200) {
                     try {
-                        var groups = that.createWordpressGroups(responseData, groupObject, groupID);
+                        var groups = that.createWordpressGroups(responseData, groupObject);
                         global["runningGroups"] += groups.length;
+                        _focusrHelper.log(groupObject["groupID"], "Focusr Wordpress plugin responded successfully!", 1);
                         callback(groups);
                     }
                     catch (exception) {
@@ -21,10 +23,10 @@ module.exports = {
                     _focusrHelper.log(groupObject["groupID"], "Error fetching links from WordPress URL " + groupObject["inputFile"], 2);
                 }
             });
-        }(this));
+        }(this, groupObject));
     },
 
-    createWordpressGroups: function (responseData, groupObject, groupID) {
+    createWordpressGroups: function (responseData, groupObject) {
         var groups = [];
         var links = JSON.parse(responseData);
         var subgroupID = 1;
@@ -35,7 +37,7 @@ module.exports = {
                 newGroup["inputFile"] = links[key] + "?focusr=disable";
                 newGroup["outputFile"] = key + ".css";
                 newGroup["outputJS"] = key + ".js";
-                newGroup["groupID"] = groupID + "." + subgroupID++;
+                newGroup["groupID"] = groupObject["groupID"] + "." + subgroupID++;
                 groups.push(newGroup);
             }
         }
