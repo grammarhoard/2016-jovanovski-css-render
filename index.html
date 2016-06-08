@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Focusr by jovanovski</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Focusr</h1>
+        <h2>A critical path CSS generator and inliner</h2>
+        <a href="https://github.com/jovanovski/criticalcss" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="css-focusr" class="anchor" href="#css-focusr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CSS Focusr</h1>
+
+<p>A critical path CSS extraction and injection tool using Node.js.</p>
+
+<h2>
+<a id="what-is-css-focusr" class="anchor" href="#what-is-css-focusr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is CSS Focusr</h2>
+
+<p>CSS Focusr looks for critical "above the fold" CSS rules. By giving it a viewport size, it renders your page and checks to see what 
+elements are primarily visible in that viewport. It then extracts all CSS rules that apply to these "critical" elements, and embeds
+them in a <code>&lt;style&gt;</code> tag in the <code>&lt;head&gt;</code> tag, loading the rest of the CSS from the bottom of the <code>&lt;body&gt;</code> tag with Javascript.</p>
+
+<p>This allows the browser to start rendering the page much faster, because CSS is a render-blocking resource, meaning, while the browser
+is downloading all the CSS files defined in the head of the page, it will display a blank page, and only start rendering once it has them all
+downloaded.</p>
+
+<p>CSS Focusr helps solve this by inlining critical CSS in the head of the page (saving GET requests), and moving the rest
+to the bottom of the body, where they have no more elements to block, and can be applied without stopping the render process.</p>
+
+<h3>
+<a id="a-more-technical-description" class="anchor" href="#a-more-technical-description" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>A more technical description</h3>
+
+<p>CSS Focusr looks for <code>&lt;link rel='stylesheet'&gt;</code> tags, extracts the CSS from the linked files,
+looks for critical CSS by rendering the input HTML file/URL, and checking if any element defined by the selectors in the parsed CSS
+are positioned within the defined viewport. All critical CSS is then inlined as a <code>&lt;style&gt;</code> tag in the <code>&lt;head&gt;</code> tag, and the rest
+is added into a Javascript function at the end of the <code>&lt;body&gt;</code> tag that uses the browser animation queue to load them in asynchronously.</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Each HTML file/URL that needs to be processed should be defined in its own group. Do this via <code>config.json</code> file, where you also override the default options of the tool.</p>
+
+<h3>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h3>
+
+<p>This is the full default configuration file, with all possible settings that can be overridden.</p>
+
+<pre><code>{
+  "debug": false,
+  "allowJs": false,
+  "processExternalCss" : true,
+  "inlineNonCritical": false,
+  "groups":[
+    {
+      "enabled": true,
+      "baseDir": "tests/test3/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": false,
+      "baseDir": "tests/test5/",
+      "inputFile" : "http://thenextweb.com/facebook/2016/04/17/facebook-activates-safety-check-wake-earthquake-ecuador/",
+      "outputFile": "critical.css",
+      "viewport" : [1200, 900]
+    },
+    {
+      "enabled": true,
+      "wordpress": true,
+      "baseDir": "../wordpress/focusr/wordpress/",
+      "inputFile" : "http://thenextweb.com/",
+      "alwaysInclude": [
+        "lazyLoaded"
+      ],
+      "viewport" : [1200, 900]
+    }
+  ]
+}
+</code></pre>
+
+<h3>
+<a id="debug" class="anchor" href="#debug" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>debug</h3>
+
+<p>Works only on local input files (duh).</p>
+
+<p>Add a red-bordered div as a first element in the <code>&lt;body&gt;</code> tag on the generated HTML to show the area covered by the critical CSS viewport.</p>
+
+<h3>
+<a id="allowjs" class="anchor" href="#allowjs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>allowJs</h3>
+
+<p>Allow Javascript scripts to be executed that are included in the page before looking for critical CSS.</p>
+
+<p><strong>WARNING</strong> - Processing will take much longer as Javascript is not fast.</p>
+
+<h3>
+<a id="processexternalcss" class="anchor" href="#processexternalcss" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>processExternalCss</h3>
+
+<p>Allow extraction of critical CSS from external CSS files in <code>&lt;link&gt;</code> tags</p>
+
+<h3>
+<a id="inlinenoncritical" class="anchor" href="#inlinenoncritical" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>inlineNonCritical</h3>
+
+<p>If set to true, will make a new <code>&lt;style&gt;</code> tag at the end of the <code>&lt;body&gt;</code> and paste in all noncritical CSS.</p>
+
+<p>If set to false, will copy and paste all <code>&lt;link rel='stylesheet'&gt;</code> tags at the end of the <code>body</code></p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/jovanovski/criticalcss/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/jovanovski/criticalcss/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/jovanovski/criticalcss"></a> is maintained by <a href="https://github.com/jovanovski">jovanovski</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
