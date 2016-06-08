@@ -21,7 +21,7 @@ is added into a Javascript function at the end of the `<body>` tag that uses the
 
 ##Usage
 Each HTML file/URL that needs to be processed should be defined in its own group. Do this via `config.json` file, where you also override the default options of the tool.
-### Example
+### Default config
 This is the full default configuration file, with all possible settings that can be overridden.
 ```
 {
@@ -44,6 +44,7 @@ This is the full default configuration file, with all possible settings that can
     ]
 }
 ```
+### Example
 An example configuration could look something like this
 ```
 {
