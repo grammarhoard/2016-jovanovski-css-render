@@ -327,6 +327,11 @@ function outputForLocalInput(config, groupObject, criticalCss, window) {
     }
     var resultHTML = window.document.documentElement.outerHTML;
     _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputFile"], resultHTML, true, groupObject["groupID"]);
+
+    if (groupObject["outputJS"]) {
+        _focusrHelper.writeFile(groupObject["baseDir"] + groupObject["outputJS"], _focusrDom.generateLoadJS(stylesheets), true, groupObject["groupID"]);
+    }
+
 }
 
 // ----------------------------------------------------------------------------------

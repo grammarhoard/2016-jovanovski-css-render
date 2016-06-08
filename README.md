@@ -25,53 +25,71 @@ Each HTML file/URL that needs to be processed should be defined in its own group
 This is the full default configuration file, with all possible settings that can be overridden.
 ```
 {
-  "debug": false,
-  "allowJs": false,
-  "processExternalCss" : true,
-  "inlineNonCritical": false,
-  "groups":[
-    {
-      "enabled": true,
-      "baseDir": "tests/test3/",
-      "inputFile" : "pre.html",
-      "outputFile": "index.html",
-      "alwaysInclude": [
-        "lazyLoaded"
-      ],
-      "viewport" : [1200, 900]
-    },
-    {
-      "enabled": false,
-      "baseDir": "tests/test5/",
-      "inputFile" : "http://thenextweb.com/facebook/2016/04/17/facebook-activates-safety-check-wake-earthquake-ecuador/",
-      "outputFile": "critical.css",
-      "viewport" : [1200, 900]
-    },
-    {
-      "enabled": true,
-      "wordpress": true,
-      "baseDir": "../wordpress/focusr/wordpress/",
-      "inputFile" : "http://thenextweb.com/",
-      "alwaysInclude": [
-        "lazyLoaded"
-      ],
-      "viewport" : [1200, 900]
-    }
-  ]
+    "allowJS": false,
+    "debug": false,
+    "processExternalCss": true,
+    "renderTimeout": 60000,
+    "groups": [
+        {
+        "enabled": true,
+        "baseDir": "tests/",
+        "inputFile": "",
+        "outputFile": "",
+        "alwaysInclude": [],
+        "httpAuth": "",
+        "wordpress": false,
+        "viewport": [1200, 900],
+        "outputJS": false
+        }
+    ]
+}
+```
+An example configuration could look something like this
+```
+{
+    "debug": true,
+    "renderTimeout": 120000,
+    "groups": [
+        {
+        "enabled": true,
+        "baseDir": "tests/test1/",
+        "inputFile": "pre.html",
+        "outputFile": "index.html",
+        "alwaysInclude": [
+            '.div-important', '#main-title a'
+        ],
+        "viewport": [1280, 768]
+        }
+    ]
 }
 ```
 
-### debug
-Works only on local input files (duh).
+### Global settings
+#### allowJs (boolean)
+If set to true, will keep all `<script>` tags while processing the site with PhantomJS. WARNING: Allowing JS will slow the extraction process drastically.
+#### debug (boolean)
+If set to true, will add a red border to indicate the viewport area that is being examined on the resulting HTML file. Only works on local input files.
+#### processExternalCss (boolean)
+If set to false, will disable processing of externally linked CSS files.
+#### renderTimeout (int)
+Sets the time allowed for PhantomJS to render the site and find the critical CSS styles.
 
-Add a red-bordered div as a first element in the `<body>` tag on the generated HTML to show the area covered by the critical CSS viewport.
-### allowJs
-Allow Javascript scripts to be executed that are included in the page before looking for critical CSS.
-
-**WARNING** - Processing will take much longer as Javascript is not fast.
-### processExternalCss
-Allow extraction of critical CSS from external CSS files in `<link>` tags
-### inlineNonCritical
-If set to true, will make a new `<style>` tag at the end of the `<body>` and paste in all noncritical CSS.
-
-If set to false, will copy and paste all `<link rel='stylesheet'>` tags at the end of the `body`
+### Group settings
+#### enabled (boolean)
+Toggles if the group should be processed by Focusr.
+#### baseDir (string)
+The base directory to which the output (and possibly input) files are relative to.
+#### inputFile (string)
+A URL or path to a HTML file that should be processed, relative to the baseDir setting.
+#### outputFile (string)
+The path to the output file relative to the baseDir setting. If the inputFile is a URL, this will be the output for the critical CSS file. If the input file is an local HTML file, this will output the same HTML file with inlined critical CSS and JS.
+#### alwaysInclude (array(string))
+An array of selectors that should always be included as critical, regardless if they are in the initial viewport or not.
+#### httpAuth (string)
+A string of basic HTTP authentication, if needed for input files that are URLs. Format 'user:password'.
+#### wordpress (boolean)
+A boolean that states if the inputFile is a link to a Wordpress site that has the Focusr plugin installed.
+#### viewport([int, int])
+An array of 2 integers that state the width and height of the viewport.
+#### outputJS (string)
+If a path relative to the baseDir is entered here, the loadCSS Javascript will be saved to it.

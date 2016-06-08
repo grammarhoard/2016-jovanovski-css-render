@@ -9,7 +9,6 @@ var defaultConfig = {
         "allowJS": false,
         "debug": false,
         "processExternalCss": true,
-        "inlineNonCritical": false,
         "renderTimeout": 60000,
         "groups": []
     },

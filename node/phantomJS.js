@@ -44,7 +44,7 @@ function runPhantomJs(htmlPath, tmpCssPath, viewportWidth, viewportHeight){
                 }
             }
 
-            function focusr_checkForAtRule(selector, rule) {
+            function focusr_isAtRule(selector, rule) {
                 if (selector.indexOf("@") === 0) {
                     rule["critical"] = false;
                     return true;
@@ -64,7 +64,7 @@ function runPhantomJs(htmlPath, tmpCssPath, viewportWidth, viewportHeight){
                     var selector = rule["selectors"][i];
                     selector = focusr_removePseudoSelector(selector);
 
-                    if (focusr_checkForAtRule(selector, rule)) {
+                    if (focusr_isAtRule(selector, rule)) {
                         continue;
                     }
 
