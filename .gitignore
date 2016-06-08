@@ -1,6 +1,7 @@
 .idea
 BigQuery
 node/node_modules
-topsites/node_modules
-tests/test*/index.html
+topsites
+node/tests
 wordpress
+analysis.js
