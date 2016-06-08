@@ -1,8 +1,0 @@
-{
-  "private": true,
-  "devDependencies": {
-    "request": "^2.71.0",
-    "mkdirp": "^0.5.1",
-    "jsdom": "^8.3.1"
-  }
-}
