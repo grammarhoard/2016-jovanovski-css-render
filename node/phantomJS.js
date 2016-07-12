@@ -7,8 +7,12 @@ function applyPhantomJsSetting(viewportWidth, viewportHeight) {
         width: viewportWidth,
         height: viewportHeight
     };
+    _page.settings.resourceTimeout = 3000;
     _page.settings.userAgent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36';
     _page.settings.webSecurityEnabled = false;
+    _page.onError = function(msg, trace) {
+        //ignore JS errors
+    };
     _page.onLoadStarted = function () {
         _page.navigationLocked = true;
     };
@@ -92,7 +96,6 @@ function runPhantomJs(htmlPath, tmpCssPath, viewportWidth, viewportHeight){
                     }
                 }
             }
-
             focusr_processRules();
 
             return cssAst;
@@ -109,7 +112,6 @@ function initialize(){
         tmpCssPath = _system.args[2],
         viewportWidth = _system.args[3],
         viewportHeight = _system.args[4];
-
     applyPhantomJsSetting(viewportWidth, viewportHeight);
     runPhantomJs(htmlPath, tmpCssPath, viewportWidth, viewportHeight);
 }

@@ -22,6 +22,7 @@ html, body{
 	font-size: 30px;
 	text-align: center;
 	text-shadow: 0px 0px 7px #000;
+	border-top: 3px solid green;
 }
 
 .div1{
@@ -46,7 +47,7 @@ html, body{
 .div4{
 	background-color: orange;
 	height: 120px;
-	background-image: url("http://www.pets4homes.co.uk/images/classifieds/2013/07/12/358148/large/sooty-fawn-mini-lop-buck-for-sale-51df49648e8ab.jpg");
+	background-image: url("https://i.ytimg.com/vi/DkIVqD8pJt8/maxresdefault.jpg");
 }
 
 .div5{

@@ -67,7 +67,7 @@ An example configuration could look something like this
 
 ### Global settings
 #### allowJs (boolean)
-If set to true, will keep all `<script>` tags while processing the site with PhantomJS. WARNING: Allowing JS will slow the extraction process drastically.
+If set to true, will keep all `<script>` tags while processing the site with PhantomJS. Note: Allowing JS may in some cases slow the extraction process. If you experience timeout issues, disable this setting.
 #### debug (boolean)
 If set to true, will add a red border to indicate the viewport area that is being examined on the resulting HTML file. Only works on local input files.
 #### processExternalCss (boolean)

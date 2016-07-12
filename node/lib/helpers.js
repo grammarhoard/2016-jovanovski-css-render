@@ -6,7 +6,7 @@ var _colors = require('colors'),
     _urlParse = require("url");
 
 var defaultConfig = {
-        "allowJS": false,
+        "allowJS": true,
         "debug": false,
         "processExternalCss": true,
         "renderTimeout": 60000,
@@ -110,7 +110,7 @@ module.exports = {
             this.log(-1, "\t" + localGroups + " " + this.getLogCountVerb(localGroups) + " local input files");
         }
         if(remoteGroups){
-            this.log(-1, "\t" + remoteGroups + " " + this.getLogCountVerb(remoteGroups) + " local remote files");
+            this.log(-1, "\t" + remoteGroups + " " + this.getLogCountVerb(remoteGroups) + " remote input files");
         }
         if(wordpressGroups){
             this.log(-1, "\t" + wordpressGroups + " " + this.getLogCountVerb(wordpressGroups) + " Wordpress");

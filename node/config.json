@@ -1,24 +1,25 @@
 {
-  "debug": false,
+  "debug": true,
   "processExternalCss" : true,
   "inlineNonCritical": false,
+  "allowJs": true,
   "groups":[
     {
       "enabled": false,
-      "baseDir": "../topsites/testSites/40/",
-      "inputFile" : "original.html",
-      "outputFile": "focused.html",
-      "viewport" : [1200, 900]
+      "baseDir": "tests/test1/",
+      "inputFile" : "pre.html",
+      "outputFile": "index.html",
+      "viewport" : [300, 600]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test2/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
       "viewport" : [1200, 900]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test3/",
       "inputFile" : "pre.html",
       "outputFile": "index.html",
@@ -35,15 +36,15 @@
       "viewport" : [1200, 900]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "baseDir": "tests/test5/",
-      "inputFile" : "http://thenextweb.com/facebook/2016/04/17/facebook-activates-safety-check-wake-earthquake-ecuador/",
+      "inputFile" : "http://thenextweb.com/",
       "outputFile": "critical.css",
       "outputJS": "critical.js",
       "viewport" : [1200, 900]
     },
     {
-      "enabled": true,
+      "enabled": false,
       "wordpress": true,
       "baseDir": "../wordpress/focusr/wordpress/",
       "httpAuth": "tnw:PmwQfGf7cGUq2ypY",

@@ -27,8 +27,8 @@
             add_action('admin_init', [$this, 'setup_fields']);
 
             // HTML modification
-            add_action('wp_footer', [$this, 'inject_javascript']);
             add_action('wp_head', [$this, 'inject_critical_css']);
+            add_action('wp_footer', [$this, 'inject_javascript']);
         }
 
         // ----------------------------------------------------------------------------------
@@ -226,7 +226,7 @@
                 }
                 $prefix = $this->get_current_prefix();
                 $cssFilename = $this->get_base_path() . "/" . $outputDir . $prefix . ".css";
-                $critical .= $this->read_file($cssFilename, "/*Focusr: Can't load JS file*/");
+                $critical .= $this->read_file($cssFilename, "/*Focusr: Can't load CSS file*/");
             }
             else {
                 $critical .= "/* Focusr: Output folder not found */";

@@ -67,7 +67,7 @@ function parseGroup(config, groupObject) {
         var url = _focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
         _request(url, function (error, response, html) {
             if (!error && response.statusCode === 200) {
-                saveHTMLToGroup(config, groupObject, html);
+                groupObject["HTML"] = html;
             }
             else {
                 _focusrHelper.log(groupObject["groupID"], "Error fetching remote file", 2);
@@ -75,16 +75,14 @@ function parseGroup(config, groupObject) {
         });
     }
     else {
-        var html = _fileSystem.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
-        saveHTMLToGroup(config, groupObject, html);
+        var originalHtml = _fileSystem.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
+        fixProtocollessLinks(originalHtml, groupObject, function(fixedHtml){
+            groupObject["HTML"] = fixedHtml;
+            findCSSFiles(config, groupObject);
+        });
+
     }
 }
-
-function saveHTMLToGroup(config, groupObject, html) {
-    groupObject["HTML"] = html;
-    findCSSFiles(config, groupObject);
-}
-
 function findCSSFiles(config, groupObject) {
     _jsDOM.env({
         html: groupObject["HTML"],
@@ -100,6 +98,30 @@ function findCSSFiles(config, groupObject) {
                     config["runningGroups"]--;
                     _focusrHelper.printOutroIfNeeded(config);
                 }
+            }
+            else {
+                _focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
+            }
+        }
+    });
+}
+
+function fixProtocollessLinks(originalHtml, groupObject, callback) {
+    _jsDOM.env({
+        html: originalHtml,
+        done: function (error, window) {
+            if (!error) {
+                window = _focusrDom.saveBaseTagIfPresent(groupObject, window);
+                var srcElements = window.document.documentElement.querySelectorAll("*[src]");
+
+                for (var i = 0; i < srcElements.length; i++) {
+                    var srcElement = srcElements[i];
+                    if(srcElement.getAttribute("src").startsWith("//")){
+                        srcElement.setAttribute("src", "http:" + srcElement.getAttribute("src"));
+                        console.log("fixed "  +srcElement.getAttribute("src"));
+                    }
+                }
+                callback(window.document.documentElement.outerHTML);
             }
             else {
                 _focusrHelper.log(groupObject["groupID"], "A jsdom error occurred: " + error, 2);
@@ -208,10 +230,17 @@ function removeJavascript(config, groupObject, tmpCssFile, viewportW, viewportH,
 
 function callPhantomJs(config, groupObject, tmpCssFile, viewportW, viewportH, htmlFile, CSSAST) {
 
-    _focusrHelper.writeFile(htmlFile, groupObject["HTML"]);
+    var pathToHtml = htmlFile;
+    if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
+        pathToHtml = groupObject["inputFile"];
+    }
+    else {
+        _focusrHelper.writeFile(htmlFile, groupObject["HTML"]);
+    }
     _focusrHelper.writeFile(tmpCssFile, JSON.stringify(CSSAST));
 
-    var phantomArguments = [_path.join(__dirname, 'phantomJS.js'), htmlFile, tmpCssFile, viewportW, viewportH];
+    var phantomArguments = [_path.join(__dirname, 'phantomJS.js'), pathToHtml, tmpCssFile, viewportW, viewportH, "--proxy-type=none"];
+    console.log(phantomArguments.join(" "));
     var execOptions = {
         encoding: 'utf8',
         timeout: config["renderTimeout"],
@@ -244,7 +273,7 @@ function checkPhantomJsOutput(config, groupObject, tmpCssFile, error, output, er
             }
         }
         else {
-            _focusrHelper.log(groupObject["groupID"], "A controlled exception occurred: " + json["errorMessage"] + " " + output, 2);
+            _focusrHelper.log(groupObject["groupID"], "Error occurred while parsing PhantomJS output: " + output, 2);
         }
 
     }
@@ -288,8 +317,6 @@ function generateResult(config, groupObject, criticalCss, tmpCssFile) {
 
             if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
                 outputForRemoteInput(groupObject, criticalCss, window);
-                var htmlFile = groupObject["baseDir"] + groupObject["outputFile"] + ".html";
-                _focusrHelper.deleteFile(htmlFile);
             }
             else {
                 outputForLocalInput(config, groupObject, criticalCss, window)
