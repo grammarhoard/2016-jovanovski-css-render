@@ -10,6 +10,7 @@ var defaultConfig = {
         "debug": false,
         "processExternalCss": true,
         "renderTimeout": 60000,
+        "inlineAllCss" : false,
         "groups": []
     },
     defaultGroup = {

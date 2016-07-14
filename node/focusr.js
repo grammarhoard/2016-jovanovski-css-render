@@ -61,6 +61,17 @@ function parseConfig(configFileName) {
     }
 }
 
+function cliInit(baseDir, inputFile, outputFile) {
+    var config = _focusrHelper.extendDefaultConfig({});
+    config["runningGroups"] = 1;
+    var groupObject = _focusrHelper.extendGroupConfig({});
+    groupObject["groupID"] = 1;
+    groupObject["baseDir"] = baseDir;
+    groupObject["inputFile"] = inputFile;
+    groupObject["outputFile"] = outputFile;
+    parseGroup(config, groupObject);
+}
+
 function parseGroup(config, groupObject) {
     groupObject["remainingCSSFiles"] = 0;
     if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
@@ -76,7 +87,7 @@ function parseGroup(config, groupObject) {
     }
     else {
         var originalHtml = _fileSystem.readFileSync(groupObject["baseDir"] + groupObject["inputFile"], "utf-8");
-        fixProtocollessLinks(originalHtml, groupObject, function(fixedHtml){
+        fixProtocollessLinks(originalHtml, groupObject, function (fixedHtml) {
             groupObject["HTML"] = fixedHtml;
             findCSSFiles(config, groupObject);
         });
@@ -116,9 +127,8 @@ function fixProtocollessLinks(originalHtml, groupObject, callback) {
 
                 for (var i = 0; i < srcElements.length; i++) {
                     var srcElement = srcElements[i];
-                    if(srcElement.getAttribute("src").startsWith("//")){
+                    if (srcElement.getAttribute("src").startsWith("//")) {
                         srcElement.setAttribute("src", "http:" + srcElement.getAttribute("src"));
-                        console.log("fixed "  +srcElement.getAttribute("src"));
                     }
                 }
                 callback(window.document.documentElement.outerHTML);
@@ -239,8 +249,12 @@ function callPhantomJs(config, groupObject, tmpCssFile, viewportW, viewportH, ht
     }
     _focusrHelper.writeFile(tmpCssFile, JSON.stringify(CSSAST));
 
+    if (config["inlineAllCss"]) {
+        checkPhantomJsOutput(config, groupObject, tmpCssFile, false, "success", "");
+        return;
+    }
+
     var phantomArguments = [_path.join(__dirname, 'phantomJS.js'), pathToHtml, tmpCssFile, viewportW, viewportH, "--proxy-type=none"];
-    console.log(phantomArguments.join(" "));
     var execOptions = {
         encoding: 'utf8',
         timeout: config["renderTimeout"],
@@ -293,7 +307,7 @@ function generateCriticalCSSAST(config, groupObject, processedAST, tmpCssFile) {
         criticalRules = criticalCssAst["stylesheet"]["rules"];
 
     for (var i = 0; i < originalRules.length; i++) {
-        if (!originalRules[i]["critical"]) {
+        if (!originalRules[i]["critical"] && !config["inlineAllCss"]) {
             criticalRules[i] = undefined;
         }
     }
@@ -370,6 +384,14 @@ function initialize() {
     parseConfig("config.json");
 }
 
-initialize();
-
+//initialize();
+if (process.argv.length === 2) {
+    initialize();
+}
+else if (process.argv.length === 5) {
+    cliInit(process.argv[2], process.argv[3], process.argv[4]);
+}
+else {
+    _focusrHelper.printUsage();
+}
 //process.argv
