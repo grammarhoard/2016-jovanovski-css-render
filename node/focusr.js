@@ -76,9 +76,12 @@ function parseGroup(config, groupObject) {
     groupObject["remainingCSSFiles"] = 0;
     if (_focusrHelper.isRemoteUrl(groupObject["inputFile"])) {
         var url = _focusrHelper.prepUrlAuthentication(groupObject["inputFile"], groupObject["httpAuth"]);
-        _request(url, function (error, response, html) {
+        _request(url, function (error, response, originalHtml) {
             if (!error && response.statusCode === 200) {
-                groupObject["HTML"] = html;
+                fixProtocollessLinks(originalHtml, groupObject, function (fixedHtml) {
+                    groupObject["HTML"] = fixedHtml;
+                    findCSSFiles(config, groupObject);
+                });
             }
             else {
                 _focusrHelper.log(groupObject["groupID"], "Error fetching remote file", 2);
@@ -91,7 +94,6 @@ function parseGroup(config, groupObject) {
             groupObject["HTML"] = fixedHtml;
             findCSSFiles(config, groupObject);
         });
-
     }
 }
 function findCSSFiles(config, groupObject) {
