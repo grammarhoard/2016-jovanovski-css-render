@@ -375,16 +375,15 @@ function outputForLocalInput(config, groupObject, criticalCss, window) {
 
 }
 
-// ----------------------------------------------------------------------------------
-// INITIALIZATION
-// ----------------------------------------------------------------------------------
-
 function initialize() {
     _focusrHelper.printIntro();
     parseConfig("config.json");
 }
 
-//initialize();
+// ----------------------------------------------------------------------------------
+// INITIALIZATION
+// ----------------------------------------------------------------------------------
+
 if (process.argv.length === 2) {
     initialize();
 }
@@ -394,4 +393,3 @@ else if (process.argv.length === 5) {
 else {
     _focusrHelper.printUsage();
 }
-//process.argv
